@@ -5,124 +5,117 @@ class LightshareAdmin {
 	}
 
 	init() {
-		this.setupEventHandlers();
 		this.initializeTabs();
+		this.setupEventHandlers();
 		this.setupResetSettings();
 	}
 
 	setupResetSettings() {
-		this.$("#lightshare-reset-settings").on("click", e => {
-			e.preventDefault();
-			if (
-				confirm(
-					"Are you sure you want to reset all Lightshare settings? This action cannot be undone."
-				)
-			) {
-				this.$.ajax({
-					url: lightshare_admin.ajax_url,
-					type: "POST",
-					data: {
-						action: "lightshare_reset_settings",
-						nonce: lightshare_admin.nonce
-					},
-					success: response => {
-						if (response.success) {
-							alert(
-								"Settings reset successfully. The page will now reload."
-							);
-							location.reload();
-						} else {
-							alert("Failed to reset settings. Please try again.");
-						}
-					},
-					error: () => {
-						alert("An error occurred. Please try again.");
-					}
-				});
-			}
+		this.$("#lightshare-reset-settings").on(
+			"click",
+			this.handleResetSettings.bind(this)
+		);
+	}
+
+	handleResetSettings(e) {
+		e.preventDefault();
+		if (
+			!confirm(
+				"Are you sure you want to reset all Lightshare settings? This action cannot be undone."
+			)
+		) {
+			return;
+		}
+
+		this.$.ajax({
+			url: lightshare_admin.ajax_url,
+			type: "POST",
+			data: {
+				action: "lightshare_reset_settings",
+				nonce: lightshare_admin.nonce
+			},
+			success: response => {
+				if (response.success) {
+					alert("Settings reset successfully. The page will now reload.");
+					location.reload();
+				} else {
+					alert("Failed to reset settings. Please try again.");
+				}
+			},
+			error: () => alert("An error occurred. Please try again.")
 		});
 	}
 
-	// Helper methods
 	updateQueryStringParameter(uri, key, value) {
-		let re = new RegExp("([?&])" + key + "=.*?(&|$)", "i");
-		let separator = uri.indexOf("?") !== -1 ? "&" : "?";
+		const re = new RegExp("([?&])" + key + "=.*?(&|$)", "i");
+		const separator = uri.indexOf("?") !== -1 ? "&" : "?";
 		return uri.match(re)
 			? uri.replace(re, "$1" + key + "=" + value + "$2")
 			: uri + separator + key + "=" + value;
 	}
 
-	// Event handlers
 	setupEventHandlers() {
-		this.setupTabSwitching();
-		this.setupFormSubmission();
+		this.$(".nav-tab-wrapper a").on("click", this.handleTabClick.bind(this));
+		this.$("form").on("submit", this.handleFormSubmit.bind(this));
 	}
 
-	setupTabSwitching() {
-		this.$(".nav-tab-wrapper a").on("click", e => {
-			e.preventDefault();
-			const target = this.$(e.currentTarget).attr("href").substr(1);
-			this.setActiveTab(target);
-			history.pushState(
-				null,
-				null,
-				this.updateQueryStringParameter(window.location.href, "tab", target)
-			);
+	handleTabClick(e) {
+		e.preventDefault();
+		const target = this.$(e.currentTarget).attr("href").substr(1);
+		this.setActiveTab(target);
+		history.pushState(
+			null,
+			null,
+			this.updateQueryStringParameter(window.location.href, "tab", target)
+		);
+	}
+
+	handleFormSubmit(e) {
+		e.preventDefault();
+		const form = this.$(e.currentTarget);
+		const formData = new FormData(form[0]);
+
+		// Add unchecked checkboxes
+		form.find("input[type=checkbox]:not(:checked)").each(function () {
+			formData.append(this.name, "0");
 		});
-	}
 
-	setupFormSubmission() {
-		this.$("form").on("submit", e => {
-			e.preventDefault();
-			const form = this.$(e.currentTarget);
-			let formData = form.serializeArray();
+		formData.append("action", "lightshare_save_settings");
+		formData.append("lightshare_nonce", lightshare_admin.nonce);
 
-			form.find("input[type=checkbox]:not(:checked)").each(function () {
-				formData.push({ name: this.name, value: "0" });
-			});
+		this.showLoadingIndicator();
 
-			formData = jQuery.param(formData);
-			formData += "&action=lightshare_save_settings";
-			formData += "&lightshare_nonce=" + lightshare_admin.nonce;
-
-			this.showLoadingIndicator();
-
-			jQuery.ajax({
-				url: lightshare_admin.ajax_url,
-				type: "POST",
-				data: formData,
-				success: response => {
-					this.hideLoadingIndicator();
-					if (response.success) {
-						this.showNotice(response.data, "success");
-					} else {
-						const errorMessage =
-							response.data ||
-							"Failed to save settings. Please try again.";
-						this.showNotice(errorMessage, "error");
-					}
-				},
-				error: () => {
-					this.hideLoadingIndicator();
-					this.showNotice("An error occurred. Please try again.", "error");
-				}
-			});
+		this.$.ajax({
+			url: lightshare_admin.ajax_url,
+			type: "POST",
+			data: formData,
+			processData: false,
+			contentType: false,
+			success: response => {
+				this.hideLoadingIndicator();
+				const message = response.success
+					? response.data
+					: response.data || "Failed to save settings. Please try again.";
+				this.showNotice(message, response.success ? "success" : "error");
+			},
+			error: () => {
+				this.hideLoadingIndicator();
+				this.showNotice("An error occurred. Please try again.", "error");
+			}
 		});
 	}
 
 	showNotice(message, type) {
 		this.$(".lightshare-inline-notice").remove();
-		const noticeClass =
-			type === "success" ? "notice-success" : "notice-error";
-		const notice = this.$(
-			`<span class="lightshare-inline-notice ${noticeClass}">${message}</span>`
-		);
+		const notice = this.$(`
+			<span class="lightshare-inline-notice notice-${
+				type === "success" ? "success" : "error"
+			}">
+				${message}
+			</span>
+		`);
 		this.$("#submit").after(notice);
-		setTimeout(() => {
-			notice.fadeOut(300, function () {
-				jQuery(this).remove();
-			});
-		}, 3000);
+		setTimeout(() => notice.fadeOut(300, () => notice.remove()), 3000);
 	}
 
 	showLoadingIndicator() {
@@ -133,38 +126,29 @@ class LightshareAdmin {
 		this.$("#submit").val("Save Changes");
 	}
 
-	// Initialization methods
 	initializeTabs() {
 		const urlParams = new URLSearchParams(window.location.search);
-		const activeTab = urlParams.get("tab") || "general";
-		this.setActiveTab(activeTab);
+		this.setActiveTab(urlParams.get("tab") || "general");
 	}
 
 	setActiveTab(tab) {
-		this.$(".nav-tab-wrapper a").removeClass("nav-tab-active");
-		this.$(`.nav-tab-wrapper a[href="#${tab}"]`).addClass("nav-tab-active");
-		this.$(".tab-content > div").hide();
-		this.$(`#${tab}`).show();
-		this.$("#lightshare_active_tab").val(tab);
+		const { $ } = this;
+		$(".nav-tab-wrapper a").removeClass("nav-tab-active");
+		$(`.nav-tab-wrapper a[href="#${tab}"]`).addClass("nav-tab-active");
+		$(".tab-content > div").hide();
+		$(`#${tab}`).show();
+		$("#lightshare_active_tab").val(tab);
 	}
 }
 
 // Initialize the admin functionality
-jQuery(function ($) {
+jQuery($ => {
 	const lightshareAdmin = new LightshareAdmin($);
 	window.setActiveTab = tab => lightshareAdmin.setActiveTab(tab);
 
-	const urlParams = new URLSearchParams(window.location.search);
-	const activeTab = urlParams.get("tab") || "general";
-	setActiveTab(activeTab);
-
+	// Show submit button with a slight delay to prevent flash
 	setTimeout(() => {
 		const submitButton = document.getElementById("submit-button");
 		if (submitButton) submitButton.style.display = "block";
 	}, 50);
-
-	setTimeout(() => {
-		const notice = $(".notice-success");
-		if (notice) notice.slideToggle();
-	}, 1500);
 });
