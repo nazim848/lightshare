@@ -88,14 +88,6 @@ Yes, you can use the `[lightshare]` shortcode to display sharing buttons anywher
 
 Yes, you can enable sharing buttons for any public post type in the plugin settings.
 
-== Screenshots ==
-
-1. Social sharing buttons with default style
-2. Settings page - General tab
-3. Settings page - Style tab
-4. Settings page - API tab
-5. Mobile view of sharing buttons
-
 == Changelog ==
 
 = 1.0.0 =

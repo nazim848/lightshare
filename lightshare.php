@@ -42,21 +42,6 @@ define('LIGHTSHARE_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('LIGHTSHARE_PLUGIN_FILE', __FILE__);
 define('LIGHTSHARE_PLUGIN_BASENAME', plugin_basename(__FILE__));
 
-/**
- * Load plugin textdomain.
- *
- * @since 1.0.0
- * @return void
- */
-function lightshare_load_textdomain() {
-	load_plugin_textdomain(
-		'lightshare',
-		false,
-		dirname(LIGHTSHARE_PLUGIN_BASENAME) . '/languages/'
-	);
-}
-add_action('plugins_loaded', 'lightshare_load_textdomain');
-
 // Load the main plugin class
 require plugin_dir_path(__FILE__) . 'inc/class-lightshare.php';
 
@@ -68,11 +53,11 @@ if ($lightshare_version != LIGHTSHARE_VERSION) {
 }
 
 // Run the plugin
-function run_lightshare() {
+function lightshare_run() {
 	$plugin = new Lightshare\Lightshare();
 	$plugin->run();
 }
-run_lightshare();
+lightshare_run();
 
 // Activation hook
 register_activation_hook(__FILE__, 'lightshare_activate');
