@@ -20,7 +20,7 @@ use Lightshare\LS_Options;
 				<td>
 					<div class="checkbox-radio">
 						<label>
-							<input type="checkbox" name="lightshare_options[enable_inline_button]" value="1" <?php checked(LS_Options::get_option('enable_inline_button'), '1'); ?> />
+							<input type="checkbox" name="lightshare_options[inline][enabled]" value="1" <?php checked(LS_Options::get_option('inline.enabled'), '1'); ?> />
 						</label>
 					</div>
 				</td>

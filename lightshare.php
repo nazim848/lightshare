@@ -47,9 +47,11 @@ require plugin_dir_path(__FILE__) . 'inc/class-lightshare.php';
 
 // Check if the plugin version is different from the current version
 $lightshare_version = get_option('lightshare_version');
+
 //update version
 if ($lightshare_version != LIGHTSHARE_VERSION) {
-	update_option('lightshare_version', LIGHTSHARE_VERSION, false);
+	// Update version
+	update_option('lightshare_version', LIGHTSHARE_VERSION);
 }
 
 // Run the plugin
@@ -74,7 +76,7 @@ function lightshare_activate() {
 // Deactivation code
 function lightshare_deactivate() {
 	// Check if clean deactivate is enabled
-	$clean_deactivate = LS_Options::get_option('clean_deactivate');
+	$clean_deactivate = LS_Options::get_option('tools.clean_deactivate');
 
 	if ($clean_deactivate == '1') {
 		// Delete all plugin options

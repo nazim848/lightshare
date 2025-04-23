@@ -58,6 +58,17 @@ class LightshareAdmin {
 	setupEventHandlers() {
 		this.$(".nav-tab-wrapper a").on("click", this.handleTabClick.bind(this));
 		this.$("form").on("submit", this.handleFormSubmit.bind(this));
+		this.$(".floating-button-toggle").on(
+			"change",
+			this.handleFloatingButtonToggle.bind(this)
+		);
+	}
+
+	handleFloatingButtonToggle(e) {
+		const isChecked = e.target.checked;
+		this.$(".floating-button-settings").slideToggle(
+			isChecked ? "fast" : "fast"
+		);
 	}
 
 	handleTabClick(e) {
@@ -101,7 +112,10 @@ class LightshareAdmin {
 			},
 			error: () => {
 				this.hideLoadingIndicator();
-				this.showNotice("An error occurred while saving. Please try again.", "error");
+				this.showNotice(
+					"An error occurred while saving. Please try again.",
+					"error"
+				);
 			}
 		});
 	}
@@ -143,43 +157,54 @@ class LightshareAdmin {
 
 	initializeSortable() {
 		const { $ } = this;
-		$('.lightshare-social-networks').sortable({
-			items: 'li.active',  // Only allow sorting of active items
+		$(".lightshare-social-networks").sortable({
+			items: "li.active", // Only allow sorting of active items
 			opacity: 0.6,
-			cursor: 'move',
+			cursor: "move",
 			update: (event, ui) => {
 				// Update the hidden input with the new order of active buttons only
 				const networks = [];
-				$('.lightshare-social-networks li.active input').each((index, element) => {
-					networks.push($(element).val());
-				});
-				$('#lightshare_social_networks_order').val(JSON.stringify(networks));
+				$(".lightshare-social-networks li.active input").each(
+					(index, element) => {
+						networks.push($(element).val());
+					}
+				);
+				$("#lightshare_social_networks_order").val(
+					JSON.stringify(networks)
+				);
 			}
 		});
 
 		// Handle checkbox changes
-		$('.lightshare-social-networks input[type="checkbox"]').on('change', function() {
-			const $li = $(this).closest('li');
-			const $label = $(this).closest('label');
-			
-			if (this.checked) {
-				$li.addClass('active');
-				$label.addClass('active');
-			} else {
-				$li.removeClass('active');
-				$label.removeClass('active');
+		$('.lightshare-social-networks input[type="checkbox"]').on(
+			"change",
+			function () {
+				const $li = $(this).closest("li");
+				const $label = $(this).closest("label");
+
+				if (this.checked) {
+					$li.addClass("active");
+					$label.addClass("active");
+				} else {
+					$li.removeClass("active");
+					$label.removeClass("active");
+				}
+
+				// Refresh sortable to update which items can be sorted
+				$(".lightshare-social-networks").sortable("refresh");
+
+				// Update the order after checkbox change
+				const networks = [];
+				$(".lightshare-social-networks li.active input").each(
+					(index, element) => {
+						networks.push($(element).val());
+					}
+				);
+				$("#lightshare_social_networks_order").val(
+					JSON.stringify(networks)
+				);
 			}
-
-			// Refresh sortable to update which items can be sorted
-			$('.lightshare-social-networks').sortable('refresh');
-
-			// Update the order after checkbox change
-			const networks = [];
-			$('.lightshare-social-networks li.active input').each((index, element) => {
-				networks.push($(element).val());
-			});
-			$('#lightshare_social_networks_order').val(JSON.stringify(networks));
-		});
+		);
 	}
 }
 

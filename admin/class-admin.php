@@ -61,8 +61,8 @@ class Admin {
 		}
 
 		// Handle social networks data
-		if (isset($_POST['lightshare']['share'])) {
-			$share_data = map_deep(wp_unslash($_POST['lightshare']['share']), 'sanitize_text_field');
+		if (isset($_POST['lightshare_options']['share'])) {
+			$share_data = map_deep(wp_unslash($_POST['lightshare_options']['share']), 'sanitize_text_field');
 
 			// Handle social networks order
 			if (isset($share_data['social_networks_order'])) {

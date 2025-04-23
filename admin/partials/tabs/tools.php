@@ -32,7 +32,7 @@ use Lightshare\LS_Options;
 				<td>
 					<div class="checkbox-radio">
 						<label>
-							<input type="checkbox" name="lightshare_options[clean_deactivate]" value="1" <?php checked(LS_Options::get_option('clean_deactivate'), '1'); ?> />
+							<input type="checkbox" name="lightshare_options[tools][clean_deactivate]" value="1" <?php checked(LS_Options::get_option('tools.clean_deactivate'), '1'); ?> />
 						</label>
 					</div>
 				</td>
@@ -46,7 +46,7 @@ use Lightshare\LS_Options;
 				<td>
 					<div class="checkbox-radio">
 						<label>
-							<input type="checkbox" name="lightshare_options[clean_uninstall]" value="1" <?php checked(LS_Options::get_option('clean_uninstall'), '1'); ?> />
+							<input type="checkbox" name="lightshare_options[tools][clean_uninstall]" value="1" <?php checked(LS_Options::get_option('tools.clean_uninstall'), '1'); ?> />
 						</label>
 					</div>
 				</td>

@@ -10,7 +10,7 @@ require __DIR__ . '/inc/class-lightshare-options.php';
 use Lightshare\LS_Options;
 
 // Check if clean uninstall is enabled
-$clean_uninstall = LS_Options::get_option('clean_uninstall');
+$clean_uninstall = LS_Options::get_option('tools.clean_uninstall');
 
 if ($clean_uninstall == '1') {
 	// Delete all plugin options
