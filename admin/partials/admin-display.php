@@ -21,6 +21,7 @@ $tabs = array(
 );
 
 // Get current tab
+// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Tab switching is handled client-side via JavaScript
 $active_tab = isset($_GET['tab']) ? sanitize_key($_GET['tab']) : 'share-button';
 
 // Ensure the active tab is valid
