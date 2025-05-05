@@ -36,7 +36,7 @@ require __DIR__ . '/inc/class-lightshare-options.php';
 
 use Lightshare\LS_Options;
 
-define('LIGHTSHARE_VERSION', '1.0');
+define('LIGHTSHARE_VERSION', '1.0.0');
 define('LIGHTSHARE_PATH', plugin_dir_path(__FILE__));
 define('LIGHTSHARE_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('LIGHTSHARE_PLUGIN_FILE', __FILE__);

@@ -149,10 +149,10 @@ class LightshareAdmin {
 		`);
 		this.$("#submit").after(notice);
 
-		// Auto-dismiss after 5 seconds
+		// Auto-dismiss after 3 seconds
 		setTimeout(() => {
 			notice.fadeOut(300, () => notice.remove());
-		}, 5000);
+		}, 3000);
 
 		// Handle manual dismiss
 		notice.find(".notice-dismiss").on("click", () => {
