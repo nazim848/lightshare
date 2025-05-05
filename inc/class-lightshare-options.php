@@ -67,40 +67,4 @@ class LS_Options {
 
 		return update_option(self::$option_name, $options);
 	}
-
-	/**
-	 * Delete an option using dot notation for nested options
-	 * 
-	 * @param string $key Option key (e.g. 'floating.enabled' for nested options)
-	 * @return bool True if option was deleted, false otherwise
-	 */
-	public static function delete_option($key) {
-		$options = self::get_options();
-
-		// Handle dot notation for nested options
-		if (strpos($key, '.') !== false) {
-			$keys = explode('.', $key);
-			$last_key = array_pop($keys);
-			$current = &$options;
-
-			foreach ($keys as $k) {
-				if (!isset($current[$k]) || !is_array($current[$k])) {
-					return false;
-				}
-				$current = &$current[$k];
-			}
-
-			if (isset($current[$last_key])) {
-				unset($current[$last_key]);
-				return update_option(self::$option_name, $options);
-			}
-			return false;
-		}
-
-		if (isset($options[$key])) {
-			unset($options[$key]);
-			return update_option(self::$option_name, $options);
-		}
-		return false;
-	}
 }
