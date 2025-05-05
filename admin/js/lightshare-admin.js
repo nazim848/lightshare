@@ -28,6 +28,7 @@ class LightshareAdmin {
 			return;
 		}
 
+		this.showLoadingIndicator();
 		this.$.ajax({
 			url: lightshare_admin.ajax_url,
 			type: "POST",
@@ -36,14 +37,25 @@ class LightshareAdmin {
 				nonce: lightshare_admin.nonce
 			},
 			success: response => {
+				this.hideLoadingIndicator();
 				if (response.success) {
-					alert("Settings reset successfully. The page will now reload.");
-					location.reload();
+					this.showNotice(
+						"Settings reset successfully. The page will now reload.",
+						"success"
+					);
+					setTimeout(() => location.reload(), 1500);
 				} else {
-					alert("Failed to reset settings. Please try again.");
+					this.showNotice(
+						response.data?.message ||
+							"Failed to reset settings. Please try again.",
+						"error"
+					);
 				}
 			},
-			error: () => alert("An error occurred. Please try again.")
+			error: () => {
+				this.hideLoadingIndicator();
+				this.showNotice("An error occurred. Please try again.", "error");
+			}
 		});
 	}
 
@@ -105,10 +117,18 @@ class LightshareAdmin {
 			contentType: false,
 			success: response => {
 				this.hideLoadingIndicator();
-				const message = response.success
-					? response.data
-					: response.data || "Failed to save settings. Please try again.";
-				this.showNotice(message, response.success ? "success" : "error");
+				if (response.success) {
+					this.showNotice(
+						response.data || "Settings saved successfully.",
+						"success"
+					);
+				} else {
+					this.showNotice(
+						response.data?.message ||
+							"Failed to save settings. Please try again.",
+						"error"
+					);
+				}
 			},
 			error: () => {
 				this.hideLoadingIndicator();
@@ -123,14 +143,21 @@ class LightshareAdmin {
 	showNotice(message, type) {
 		this.$(".lightshare-inline-notice").remove();
 		const notice = this.$(`
-			<span class="lightshare-inline-notice notice-${
-				type === "success" ? "success" : "error"
-			}">
+			<div class="lightshare-inline-notice notice-${type}">
 				${message}
-			</span>
+			</div>
 		`);
 		this.$("#submit").after(notice);
-		setTimeout(() => notice.fadeOut(300, () => notice.remove()), 3000);
+
+		// Auto-dismiss after 5 seconds
+		setTimeout(() => {
+			notice.fadeOut(300, () => notice.remove());
+		}, 5000);
+
+		// Handle manual dismiss
+		notice.find(".notice-dismiss").on("click", () => {
+			notice.fadeOut(300, () => notice.remove());
+		});
 	}
 
 	showLoadingIndicator() {

@@ -5,6 +5,11 @@ if (!defined('WP_UNINSTALL_PLUGIN')) {
 	exit;
 }
 
+// Verify user capabilities
+if (!current_user_can('activate_plugins')) {
+	wp_die(__('You do not have sufficient permissions to uninstall this plugin.', 'lightshare'));
+}
+
 require __DIR__ . '/inc/class-lightshare-options.php';
 
 use Lightshare\LS_Options;
@@ -25,4 +30,10 @@ if ($clean_uninstall == '1') {
 
 	// Delete transients
 	delete_transient('lightshare_activation_notice');
+
+	// Clear any cached data
+	wp_cache_flush();
+
+	// Remove any scheduled events
+	wp_clear_scheduled_hook('lightshare_cleanup_cache');
 }
