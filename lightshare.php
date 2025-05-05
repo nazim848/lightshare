@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Lightshare - Lightweight Social Sharing
-Description: LightShare is a lightweight, high-performance social media sharing plugin built with a focus on speed and minimal code footprint.
+Description: Lightshare is a lightweight, high-performance social media sharing plugin built with a focus on speed and minimal code footprint.
 Version: 1.0.0
 Author: Nazim Husain
 Author URI: https://nazimansari.com
@@ -10,7 +10,7 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: lightshare
 Domain Path: /languages
 Requires at least: 5.0
-Tested up to: 6.7
+Tested up to: 6.8
 Requires PHP: 7.2
 
 Lightshare is free software: you can redistribute it and/or modify

@@ -71,7 +71,7 @@ $ordered_networks += $available_networks;
                         ?>
                             <li class="lightshare-social-network-<?php echo esc_attr($network); ?> <?php echo $is_active ? 'active' : ''; ?>" data-network="<?php echo esc_attr($network); ?>">
                                 <label for="lightshare-share-social-network-input-<?php echo esc_attr($network); ?>" class="<?php echo $is_active ? 'active' : ''; ?>">
-                                    <?php echo $data['icon']; ?>
+                                    <?php echo wp_kses_post($data['icon']); ?>
                                     <?php echo esc_html($data['label']); ?>
                                     <input type="checkbox"
                                         id="lightshare-share-social-network-input-<?php echo esc_attr($network); ?>"

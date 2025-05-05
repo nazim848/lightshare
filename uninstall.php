@@ -7,7 +7,7 @@ if (!defined('WP_UNINSTALL_PLUGIN')) {
 
 // Verify user capabilities
 if (!current_user_can('activate_plugins')) {
-	wp_die(__('You do not have sufficient permissions to uninstall this plugin.', 'lightshare'));
+	wp_die(esc_html__('You do not have sufficient permissions to uninstall this plugin.', 'lightshare'));
 }
 
 require __DIR__ . '/inc/class-lightshare-options.php';
