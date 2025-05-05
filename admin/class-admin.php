@@ -84,7 +84,7 @@ class Admin {
 		}
 
 		if (!$changed) {
-			wp_send_json_success('Settings are up to date');
+			wp_send_json_success('Settings are up to date.');
 			return;
 		}
 
@@ -92,12 +92,12 @@ class Admin {
 		$update_result = update_option('lightshare_options', $new_options);
 
 		if ($update_result) {
-			wp_send_json_success('Settings saved successfully');
+			wp_send_json_success('Settings saved.');
 		} else {
 			// Check if the options are actually the same
 			$current_options = get_option('lightshare_options', array());
 			if ($current_options == $new_options) {
-				wp_send_json_success('Settings are up to date');
+				wp_send_json_success('Settings are up to date.');
 			} else {
 				wp_send_json_error('Failed to update the settings.');
 			}

@@ -118,10 +118,7 @@ class LightshareAdmin {
 			success: response => {
 				this.hideLoadingIndicator();
 				if (response.success) {
-					this.showNotice(
-						response.data || "Settings saved successfully.",
-						"success"
-					);
+					this.showNotice(response.data || "Settings saved.", "success");
 				} else {
 					this.showNotice(
 						response.data?.message ||
