@@ -34,6 +34,7 @@ class Lightshare {
 		$this->loader->add_filter('the_content', $plugin_public, 'add_share_buttons');
 		$this->loader->add_action('wp_footer', $plugin_public, 'add_floating_buttons');
 		$this->loader->add_action('init', $plugin_public, 'register_shortcodes');
+		$this->loader->add_action('init', $plugin_public, 'register_block');
 		$this->loader->add_action('wp_ajax_lightshare_track_click', $plugin_public, 'track_click');
 		$this->loader->add_action('wp_ajax_nopriv_lightshare_track_click', $plugin_public, 'track_click');
 		$this->loader->add_action('lightshare_flush_counts', $plugin_public, 'flush_queued_counts');

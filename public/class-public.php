@@ -213,6 +213,45 @@ class Public_Core {
 		add_shortcode('lightshare', array($this, 'render_shortcode'));
 	}
 
+	public function register_block() {
+		if (!function_exists('register_block_type')) {
+			return;
+		}
+
+		register_block_type('lightshare/share-buttons', array(
+			'attributes' => array(
+				'networks' => array(
+					'type' => 'string',
+					'default' => ''
+				),
+				'style' => array(
+					'type' => 'string',
+					'default' => ''
+				),
+				'showLabel' => array(
+					'type' => 'boolean',
+					'default' => true
+				),
+				'labelText' => array(
+					'type' => 'string',
+					'default' => ''
+				)
+			),
+			'render_callback' => array($this, 'render_block')
+		));
+	}
+
+	public function render_block($attributes) {
+		$args = array(
+			'networks' => isset($attributes['networks']) ? $attributes['networks'] : '',
+			'style' => isset($attributes['style']) ? $attributes['style'] : '',
+			'show_label' => isset($attributes['showLabel']) ? (bool) $attributes['showLabel'] : true,
+			'label_text' => isset($attributes['labelText']) ? $attributes['labelText'] : ''
+		);
+
+		return Share_Button::render_buttons($args);
+	}
+
 	public function render_shortcode($atts) {
 		$atts = shortcode_atts(
 			array(

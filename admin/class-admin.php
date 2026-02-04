@@ -19,6 +19,7 @@ class Admin {
 		add_action('admin_init', array($this, 'register_settings'));
 		add_action('admin_enqueue_scripts', array($this, 'enqueue_styles'));
 		add_action('admin_enqueue_scripts', array($this, 'enqueue_scripts'));
+		add_action('enqueue_block_editor_assets', array($this, 'enqueue_block_editor_assets'));
 		add_filter('plugin_action_links_' . plugin_basename(LIGHTSHARE_PLUGIN_FILE), array($this, 'add_action_links'));
 		add_action('wp_ajax_lightshare_reset_settings', array($this, 'reset_settings'));
 		add_action('wp_ajax_lightshare_reset_counts', array($this, 'reset_counts'));
@@ -41,6 +42,16 @@ class Admin {
 			'ajax_url' => admin_url('admin-ajax.php'),
 			'nonce' => wp_create_nonce('lightshare_options_verify')
 		));
+	}
+
+	public function enqueue_block_editor_assets() {
+		wp_enqueue_script(
+			'lightshare-block-editor',
+			plugin_dir_url(__FILE__) . 'js/lightshare-block.js',
+			array('wp-blocks', 'wp-element', 'wp-i18n', 'wp-components', 'wp-block-editor', 'wp-server-side-render'),
+			$this->version,
+			true
+		);
 	}
 
 	// Save the settings
