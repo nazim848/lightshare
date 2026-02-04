@@ -9,6 +9,7 @@ class LightshareAdmin {
 		this.setupEventHandlers();
 		this.setupResetSettings();
 		this.setupResetCounts();
+		this.setupPreview();
 		this.initializeSortable();
 	}
 
@@ -85,6 +86,18 @@ class LightshareAdmin {
 		this.$(".inline-button-toggle").on(
 			"change",
 			this.handleInlineButtonToggle.bind(this)
+		);
+		this.$("select[name='lightshare_options[share][style]']").on(
+			"change",
+			this.updatePreview.bind(this)
+		);
+		this.$("input[name='lightshare_options[share][show_label]']").on(
+			"change",
+			this.updatePreview.bind(this)
+		);
+		this.$("input[name='lightshare_options[share][label_text]']").on(
+			"input",
+			this.updatePreview.bind(this)
 		);
 	}
 
@@ -254,17 +267,18 @@ class LightshareAdmin {
 				$("#lightshare_social_networks_order").val(
 					JSON.stringify(networks)
 				);
+				this.updatePreview();
 			}
 		});
 
 		// Handle checkbox changes
 		$('.lightshare-social-networks input[type="checkbox"]').on(
 			"change",
-			function () {
-				const $li = $(this).closest("li");
-				const $label = $(this).closest("label");
+			e => {
+				const $li = $(e.currentTarget).closest("li");
+				const $label = $(e.currentTarget).closest("label");
 
-				if (this.checked) {
+				if (e.currentTarget.checked) {
 					$li.addClass("active");
 					$label.addClass("active");
 				} else {
@@ -280,8 +294,60 @@ class LightshareAdmin {
 				$("#lightshare_social_networks_order").val(
 					JSON.stringify(networks)
 				);
+				this.updatePreview();
 			}
 		);
+	}
+
+	setupPreview() {
+		if (!this.$("#lightshare-preview").length) {
+			return;
+		}
+		this.updatePreview();
+	}
+
+	updatePreview() {
+		const $preview = this.$("#lightshare-preview");
+		if (!$preview.length) {
+			return;
+		}
+
+		const activeNetworks = [];
+		this.$(".lightshare-social-networks li").each((index, element) => {
+			const $li = this.$(element);
+			const isChecked = $li.find("input[type=checkbox]").is(":checked");
+			if (isChecked) {
+				activeNetworks.push($li.data("network"));
+			}
+		});
+
+		const style = this.$(
+			"select[name='lightshare_options[share][style]']"
+		).val();
+		const showLabel = this.$(
+			"input[name='lightshare_options[share][show_label]']"
+		).is(":checked");
+		const labelText = this.$(
+			"input[name='lightshare_options[share][label_text]']"
+		).val();
+
+		this.$.ajax({
+			url: lightshare_admin.ajax_url,
+			type: "POST",
+			data: {
+				action: "lightshare_preview_buttons",
+				nonce: lightshare_admin.nonce,
+				networks: activeNetworks.join(","),
+				style: style || "",
+				show_label: showLabel ? 1 : 0,
+				label_text: labelText || ""
+			},
+			success: response => {
+				if (response.success && response.data?.html) {
+					$preview.html(response.data.html);
+				}
+			}
+		});
 	}
 }
 

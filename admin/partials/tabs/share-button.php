@@ -142,4 +142,8 @@ $ordered_networks += $available_networks;
 
         </table>
     </div>
+    <div class="lightshare-card">
+        <h3 class="lightshare-preview-title"><?php esc_html_e('Preview', 'lightshare'); ?></h3>
+        <div id="lightshare-preview" class="lightshare-preview"></div>
+    </div>
 </div>

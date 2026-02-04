@@ -23,6 +23,7 @@ class Admin {
 		add_filter('plugin_action_links_' . plugin_basename(LIGHTSHARE_PLUGIN_FILE), array($this, 'add_action_links'));
 		add_action('wp_ajax_lightshare_reset_settings', array($this, 'reset_settings'));
 		add_action('wp_ajax_lightshare_reset_counts', array($this, 'reset_counts'));
+		add_action('wp_ajax_lightshare_preview_buttons', array($this, 'preview_buttons'));
 	}
 
 	public function enqueue_styles($hook) {
@@ -299,6 +300,35 @@ class Admin {
 		wp_send_json_success(array(
 			/* translators: %d number of rows removed */
 			'message' => sprintf(__('Share counts cleared. Rows removed: %d', 'lightshare'), $total_deleted)
+		));
+	}
+
+	public function preview_buttons() {
+		// Verify nonce and capabilities
+		if (!check_ajax_referer('lightshare_options_verify', 'nonce', false) || !current_user_can('manage_options')) {
+			wp_send_json_error(array(
+				'message' => __('Security check failed or insufficient permissions.', 'lightshare')
+			));
+		}
+
+		$networks = isset($_POST['networks']) ? sanitize_text_field(wp_unslash($_POST['networks'])) : '';
+		$style = isset($_POST['style']) ? sanitize_text_field(wp_unslash($_POST['style'])) : '';
+		$show_label = isset($_POST['show_label']) ? (bool) wp_unslash($_POST['show_label']) : true;
+		$label_text = isset($_POST['label_text']) ? sanitize_text_field(wp_unslash($_POST['label_text'])) : '';
+
+		$args = array(
+			'networks' => $networks,
+			'style' => $style,
+			'show_label' => $show_label,
+			'label_text' => $label_text,
+			'url' => home_url('/'),
+			'title' => get_bloginfo('name')
+		);
+
+		$html = Share_Button::render_buttons($args);
+
+		wp_send_json_success(array(
+			'html' => $html
 		));
 	}
 

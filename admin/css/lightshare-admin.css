@@ -292,6 +292,16 @@
 	margin-top: 5px;
 }
 
+.lightshare-preview {
+	padding: 10px;
+	border: 1px dashed #ccd0d4;
+	background: #f6f7f7;
+}
+
+.lightshare-preview-title {
+	margin: 0 0 10px 0;
+}
+
 /* sortable social networks */
 .lightshare-social-networks {
 	margin: 0px 0px -10px 0px;
