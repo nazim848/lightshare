@@ -14,6 +14,49 @@ class Public_Core {
 		$this->version = $version;
 	}
 
+	private function should_batch_clicks($post_id, $network) {
+		/**
+		 * Filter whether to batch click updates instead of immediate writes.
+		 *
+		 * @param bool   $should_batch Whether to batch.
+		 * @param int    $post_id      Post ID.
+		 * @param string $network      Network slug.
+		 */
+		return (bool) apply_filters('lightshare_batch_clicks', false, $post_id, $network);
+	}
+
+	private function get_click_queue() {
+		$queue = get_transient('lightshare_click_queue');
+		return is_array($queue) ? $queue : array();
+	}
+
+	private function update_click_queue($post_id, $network) {
+		$queue = $this->get_click_queue();
+		if (!isset($queue[$post_id])) {
+			$queue[$post_id] = array();
+		}
+		if (!isset($queue[$post_id][$network])) {
+			$queue[$post_id][$network] = 0;
+		}
+		$queue[$post_id][$network]++;
+		set_transient('lightshare_click_queue', $queue, MINUTE_IN_SECONDS * 10);
+
+		if (!wp_next_scheduled('lightshare_flush_counts')) {
+			wp_schedule_single_event(time() + 60, 'lightshare_flush_counts');
+		}
+	}
+
+	private function get_queued_count($post_id, $network = null) {
+		$queue = $this->get_click_queue();
+		if (!isset($queue[$post_id])) {
+			return 0;
+		}
+		if ($network === null) {
+			return array_sum($queue[$post_id]);
+		}
+		return isset($queue[$post_id][$network]) ? (int) $queue[$post_id][$network] : 0;
+	}
+
 	private function should_enqueue_assets() {
 		$post_id = get_queried_object_id();
 		$should_enqueue = false;
@@ -109,20 +152,61 @@ class Public_Core {
 				wp_send_json_error();
 			}
 
-			// Increment total shares
-			$total_shares = (int) get_post_meta($post_id, '_lightshare_total_shares', true);
-			$total_shares++;
-			update_post_meta($post_id, '_lightshare_total_shares', $total_shares);
+			if ($this->should_batch_clicks($post_id, $network)) {
+				$this->update_click_queue($post_id, $network);
+			} else {
+				// Increment total shares
+				$total_shares = (int) get_post_meta($post_id, '_lightshare_total_shares', true);
+				$total_shares++;
+				update_post_meta($post_id, '_lightshare_total_shares', $total_shares);
 
-			// Increment network shares
-			$network_shares = (int) get_post_meta($post_id, '_lightshare_shares_' . $network, true);
-			$network_shares++;
-			update_post_meta($post_id, '_lightshare_shares_' . $network, $network_shares);
+				// Increment network shares
+				$network_shares = (int) get_post_meta($post_id, '_lightshare_shares_' . $network, true);
+				$network_shares++;
+				update_post_meta($post_id, '_lightshare_shares_' . $network, $network_shares);
+			}
+
+			$stored_total = (int) get_post_meta($post_id, '_lightshare_total_shares', true);
+			$queued_total = $this->get_queued_count($post_id);
+			$total_shares = $stored_total + $queued_total;
 
 			wp_send_json_success(array('count' => Share_Button::format_count($total_shares)));
 		}
 
 		wp_send_json_error();
+	}
+
+	public function flush_queued_counts() {
+		$queue = $this->get_click_queue();
+		if (empty($queue)) {
+			return;
+		}
+
+		foreach ($queue as $post_id => $networks) {
+			$post_id = (int) $post_id;
+			if ($post_id <= 0 || empty($networks) || !is_array($networks)) {
+				continue;
+			}
+
+			$total_increment = 0;
+			foreach ($networks as $network => $count) {
+				$count = (int) $count;
+				if ($count <= 0) {
+					continue;
+				}
+				$total_increment += $count;
+				$meta_key = '_lightshare_shares_' . sanitize_key($network);
+				$current = (int) get_post_meta($post_id, $meta_key, true);
+				update_post_meta($post_id, $meta_key, $current + $count);
+			}
+
+			if ($total_increment > 0) {
+				$current_total = (int) get_post_meta($post_id, '_lightshare_total_shares', true);
+				update_post_meta($post_id, '_lightshare_total_shares', $current_total + $total_increment);
+			}
+		}
+
+		delete_transient('lightshare_click_queue');
 	}
 
 	public function register_shortcodes() {

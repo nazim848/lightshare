@@ -109,6 +109,26 @@ class Share_Button {
 		
 		// Check for custom post data passed in args (useful for loops or custom queries)
 		$post_id = !empty($args['post_id']) ? $args['post_id'] : get_the_ID();
+
+		/**
+		 * Filter whether rendered button output should be cached.
+		 *
+		 * @param bool $cache_enabled Whether to cache.
+		 * @param array $args Rendering args.
+		 * @param int $post_id Post ID.
+		 */
+		$cache_enabled = (bool) apply_filters('lightshare_enable_render_cache', false, $args, $post_id);
+		$cache_key = '';
+		if ($cache_enabled) {
+			$options = LS_Options::get_options();
+			$cache_key = 'lightshare_render_' . md5(
+				$post_id . '|' . wp_json_encode($args) . '|' . wp_json_encode($options['share'])
+			);
+			$cached = get_transient($cache_key);
+			if (is_string($cached) && $cached !== '') {
+				return $cached;
+			}
+		}
 		
 		// Get URL and Title
 		$permalink = !empty($args['url']) ? $args['url'] : get_permalink($post_id);
@@ -228,7 +248,14 @@ class Share_Button {
 		 * @param array  $args    Rendering arguments.
 		 * @param int    $post_id Post ID.
 		 */
-		return apply_filters('lightshare_buttons_html', $html, $args, $post_id);
+		$html = apply_filters('lightshare_buttons_html', $html, $args, $post_id);
+
+		if ($cache_enabled && $cache_key) {
+			$ttl = (int) apply_filters('lightshare_render_cache_ttl', 300, $args, $post_id);
+			set_transient($cache_key, $html, max(30, $ttl));
+		}
+
+		return $html;
 	}
 
 	/**
