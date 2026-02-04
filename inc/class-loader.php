@@ -1,11 +1,11 @@
 <?php
 
+namespace Lightshare;
+
 // If this file is called directly, abort.
 if (!defined('ABSPATH')) {
 	exit;
 }
-
-namespace Lightshare;
 
 class Loader {
 	protected $actions;
