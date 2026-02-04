@@ -80,6 +80,14 @@ class Share_Button {
 		
 		// Get style from args or options (default to 'default' if not set)
 		$style = !empty($args['style']) ? $args['style'] : LS_Options::get_option('share.style', 'default');
+
+		// Label settings
+		$show_label = array_key_exists('show_label', $args)
+			? filter_var($args['show_label'], FILTER_VALIDATE_BOOLEAN)
+			: LS_Options::get_option('share.show_label', true);
+		$label_text = !empty($args['label_text'])
+			? $args['label_text']
+			: LS_Options::get_option('share.label_text', 'Share');
 		
 		// Check for custom post data passed in args (useful for loops or custom queries)
 		$post_id = !empty($args['post_id']) ? $args['post_id'] : get_the_ID();
@@ -115,9 +123,9 @@ class Share_Button {
 			$count_html = ' <span class="lightshare-total-count">(' . self::format_count($total_shares) . ')</span>';
 		}
 
-		// Optional label (can be disabled via args)
-		if (!isset($args['show_label']) || $args['show_label'] !== false) {
-			$html .= '<span class="lightshare-label">' . esc_html__('Share', 'lightshare') . $count_html . ':</span>';
+		// Optional label
+		if ($show_label) {
+			$html .= '<span class="lightshare-label">' . esc_html($label_text) . $count_html . ':</span>';
 		}
 
 		$html .= '<div class="lightshare-buttons" data-post-id="' . esc_attr($post_id) . '">';

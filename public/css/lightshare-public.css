@@ -154,6 +154,36 @@
 	border-radius: 50%; /* Always circle in floating for now */
 }
 
+.lightshare-floating-size-small .lightshare-button {
+	width: 32px;
+	height: 32px;
+}
+
+.lightshare-floating-size-medium .lightshare-button {
+	width: 40px;
+	height: 40px;
+}
+
+.lightshare-floating-size-large .lightshare-button {
+	width: 48px;
+	height: 48px;
+}
+
+.lightshare-floating-size-small .lightshare-icon svg {
+	width: 14px;
+	height: 14px;
+}
+
+.lightshare-floating-size-medium .lightshare-icon svg {
+	width: 16px;
+	height: 16px;
+}
+
+.lightshare-floating-size-large .lightshare-icon svg {
+	width: 18px;
+	height: 18px;
+}
+
 .lightshare-floating .lightshare-text,
 .lightshare-floating .lightshare-label {
 	display: none;

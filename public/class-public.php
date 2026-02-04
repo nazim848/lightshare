@@ -89,9 +89,14 @@ class Public_Core {
 			$inline_enabled = LS_Options::get_option('inline.enabled', false);
 
 			if ($inline_enabled) {
-				// Check if enabled for this post type (Default to 'post' if not set)
-				if (get_post_type() === 'post') {
+				// Check if enabled for this post type
+				$post_types = LS_Options::get_option('inline.post_types', array('post'));
+				if (is_singular($post_types)) {
 					$buttons = Share_Button::render_buttons();
+					$position = LS_Options::get_option('inline.position', 'after');
+					if ($position === 'before') {
+						return $buttons . $content;
+					}
 					return $content . $buttons;
 				}
 			}
@@ -107,8 +112,9 @@ class Public_Core {
 			
 			if (is_singular($post_types)) {
 				$alignment = LS_Options::get_option('floating.button_alignment', 'left');
+				$size = LS_Options::get_option('floating.button_size', 'medium');
 				echo Share_Button::render_buttons(array(
-					'class' => 'lightshare-floating lightshare-floating-' . esc_attr($alignment),
+					'class' => 'lightshare-floating lightshare-floating-' . esc_attr($alignment) . ' lightshare-floating-size-' . esc_attr($size),
 					'show_label' => false
 				));
 			}
