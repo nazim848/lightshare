@@ -92,11 +92,51 @@ $ordered_networks += $available_networks;
                     </div>
                 </th>
                 <td>
-                    <label class="lightshare-switch">
-                        <input type="checkbox" name="lightshare_options[share][show_counts]" value="1" <?php checked(isset($options['share']['show_counts']) && $options['share']['show_counts'] == '1'); ?>>
-                        <span class="lightshare-slider round"></span>
-                    </label>
+                    <div class="checkbox-radio">
+                        <label>
+                            <input type="checkbox" name="lightshare_options[share][show_counts]" value="1" <?php checked(LS_Options::get_option('share.show_counts', false), true); ?>>
+                        </label>
+                    </div>
                     <p class="description">Enable internal click tracking to display share counts.</p>
+                </td>
+            </tr>
+            <tr valign="top">
+                <th scope="row">
+                    <div class="lightshare-title-wrapper">Button Style
+                        <span class="dashicons dashicons-editor-help" data-title="Select the visual style for the share buttons."></span>
+                    </div>
+                </th>
+                <td>
+                    <select name="lightshare_options[share][style]">
+                        <option value="default" <?php selected(LS_Options::get_option('share.style', 'default'), 'default'); ?>>Default</option>
+                        <option value="rounded" <?php selected(LS_Options::get_option('share.style', 'default'), 'rounded'); ?>>Rounded</option>
+                        <option value="circle" <?php selected(LS_Options::get_option('share.style', 'default'), 'circle'); ?>>Circle</option>
+                        <option value="minimal" <?php selected(LS_Options::get_option('share.style', 'default'), 'minimal'); ?>>Minimal</option>
+                    </select>
+                </td>
+            </tr>
+            <tr valign="top">
+                <th scope="row">
+                    <div class="lightshare-title-wrapper">Show Label
+                        <span class="dashicons dashicons-editor-help" data-title="Toggle the Share label before the buttons."></span>
+                    </div>
+                </th>
+                <td>
+                    <div class="checkbox-radio">
+                        <label>
+                            <input type="checkbox" name="lightshare_options[share][show_label]" value="1" <?php checked(LS_Options::get_option('share.show_label', true), true); ?> />
+                        </label>
+                    </div>
+                </td>
+            </tr>
+            <tr valign="top">
+                <th scope="row">
+                    <div class="lightshare-title-wrapper">Label Text
+                        <span class="dashicons dashicons-editor-help" data-title="Customize the Share label text."></span>
+                    </div>
+                </th>
+                <td>
+                    <input type="text" name="lightshare_options[share][label_text]" value="<?php echo esc_attr(LS_Options::get_option('share.label_text', 'Share')); ?>" class="regular-text" />
                 </td>
             </tr>
 

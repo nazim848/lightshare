@@ -8,6 +8,7 @@ class LightshareAdmin {
 		this.initializeTabs();
 		this.setupEventHandlers();
 		this.setupResetSettings();
+		this.setupResetCounts();
 		this.initializeSortable();
 	}
 
@@ -15,6 +16,13 @@ class LightshareAdmin {
 		this.$("#lightshare-reset-settings").on(
 			"click",
 			this.handleResetSettings.bind(this)
+		);
+	}
+
+	setupResetCounts() {
+		this.$("#lightshare-reset-counts").on(
+			"click",
+			this.handleResetCounts.bind(this)
 		);
 	}
 
@@ -74,6 +82,10 @@ class LightshareAdmin {
 			"change",
 			this.handleFloatingButtonToggle.bind(this)
 		);
+		this.$(".inline-button-toggle").on(
+			"change",
+			this.handleInlineButtonToggle.bind(this)
+		);
 	}
 
 	handleFloatingButtonToggle(e) {
@@ -81,6 +93,54 @@ class LightshareAdmin {
 		this.$(".floating-button-settings").slideToggle(
 			isChecked ? "fast" : "fast"
 		);
+	}
+
+	handleInlineButtonToggle(e) {
+		const isChecked = e.target.checked;
+		this.$(".inline-button-settings").slideToggle(
+			isChecked ? "fast" : "fast"
+		);
+	}
+
+	handleResetCounts(e) {
+		e.preventDefault();
+		if (
+			!confirm(
+				"Are you sure you want to reset all share counts? This action cannot be undone."
+			)
+		) {
+			return;
+		}
+
+		this.showLoadingIndicator();
+		this.$.ajax({
+			url: lightshare_admin.ajax_url,
+			type: "POST",
+			data: {
+				action: "lightshare_reset_counts",
+				nonce: lightshare_admin.nonce
+			},
+			success: response => {
+				this.hideLoadingIndicator();
+				if (response.success) {
+					this.showNotice(
+						response.data?.message ||
+							"Share counts reset successfully.",
+						"success"
+					);
+				} else {
+					this.showNotice(
+						response.data?.message ||
+							"Failed to reset counts. Please try again.",
+						"error"
+					);
+				}
+			},
+			error: () => {
+				this.hideLoadingIndicator();
+				this.showNotice("An error occurred. Please try again.", "error");
+			}
+		});
 	}
 
 	handleTabClick(e) {

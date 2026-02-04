@@ -25,6 +25,20 @@ use Lightshare\LS_Options;
 			</tr>
 			<tr valign="top">
 				<th scope="row">
+					<div class="lightshare-title-wrapper">Reset Share Counts
+						<span class="dashicons dashicons-editor-help" data-title="Remove all stored share counts from posts."></span>
+					</div>
+
+				</th>
+				<td>
+					<div class="checkbox-radio">
+						<button type="button" class="button" id="lightshare-reset-counts">Reset Counts</button>
+					</div>
+					<p class="description">This will clear all stored share totals for all posts.</p>
+				</td>
+			</tr>
+			<tr valign="top">
+				<th scope="row">
 					<div class="lightshare-title-wrapper">Clean Deactivate
 						<span class="dashicons dashicons-editor-help" data-title="When enabled, all Lightshare settings and data will be deleted from the database when the plugin is deactivated!"></span>
 					</div>

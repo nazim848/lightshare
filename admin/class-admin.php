@@ -21,6 +21,7 @@ class Admin {
 		add_action('admin_enqueue_scripts', array($this, 'enqueue_scripts'));
 		add_filter('plugin_action_links_' . plugin_basename(LIGHTSHARE_PLUGIN_FILE), array($this, 'add_action_links'));
 		add_action('wp_ajax_lightshare_reset_settings', array($this, 'reset_settings'));
+		add_action('wp_ajax_lightshare_reset_counts', array($this, 'reset_counts'));
 	}
 
 	public function enqueue_styles($hook) {
@@ -256,6 +257,38 @@ class Admin {
 				'message' => __('Failed to reset settings. Please try again.', 'lightshare')
 			));
 		}
+	}
+
+	public function reset_counts() {
+		// Verify nonce and capabilities
+		if (!check_ajax_referer('lightshare_options_verify', 'nonce', false) || !current_user_can('manage_options')) {
+			wp_send_json_error(array(
+				'message' => __('Security check failed or insufficient permissions.', 'lightshare')
+			));
+		}
+
+		global $wpdb;
+
+		$meta_table = $wpdb->postmeta;
+		$network_like = $wpdb->esc_like('_lightshare_shares_') . '%';
+
+		$deleted_total = $wpdb->delete($meta_table, array('meta_key' => '_lightshare_total_shares'));
+		$deleted_network = $wpdb->query(
+			$wpdb->prepare("DELETE FROM {$meta_table} WHERE meta_key LIKE %s", $network_like)
+		);
+
+		$total_deleted = 0;
+		if (is_numeric($deleted_total)) {
+			$total_deleted += (int) $deleted_total;
+		}
+		if (is_numeric($deleted_network)) {
+			$total_deleted += (int) $deleted_network;
+		}
+
+		wp_send_json_success(array(
+			/* translators: %d number of rows removed */
+			'message' => sprintf(__('Share counts cleared. Rows removed: %d', 'lightshare'), $total_deleted)
+		));
 	}
 
 	public function get_plugin_name() {
