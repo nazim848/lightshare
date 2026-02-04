@@ -6,7 +6,7 @@ class LS_Options {
 	private static $option_name = 'lightshare_options';
 
 	public static function get_default_options() {
-		return array(
+		$defaults = array(
 			'share' => array(
 				'social_networks' => array('facebook', 'twitter', 'linkedin', 'pinterest', 'email', 'copy'),
 				'social_networks_order' => array('facebook', 'twitter', 'linkedin', 'pinterest', 'email', 'copy'),
@@ -31,6 +31,13 @@ class LS_Options {
 				'clean_deactivate' => false
 			)
 		);
+
+		/**
+		 * Filter default options for Lightshare.
+		 *
+		 * @param array $defaults Default options array.
+		 */
+		return apply_filters('lightshare_default_options', $defaults);
 	}
 
 	public static function get_options() {

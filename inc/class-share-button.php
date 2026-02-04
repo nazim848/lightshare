@@ -14,7 +14,7 @@ class Share_Button {
 	 * @return array
 	 */
 	public static function get_allowed_networks() {
-		return array(
+		$networks = array(
 			'facebook',
 			'twitter',
 			'linkedin',
@@ -25,6 +25,13 @@ class Share_Button {
 			'whatsapp',
 			'copy'
 		);
+
+		/**
+		 * Filter allowed social networks.
+		 *
+		 * @param array $networks Allowed network slugs.
+		 */
+		return apply_filters('lightshare_allowed_networks', $networks);
 	}
 
 	/**
@@ -86,6 +93,7 @@ class Share_Button {
 		
 		// If networks are passed in args (shortcode), use them, otherwise use configured defaults
 		$networks = !empty($args['networks']) ? explode(',', $args['networks']) : $configured_networks;
+		$networks = array_filter(array_map('trim', (array) $networks));
 		
 		// Get style from args or options (default to 'default' if not set)
 		$style = !empty($args['style']) ? $args['style'] : LS_Options::get_option('share.style', 'default');
@@ -97,6 +105,7 @@ class Share_Button {
 		$label_text = !empty($args['label_text'])
 			? $args['label_text']
 			: LS_Options::get_option('share.label_text', 'Share');
+		$label_text = apply_filters('lightshare_label_text', $label_text, $args, $post_id);
 		
 		// Check for custom post data passed in args (useful for loops or custom queries)
 		$post_id = !empty($args['post_id']) ? $args['post_id'] : get_the_ID();
@@ -120,8 +129,9 @@ class Share_Button {
 		if (!empty($args['class'])) {
 			$wrapper_class .= ' ' . esc_attr($args['class']);
 		}
+		$wrapper_class = apply_filters('lightshare_wrapper_class', $wrapper_class, $args, $post_id);
 
-		$html = '<div class="' . $wrapper_class . '">';
+		$html = '<div class="' . esc_attr($wrapper_class) . '">';
 
 		// Add Count Display
 		$show_counts = LS_Options::get_option('share.show_counts', false);
@@ -139,6 +149,7 @@ class Share_Button {
 
 		$html .= '<div class="lightshare-buttons" data-post-id="' . esc_attr($post_id) . '">';
 
+		$networks = apply_filters('lightshare_networks', $networks, $args, $post_id);
 		foreach ($networks as $network) {
 			$network = trim($network);
 			$share_url = '';
@@ -184,6 +195,8 @@ class Share_Button {
 					break;
 			}
 
+			$share_url = apply_filters('lightshare_share_url', $share_url, $network, $post_id, $args);
+
 			if ($share_url) {
 				$class_suffix = $network === 'copy' ? ' lightshare-copy' : '';
 				$data_attr = $network === 'copy' ? ' data-url="' . esc_attr($permalink) . '"' : '';
@@ -208,7 +221,14 @@ class Share_Button {
 
 		$html .= '</div></div>';
 
-		return $html;
+		/**
+		 * Filter the final share buttons HTML.
+		 *
+		 * @param string $html    Rendered HTML.
+		 * @param array  $args    Rendering arguments.
+		 * @param int    $post_id Post ID.
+		 */
+		return apply_filters('lightshare_buttons_html', $html, $args, $post_id);
 	}
 
 	/**
