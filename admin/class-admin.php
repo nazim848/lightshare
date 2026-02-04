@@ -68,7 +68,10 @@ class Admin {
 			$network_options = Share_Button::process_social_networks($share_data);
 
 			if (!empty($network_options)) {
-				$new_options['share'] = $network_options;
+				if (!isset($new_options['share'])) {
+					$new_options['share'] = array();
+				}
+				$new_options['share'] = array_merge($new_options['share'], $network_options);
 			}
 		}
 
@@ -166,7 +169,11 @@ class Admin {
 			// Share Button
 			'share' => array(
 				'social_networks' => 'array',
-				'social_networks_order' => 'array'
+				'social_networks_order' => 'array',
+				'show_counts' => 'boolean',
+				'style' => 'text_field',
+				'show_label' => 'boolean',
+				'label_text' => 'text_field'
 			),
 			// Floating Button
 			'floating' => array(
@@ -177,7 +184,9 @@ class Admin {
 			),
 			// Inline Button
 			'inline' => array(
-				'enabled' => 'boolean'
+				'enabled' => 'boolean',
+				'position' => 'text_field',
+				'post_types' => 'array'
 			),
 			// Tools
 			'tools' => array(
@@ -230,25 +239,7 @@ class Admin {
 		}
 
 		// Define default options with proper structure
-		$default_options = array(
-			'share' => array(
-				'social_networks' => array('facebook', 'twitter', 'linkedin', 'pinterest', 'email', 'copy'),
-				'social_networks_order' => array('facebook', 'twitter', 'linkedin', 'pinterest', 'email', 'copy')
-			),
-			'floating' => array(
-				'enabled' => '0',
-				'button_alignment' => 'right',
-				'button_size' => 'medium',
-				'post_types' => array('post', 'page')
-			),
-			'inline' => array(
-				'enabled' => '0'
-			),
-			'tools' => array(
-				'clean_uninstall' => '0',
-				'clean_deactivate' => '0'
-			)
-		);
+		$default_options = \Lightshare\LS_Options::get_default_options();
 
 		// Sanitize default options before saving
 		$sanitized_defaults = $this->sanitize_options($default_options);

@@ -5,8 +5,41 @@ namespace Lightshare;
 class LS_Options {
 	private static $option_name = 'lightshare_options';
 
+	public static function get_default_options() {
+		return array(
+			'share' => array(
+				'social_networks' => array('facebook', 'twitter', 'linkedin', 'pinterest', 'email', 'copy'),
+				'social_networks_order' => array('facebook', 'twitter', 'linkedin', 'pinterest', 'email', 'copy'),
+				'show_counts' => false,
+				'style' => 'default',
+				'show_label' => true,
+				'label_text' => 'Share'
+			),
+			'floating' => array(
+				'enabled' => false,
+				'button_alignment' => 'right',
+				'button_size' => 'medium',
+				'post_types' => array('post', 'page')
+			),
+			'inline' => array(
+				'enabled' => false,
+				'position' => 'after',
+				'post_types' => array('post')
+			),
+			'tools' => array(
+				'clean_uninstall' => false,
+				'clean_deactivate' => false
+			)
+		);
+	}
+
 	public static function get_options() {
-		return get_option(self::$option_name, array());
+		$options = get_option(self::$option_name, array());
+		$defaults = self::get_default_options();
+		if (!is_array($options)) {
+			$options = array();
+		}
+		return array_replace_recursive($defaults, $options);
 	}
 
 	/**
