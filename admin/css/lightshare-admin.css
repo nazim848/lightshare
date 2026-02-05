@@ -347,61 +347,6 @@
 	margin: 0px;
 	z-index: -1;
 }
-li.lightshare-social-network-facebook label.active {
-	background: #3b5998;
-}
-li.lightshare-social-network-twitter label.active {
-	background: #000;
-}
-li.lightshare-social-network-linkedin label.active {
-	background: #0077b5;
-}
-li.lightshare-social-network-pinterest label.active {
-	background: #c92228;
-}
-li.lightshare-social-network-copy label.active {
-	background: #577482;
-}
-li.lightshare-social-network-bluesky label.active {
-	background: #1185fe;
-}
-li.lightshare-social-network-reddit label.active {
-	background: #ff4500;
-}
-li.lightshare-social-network-whatsapp label.active {
-	background: #25d366;
-}
-li.lightshare-social-network-telegram label.active {
-	background: #0088cc;
-}
-li.lightshare-social-network-threads label.active {
-	background: #000;
-}
-li.lightshare-social-network-email label.active {
-	background: #319324;
-}
-li.lightshare-social-network-print label.active {
-	background: #d34836;
-}
-li.lightshare-social-network-share label.active {
-	background: #2a2a2c;
-}
-
-li.lightshare-social-network-chatgpt label.active {
-	background: #212121;
-}
-
-li.lightshare-social-network-grok label.active {
-	background: #000;
-}
-
-li.lightshare-social-network-perplexity label.active {
-	background: #000;
-}
-
-li.lightshare-social-network-google-ai label.active {
-	background: #000;
-}
 
 .lightshare-title-wrapper {
 	display: flex;

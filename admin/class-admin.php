@@ -39,6 +39,7 @@ class Admin {
 		// Load frontend styles to make preview match frontend output.
 		wp_enqueue_style('lightshare-public', LIGHTSHARE_PLUGIN_URL . 'public/css/lightshare-public.css', array(), $this->version, 'all');
 		wp_add_inline_style('lightshare-public', Share_Button::get_network_color_css());
+		wp_add_inline_style('lightshare-admin', Share_Button::get_admin_network_color_css());
 	}
 
 	public function enqueue_scripts($hook) {

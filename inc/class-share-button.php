@@ -132,6 +132,30 @@ class Share_Button {
 	}
 
 	/**
+	 * Build CSS rules for admin network active colors.
+	 *
+	 * @return string
+	 */
+	public static function get_admin_network_color_css() {
+		$definitions = self::get_network_definitions();
+		$rules = array();
+
+		foreach ($definitions as $slug => $definition) {
+			if (!isset($definition['color'])) {
+				continue;
+			}
+			$color = sanitize_hex_color($definition['color']);
+			if (empty($color)) {
+				continue;
+			}
+			$slug = sanitize_key($slug);
+			$rules[] = "li.lightshare-social-network-{$slug} label.active { background: {$color}; }";
+		}
+
+		return implode("\n", $rules);
+	}
+
+	/**
 	 * Process and sanitize social networks data
 	 *
 	 * @param array $share_data Raw share data from form submission
