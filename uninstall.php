@@ -35,14 +35,15 @@ if ($lightshare_clean_uninstall == '1') {
 	// Delete render cache transients (wildcard).
 	global $wpdb;
 	if ($wpdb instanceof wpdb) {
-		$pattern = $wpdb->esc_like('lightshare_render_') . '%';
-		$transient_key_like = '_transient_' . $pattern;
-		$timeout_key_like = '_transient_timeout_' . $pattern;
+		$lightshare_pattern = $wpdb->esc_like('lightshare_render_') . '%';
+		$lightshare_transient_key_like = '_transient_' . $lightshare_pattern;
+		$lightshare_timeout_key_like = '_transient_timeout_' . $lightshare_pattern;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$wpdb->query(
 			$wpdb->prepare(
 				"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
-				$transient_key_like,
-				$timeout_key_like
+				$lightshare_transient_key_like,
+				$lightshare_timeout_key_like
 			)
 		);
 	}
