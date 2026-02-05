@@ -240,16 +240,10 @@ class Share_Button {
 
 				// Validate and sanitize networks
 				$active_networks = array_map('sanitize_text_field', $active_networks);
-				$active_networks = array_map(function ($network) {
-					return $network === 'openai' ? 'chatgpt' : $network;
-				}, $active_networks);
 				$active_networks = array_intersect($active_networks, $allowed_networks);
 				$active_networks = array_values(array_unique($active_networks));
 
 				$order = array_map('sanitize_text_field', $order);
-				$order = array_map(function ($network) {
-					return $network === 'openai' ? 'chatgpt' : $network;
-				}, $order);
 				$order = array_intersect($order, $allowed_networks);
 				$order = array_values(array_unique($order));
 
@@ -260,9 +254,6 @@ class Share_Button {
 		} elseif (isset($share_data['social_networks'])) {
 			// Validate and sanitize networks
 			$active_networks = array_map('sanitize_text_field', (array)$share_data['social_networks']);
-			$active_networks = array_map(function ($network) {
-				return $network === 'openai' ? 'chatgpt' : $network;
-			}, $active_networks);
 			$active_networks = array_intersect($active_networks, $allowed_networks);
 			$active_networks = array_values(array_unique($active_networks));
 			$network_options['social_networks'] = $active_networks;
@@ -442,7 +433,6 @@ class Share_Button {
 					$share_url = '#';
 					$icon = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M10.854 7.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 9.793l2.646-2.647a.5.5 0 0 1 .708 0z"/><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3z"/></svg>';
 					break;
-				case 'openai':
 				case 'chatgpt':
 					$network = 'chatgpt';
 					$share_url = 'https://chat.openai.com/?q=' . $encoded_openai_prompt;
