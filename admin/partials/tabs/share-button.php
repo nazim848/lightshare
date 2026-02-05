@@ -187,7 +187,7 @@ $lightshare_ordered_networks += $lightshare_available_networks;
                         <label>
                             <input type="checkbox" name="lightshare_options[share][utm_enabled]" value="1" data-toggle-target=".lightshare-utm-fields" <?php checked(LS_Options::get_option('share.utm_enabled', false), true); ?>>
                         </label>
-                        <span><?php esc_html_e('Enable UTM parameters', 'lightshare'); ?></span>
+
                     </div>
                     <div class="lightshare-utm-fields" style="display: none;">
                         <p style="margin-bottom: 6px;">
