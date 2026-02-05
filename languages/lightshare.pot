@@ -1,0 +1,173 @@
+# Copyright (C) 2026 Nazim Husain
+# This file is distributed under the GPLv2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Lightshare - Lightweight Social Sharing 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/lightshare\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-02-05T09:51:28+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.11.0\n"
+"X-Domain: lightshare\n"
+
+#. Plugin Name of the plugin
+#: lightshare.php
+msgid "Lightshare - Lightweight Social Sharing"
+msgstr ""
+
+#. Description of the plugin
+#: lightshare.php
+msgid "Lightshare is a lightweight, high-performance social media sharing plugin built with a focus on speed and minimal code footprint."
+msgstr ""
+
+#. Author of the plugin
+#: lightshare.php
+msgid "Nazim Husain"
+msgstr ""
+
+#. Author URI of the plugin
+#: lightshare.php
+msgid "https://nazimansari.com"
+msgstr ""
+
+#: admin/class-admin.php:148
+msgid "Thank you for installing Lightshare! Please visit the "
+msgstr ""
+
+#: admin/class-admin.php:149
+msgid "settings page"
+msgstr ""
+
+#: admin/class-admin.php:150
+msgid "to configure the plugin."
+msgstr ""
+
+#: admin/class-admin.php:160
+msgid "Settings"
+msgstr ""
+
+#: admin/class-admin.php:288
+#: admin/class-admin.php:316
+#: admin/class-admin.php:341
+msgid "Security check failed or insufficient permissions."
+msgstr ""
+
+#: admin/class-admin.php:303
+msgid "Settings have been reset to default values."
+msgstr ""
+
+#: admin/class-admin.php:307
+msgid "Failed to reset settings. Please try again."
+msgstr ""
+
+#. translators: %d number of rows removed
+#: admin/class-admin.php:333
+msgid "Share counts cleared. Rows removed: %d"
+msgstr ""
+
+#: admin/class-admin.php:388
+#: admin/js/lightshare-block.js:45
+msgid "Lightshare Settings"
+msgstr ""
+
+#: admin/class-admin.php:414
+msgid "Disable Lightshare on this post"
+msgstr ""
+
+#: admin/class-admin.php:418
+msgid "Inline Position"
+msgstr ""
+
+#: admin/class-admin.php:420
+msgid "Inherit"
+msgstr ""
+
+#: admin/class-admin.php:421
+msgid "Before content"
+msgstr ""
+
+#: admin/class-admin.php:422
+msgid "After content"
+msgstr ""
+
+#: admin/class-admin.php:425
+msgid "Networks"
+msgstr ""
+
+#: admin/class-admin.php:435
+msgid "Nudge Text"
+msgstr ""
+
+#: admin/partials/admin-display.php:8
+msgid "You do not have sufficient permissions to access this page."
+msgstr ""
+
+#: admin/partials/tabs/share-button.php:194
+msgid "utm_source"
+msgstr ""
+
+#: admin/partials/tabs/share-button.php:198
+msgid "utm_medium"
+msgstr ""
+
+#: admin/partials/tabs/share-button.php:202
+msgid "utm_campaign"
+msgstr ""
+
+#: admin/partials/tabs/share-button.php:213
+msgid "Preview"
+msgstr ""
+
+#: inc/class-core-tweaks.php:103
+msgid "Sorry, you do not have permission to make REST API requests."
+msgstr ""
+
+#: inc/class-core-tweaks.php:130
+msgid "Lightshare Warning"
+msgstr ""
+
+#: inc/class-core-tweaks.php:131
+msgid "WP_POST_REVISIONS is already enabled somewhere else on your site. We suggest only enabling this feature in one place."
+msgstr ""
+
+#. translators: %s: Social network label.
+#: inc/class-share-button.php:476
+msgid "Copy link"
+msgstr ""
+
+#. translators: %s: Social network label.
+#: inc/class-share-button.php:476
+msgid "Share on %s"
+msgstr ""
+
+#: uninstall.php:10
+msgid "You do not have sufficient permissions to uninstall this plugin."
+msgstr ""
+
+#: admin/js/lightshare-block.js:18
+msgid "Lightshare Buttons"
+msgstr ""
+
+#: admin/js/lightshare-block.js:47
+msgid "Networks (comma-separated)"
+msgstr ""
+
+#: admin/js/lightshare-block.js:54
+msgid "Show Label"
+msgstr ""
+
+#: admin/js/lightshare-block.js:61
+msgid "Label Text"
+msgstr ""
+
+#: admin/js/lightshare-block.js:86
+msgid "Lightshare Shortcode"
+msgstr ""
+
+#: admin/js/lightshare-block.js:87
+msgid "Insert the Lightshare shortcode."
+msgstr ""

@@ -4,7 +4,7 @@ Donate link: https://buymeacoffee.com/nazim848
 Tags: social share, social media, share buttons, facebook share, twitter share
 Requires at least: 5.0
 Tested up to: 6.9
-Requires PHP: 7.2
+Requires PHP: 7.4
 Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -18,7 +18,7 @@ Lightshare is a lightweight social sharing plugin built with performance in mind
 == Key Features ==
 
 * Lightweight and fast - minimal impact on page load times
-* Support for major social networks: Facebook, Twitter/X, LinkedIn, Pinterest, Reddit, and Email
+* Support for major social networks
 * Clean, modern design with multiple style options
 * Share count display (where available)
 * Customizable button placement
@@ -26,16 +26,15 @@ Lightshare is a lightweight social sharing plugin built with performance in mind
 * No third-party scripts loaded by default
 * Support for custom post types
 * Shortcode support for manual placement
-* RTL language support
 
 == Performance First ==
 
 Lightshare is built with performance as a top priority:
 
-* Minimal CSS/JS footprint (< 30KB combined)
+* Minimal CSS/JS footprint
 * SVG icons instead of icon fonts
 * Internal click tracking for counts (no API calls)
-* No render-blocking resources
+* Assets are only enqueued when needed
 * No third-party tracking scripts
 
 == Shortcode ==
@@ -47,6 +46,14 @@ You can manually place sharing buttons anywhere using the shortcode:
 With custom options:
 
 `[lightshare networks="facebook,twitter,linkedin" style="rounded"]`
+
+== Block ==
+
+Lightshare includes a block for the block editor:
+
+* Block name: "Lightshare Buttons"
+* Allows selecting networks (comma-separated), label visibility, and label text
+* Rendered server-side for accurate output
 
 == Developer Friendly ==
 
@@ -65,7 +72,7 @@ With custom options:
 
 = Which social networks are supported? =
 
-Lightshare supports Facebook, Twitter/X, LinkedIn, Pinterest, Reddit, WhatsApp, BlueSky, and Email sharing.
+Lightshare supports Facebook, Twitter/X, LinkedIn, Pinterest, Reddit, WhatsApp, BlueSky, ChatGPT, Grok, Perplexity, Google AI, and Email sharing.
 
 = Will this plugin slow down my site? =
 
@@ -77,11 +84,11 @@ Share counts can be enabled in the plugin settings under the "Share Button" tab.
 
 = Can I customize the button styles? =
 
-Yes, Lightshare comes with multiple pre-built styles (Default, Rounded, Circle, Minimal) and can be further customized through CSS.
+Yes, Lightshare comes with multiple pre-built button styles and colors.
 
 = Can I use the sharing buttons anywhere on my site? =
 
-Yes, you can use the `[lightshare]` shortcode to display sharing buttons anywhere in your content.
+Yes, you can use the `[lightshare]` shortcode or block to display sharing buttons anywhere in your content.
 
 = Does it work with custom post types? =
 
@@ -101,6 +108,9 @@ Initial release of Lightshare
 
 For support, feature requests, or bug reports, please visit the [plugin support forum](https://wordpress.org/support/plugin/lightshare/).
 
+== License ==
+This plugin is free software, released under the GPLv2 or later.
+
 == Privacy Policy ==
 
-Lightshare does not collect any personal data from your visitors or your WordPress site. The plugin operates entirely within your WordPress installation and does not communicate with external services unless explicitly configured to do so.
+Lightshare does not collect personal data. When visitors click a share button, they are sent to the selected third-party sharing service (for example, Facebook, X, LinkedIn, Pinterest, Reddit, WhatsApp, BlueSky, or the AI services listed above). No third-party scripts are loaded by the plugin itself.

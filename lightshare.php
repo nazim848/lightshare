@@ -11,7 +11,7 @@ Text Domain: lightshare
 Domain Path: /languages
 Requires at least: 5.0
 Tested up to: 6.9
-Requires PHP: 7.2
+Requires PHP: 7.4
 
 Lightshare is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

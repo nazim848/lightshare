@@ -30,9 +30,22 @@ if ($lightshare_clean_uninstall == '1') {
 
 	// Delete transients
 	delete_transient('lightshare_activation_notice');
+	delete_transient('lightshare_click_queue');
 
-	// Clear any cached data
-	wp_cache_flush();
+	// Delete render cache transients (wildcard).
+	global $wpdb;
+	if ($wpdb instanceof wpdb) {
+		$pattern = $wpdb->esc_like('lightshare_render_') . '%';
+		$transient_key_like = '_transient_' . $pattern;
+		$timeout_key_like = '_transient_timeout_' . $pattern;
+		$wpdb->query(
+			$wpdb->prepare(
+				"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
+				$transient_key_like,
+				$timeout_key_like
+			)
+		);
+	}
 
 	// Remove any scheduled events
 	wp_clear_scheduled_hook('lightshare_cleanup_cache');
