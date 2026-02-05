@@ -105,6 +105,7 @@ class Public_Core {
 			$this->version,
 			'all'
 		);
+		wp_add_inline_style($this->plugin_name . '-public', Share_Button::get_network_color_css());
 	}
 
 	public function enqueue_scripts() {

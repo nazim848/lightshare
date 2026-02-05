@@ -53,22 +53,6 @@
 	fill: transparent !important;
 }
 
-/* Network Colors */
-.lightshare-facebook { background-color: #1877F2; }
-.lightshare-twitter { background-color: #000000; }
-.lightshare-linkedin { background-color: #0A66C2; }
-.lightshare-whatsapp { background-color: #25D366; }
-.lightshare-bluesky { background-color: #0560ff; }
-.lightshare-pinterest { background-color: #bd081c; }
-.lightshare-reddit { background-color: #ff4500; }
-.lightshare-email { background-color: #888888; }
-.lightshare-copy { background-color: #6c757d; }
-.lightshare-chatgpt { background-color: #10a37f; }
-.lightshare-openai { background-color: #10a37f; }
-.lightshare-google-ai { background-color: #1a73e8; }
-.lightshare-perplexity { background-color: #111827; }
-.lightshare-grok { background-color: #111111; }
-
 /* Styles */
 
 /* Rounded */
@@ -98,21 +82,6 @@
 	background-color: transparent;
 	border: 1px solid currentColor;
 }
-
-.lightshare-style-minimal .lightshare-facebook { color: #1877F2 !important; }
-.lightshare-style-minimal .lightshare-twitter { color: #000000 !important; }
-.lightshare-style-minimal .lightshare-linkedin { color: #0A66C2 !important; }
-.lightshare-style-minimal .lightshare-whatsapp { color: #25D366 !important; }
-.lightshare-style-minimal .lightshare-bluesky { color: #0560ff !important; }
-.lightshare-style-minimal .lightshare-pinterest { color: #bd081c !important; }
-.lightshare-style-minimal .lightshare-reddit { color: #ff4500 !important; }
-.lightshare-style-minimal .lightshare-email { color: #888888 !important; }
-.lightshare-style-minimal .lightshare-copy { color: #6c757d !important; }
-.lightshare-style-minimal .lightshare-chatgpt { color: #10a37f !important; }
-.lightshare-style-minimal .lightshare-openai { color: #10a37f !important; }
-.lightshare-style-minimal .lightshare-google-ai { color: #1a73e8 !important; }
-.lightshare-style-minimal .lightshare-perplexity { color: #111827 !important; }
-.lightshare-style-minimal .lightshare-grok { color: #111111 !important; }
 
 .lightshare-style-minimal .lightshare-button:hover {
 	background-color: #f8f9fa;
