@@ -46,6 +46,13 @@
 	fill: currentColor;
 }
 
+/* Remove background squares from AI icons */
+.lightshare-chatgpt .lightshare-icon svg path:first-of-type,
+.lightshare-openai .lightshare-icon svg path:first-of-type,
+.lightshare-grok .lightshare-icon svg path:first-of-type {
+	fill: transparent !important;
+}
+
 /* Network Colors */
 .lightshare-facebook { background-color: #1877F2; }
 .lightshare-twitter { background-color: #000000; }
@@ -56,6 +63,11 @@
 .lightshare-reddit { background-color: #ff4500; }
 .lightshare-email { background-color: #888888; }
 .lightshare-copy { background-color: #6c757d; }
+.lightshare-chatgpt { background-color: #10a37f; }
+.lightshare-openai { background-color: #10a37f; }
+.lightshare-google-ai { background-color: #1a73e8; }
+.lightshare-perplexity { background-color: #111827; }
+.lightshare-grok { background-color: #111111; }
 
 /* Styles */
 
@@ -96,6 +108,11 @@
 .lightshare-style-minimal .lightshare-reddit { color: #ff4500 !important; }
 .lightshare-style-minimal .lightshare-email { color: #888888 !important; }
 .lightshare-style-minimal .lightshare-copy { color: #6c757d !important; }
+.lightshare-style-minimal .lightshare-chatgpt { color: #10a37f !important; }
+.lightshare-style-minimal .lightshare-openai { color: #10a37f !important; }
+.lightshare-style-minimal .lightshare-google-ai { color: #1a73e8 !important; }
+.lightshare-style-minimal .lightshare-perplexity { color: #111827 !important; }
+.lightshare-style-minimal .lightshare-grok { color: #111111 !important; }
 
 .lightshare-style-minimal .lightshare-button:hover {
 	background-color: #f8f9fa;

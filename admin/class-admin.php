@@ -201,7 +201,8 @@ class Admin {
 				'show_counts' => 'boolean',
 				'style' => 'text_field',
 				'show_label' => 'boolean',
-				'label_text' => 'text_field'
+				'label_text' => 'text_field',
+				'ai_association_text' => 'text_field'
 			),
 			// Floating Button
 			'floating' => array(

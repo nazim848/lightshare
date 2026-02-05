@@ -336,7 +336,7 @@
 }
 
 .lightshare-social-networks li label svg {
-	fill: #ffffff;
+	/* fill: #ffffff; */
 	height: 15px;
 	width: 30px;
 }
@@ -385,6 +385,22 @@ li.lightshare-social-network-print label.active {
 }
 li.lightshare-social-network-share label.active {
 	background: #2a2a2c;
+}
+
+li.lightshare-social-network-chatgpt label.active {
+	background: #212121;
+}
+
+li.lightshare-social-network-grok label.active {
+	background: #000;
+}
+
+li.lightshare-social-network-perplexity label.active {
+	background: #000;
+}
+
+li.lightshare-social-network-google-ai label.active {
+	background: #000;
 }
 
 .lightshare-title-wrapper {
