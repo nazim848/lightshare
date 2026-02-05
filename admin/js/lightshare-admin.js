@@ -10,6 +10,7 @@ class LightshareAdmin {
 		this.setupResetSettings();
 		this.setupResetCounts();
 		this.setupPreview();
+		this.syncConditionalFields();
 		this.initializeSortable();
 	}
 
@@ -100,6 +101,22 @@ class LightshareAdmin {
 			this.updatePreview.bind(this)
 		);
 		this.$("input[name='lightshare_options[share][label_text]']").on(
+			"input",
+			this.updatePreview.bind(this)
+		);
+		this.$("input[name='lightshare_options[share][show_counts]']").on(
+			"change",
+			this.syncConditionalFields.bind(this)
+		);
+		this.$("input[name='lightshare_options[share][utm_enabled]']").on(
+			"change",
+			this.syncConditionalFields.bind(this)
+		);
+		this.$("input[name='lightshare_options[share][show_label]']").on(
+			"change",
+			this.syncConditionalFields.bind(this)
+		);
+		this.$("input[name='lightshare_options[share][nudge_text]']").on(
 			"input",
 			this.updatePreview.bind(this)
 		);
@@ -242,6 +259,37 @@ class LightshareAdmin {
 		this.$("#submit").val("Save Changes");
 	}
 
+	syncConditionalFields() {
+		const { $ } = this;
+		$("[data-toggle-target]").each(function () {
+			const $input = $(this);
+			const targetSelector = $input.data("toggle-target");
+			if (!targetSelector) return;
+
+			const $target = $(targetSelector);
+			const isRow =
+				$input.data("toggle-mode") === "row" ||
+				$target.is("tr") ||
+				$target.data("toggle-row");
+
+			if ($input.is(":checked")) {
+				if (isRow) {
+					$target.show();
+					$target.find(".lightshare-toggle-content").stop(true, true).slideDown("fast");
+				} else {
+					$target.stop(true, true).slideDown("fast");
+				}
+			} else {
+				if (isRow) {
+					const $inner = $target.find(".lightshare-toggle-content");
+					$inner.stop(true, true).slideUp("fast", () => $target.hide());
+				} else {
+					$target.stop(true, true).slideUp("fast");
+				}
+			}
+		});
+	}
+
 	initializeTabs() {
 		const urlParams = new URLSearchParams(window.location.search);
 		this.setActiveTab(urlParams.get("tab") || "share-button");
@@ -334,6 +382,9 @@ class LightshareAdmin {
 		const labelText = this.$(
 			"input[name='lightshare_options[share][label_text]']"
 		).val();
+		const nudgeText = this.$(
+			"input[name='lightshare_options[share][nudge_text]']"
+		).val();
 		const colorTheme = this.$(
 			"select[name='lightshare_options[share][color_theme]']"
 		).val();
@@ -348,7 +399,8 @@ class LightshareAdmin {
 				style: style || "",
 				color_theme: colorTheme || "",
 				show_label: showLabel ? 1 : 0,
-				label_text: labelText || ""
+				label_text: labelText || "",
+				nudge_text: nudgeText ?? ""
 			},
 			success: response => {
 				if (response.success && response.data?.html) {

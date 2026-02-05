@@ -66,10 +66,25 @@ $lightshare_ordered_networks += $lightshare_available_networks;
                 <td>
                     <div class="checkbox-radio">
                         <label>
-                            <input type="checkbox" name="lightshare_options[share][show_counts]" value="1" <?php checked(LS_Options::get_option('share.show_counts', false), true); ?>>
+                            <input type="checkbox" name="lightshare_options[share][show_counts]" value="1" data-toggle-target=".lightshare-count-threshold-row" data-toggle-mode="row" <?php checked(LS_Options::get_option('share.show_counts', false), true); ?>>
                         </label>
                     </div>
                     <p class="description">Enable internal click tracking to display share counts.</p>
+                </td>
+            </tr>
+            <tr valign="top" class="lightshare-count-threshold-row" data-toggle-row style="display: none;">
+                <th scope="row">
+                    <div class="lightshare-toggle-content" style="display: none;">
+                        <div class="lightshare-title-wrapper">Count Threshold
+                            <span class="dashicons dashicons-editor-help" data-title="Only show total share counts when they reach this number."></span>
+                        </div>
+                    </div>
+                </th>
+                <td>
+                    <div class="lightshare-toggle-content" style="display: none;">
+                        <input type="number" min="0" name="lightshare_options[share][count_threshold]" value="<?php echo esc_attr(LS_Options::get_option('share.count_threshold', 0)); ?>" class="small-text" />
+                        <p class="description">Set to 0 to show counts whenever available.</p>
+                    </div>
                 </td>
             </tr>
             <tr valign="top">
@@ -110,19 +125,33 @@ $lightshare_ordered_networks += $lightshare_available_networks;
                 <td>
                     <div class="checkbox-radio">
                         <label>
-                            <input type="checkbox" name="lightshare_options[share][show_label]" value="1" <?php checked(LS_Options::get_option('share.show_label', true), true); ?> />
+                            <input type="checkbox" name="lightshare_options[share][show_label]" value="1" data-toggle-target=".lightshare-show-label-field" data-toggle-mode="row" <?php checked(LS_Options::get_option('share.show_label', true), true); ?> />
                         </label>
+                    </div>
+                </td>
+            </tr>
+            <tr valign="top" class="lightshare-show-label-field" data-toggle-row style="display: none;">
+                <th scope="row">
+                    <div class="lightshare-toggle-content" style="display: none;">
+                        <div class="lightshare-title-wrapper">Label Text
+                            <span class="dashicons dashicons-editor-help" data-title="Customize the Share label text."></span>
+                        </div>
+                    </div>
+                </th>
+                <td>
+                    <div class="lightshare-toggle-content" style="display: none;">
+                        <input type="text" name="lightshare_options[share][label_text]" value="<?php echo esc_attr(LS_Options::get_option('share.label_text', 'Share')); ?>" class="regular-text" />
                     </div>
                 </td>
             </tr>
             <tr valign="top">
                 <th scope="row">
-                    <div class="lightshare-title-wrapper">Label Text
-                        <span class="dashicons dashicons-editor-help" data-title="Customize the Share label text."></span>
+                    <div class="lightshare-title-wrapper">Nudge Text
+                        <span class="dashicons dashicons-editor-help" data-title="Optional helper text shown near the buttons to encourage sharing."></span>
                     </div>
                 </th>
                 <td>
-                    <input type="text" name="lightshare_options[share][label_text]" value="<?php echo esc_attr(LS_Options::get_option('share.label_text', 'Share')); ?>" class="regular-text" />
+                    <input type="text" name="lightshare_options[share][nudge_text]" value="<?php echo esc_attr(LS_Options::get_option('share.nudge_text', '')); ?>" class="regular-text" placeholder="Enjoyed this? Share it!" />
                 </td>
             </tr>
             <tr valign="top">
@@ -147,6 +176,36 @@ $lightshare_ordered_networks += $lightshare_available_networks;
                     <textarea name="lightshare_options[share][ai_association_text]" rows="3" class="large-text"><?php echo esc_textarea($lightshare_ai_saved); ?></textarea>
                 </td>
             </tr>
+            <tr valign="top" class="lightshare-utm-row">
+                <th scope="row">
+                    <div class="lightshare-title-wrapper">UTM Parameters
+                        <span class="dashicons dashicons-editor-help" data-title="Append UTM parameters to all share links."></span>
+                    </div>
+                </th>
+                <td>
+                    <div class="checkbox-radio" style="margin-bottom: 8px;">
+                        <label>
+                            <input type="checkbox" name="lightshare_options[share][utm_enabled]" value="1" data-toggle-target=".lightshare-utm-fields" <?php checked(LS_Options::get_option('share.utm_enabled', false), true); ?>>
+                        </label>
+                        <span><?php esc_html_e('Enable UTM parameters', 'lightshare'); ?></span>
+                    </div>
+                    <div class="lightshare-utm-fields" style="display: none;">
+                        <p style="margin-bottom: 6px;">
+                            <label><?php esc_html_e('utm_source', 'lightshare'); ?></label><br>
+                            <input type="text" name="lightshare_options[share][utm_source]" value="<?php echo esc_attr(LS_Options::get_option('share.utm_source', 'lightshare')); ?>" class="regular-text" />
+                        </p>
+                        <p style="margin-bottom: 6px;">
+                            <label><?php esc_html_e('utm_medium', 'lightshare'); ?></label><br>
+                            <input type="text" name="lightshare_options[share][utm_medium]" value="<?php echo esc_attr(LS_Options::get_option('share.utm_medium', 'share')); ?>" class="regular-text" />
+                        </p>
+                        <p style="margin-bottom: 0;">
+                            <label><?php esc_html_e('utm_campaign', 'lightshare'); ?></label><br>
+                            <input type="text" name="lightshare_options[share][utm_campaign]" value="<?php echo esc_attr(LS_Options::get_option('share.utm_campaign', '')); ?>" class="regular-text" />
+                        </p>
+                    </div>
+                </td>
+            </tr>
+
 
         </table>
     </div>

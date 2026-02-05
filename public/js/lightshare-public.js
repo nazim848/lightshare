@@ -2,24 +2,30 @@
 	'use strict';
 
 	$(document).ready(function() {
+		function showToast(message) {
+			var $toast = $('#lightshare-toast');
+			if (!$toast.length) {
+				$toast = $('<div id="lightshare-toast" class="lightshare-toast"></div>');
+				$('body').append($toast);
+			}
+			$toast.text(message).addClass('is-visible');
+			setTimeout(function() {
+				$toast.removeClass('is-visible');
+			}, 2000);
+		}
+
 		// Handle Copy Link button
 		$('.lightshare-copy').on('click', function(e) {
 			e.preventDefault();
 			
 			var url = $(this).data('url');
-			var $btn = $(this);
-			var originalText = $btn.find('.lightshare-text').text();
 			
 			if (!url) {
 				return;
 			}
 			
 			navigator.clipboard.writeText(url).then(function() {
-				// Success feedback
-				$btn.find('.lightshare-text').text('Copied!');
-				setTimeout(function() {
-					$btn.find('.lightshare-text').text(originalText);
-				}, 2000);
+				showToast('Link copied');
 			}).catch(function(err) {
 				console.error('Could not copy text: ', err);
 			});

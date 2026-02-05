@@ -29,6 +29,8 @@ class Admin {
 		add_action('wp_ajax_lightshare_reset_settings', array($this, 'reset_settings'));
 		add_action('wp_ajax_lightshare_reset_counts', array($this, 'reset_counts'));
 		add_action('wp_ajax_lightshare_preview_buttons', array($this, 'preview_buttons'));
+		add_action('add_meta_boxes', array($this, 'add_share_meta_box'));
+		add_action('save_post', array($this, 'save_share_meta_box'));
 	}
 
 	public function enqueue_styles($hook) {
@@ -206,7 +208,13 @@ class Admin {
 				'color_theme' => 'text_field',
 				'show_label' => 'boolean',
 				'label_text' => 'text_field',
-				'ai_association_text' => 'text_field'
+				'ai_association_text' => 'text_field',
+				'nudge_text' => 'text_field',
+				'utm_enabled' => 'boolean',
+				'utm_source' => 'text_field',
+				'utm_medium' => 'text_field',
+				'utm_campaign' => 'text_field',
+				'count_threshold' => 'integer'
 			),
 			// Floating Button
 			'floating' => array(
@@ -245,7 +253,14 @@ class Admin {
 						$sanitized_options[$section][$key] = (bool) $options[$section][$key];
 						break;
 					case 'text_field':
-						$sanitized_options[$section][$key] = sanitize_text_field($options[$section][$key]);
+						$value = sanitize_text_field($options[$section][$key]);
+						if ($section === 'share' && $key === 'style') {
+							$allowed_styles = array('default', 'rounded', 'circle');
+							if (!in_array($value, $allowed_styles, true)) {
+								$value = 'default';
+							}
+						}
+						$sanitized_options[$section][$key] = $value;
 						break;
 					case 'array':
 						if (is_array($options[$section][$key])) {
@@ -253,6 +268,9 @@ class Admin {
 						} else {
 							$sanitized_options[$section][$key] = array();
 						}
+						break;
+					case 'integer':
+						$sanitized_options[$section][$key] = max(0, absint($options[$section][$key]));
 						break;
 					default:
 						$sanitized_options[$section][$key] = sanitize_text_field($options[$section][$key]);
@@ -328,6 +346,7 @@ class Admin {
 		$style = isset($_POST['style']) ? sanitize_text_field(wp_unslash($_POST['style'])) : '';
 		$show_label = isset($_POST['show_label']) ? (bool) absint(wp_unslash($_POST['show_label'])) : true;
 		$label_text = isset($_POST['label_text']) ? sanitize_text_field(wp_unslash($_POST['label_text'])) : '';
+		$nudge_text = isset($_POST['nudge_text']) ? sanitize_text_field(wp_unslash($_POST['nudge_text'])) : '';
 		$color_theme = isset($_POST['color_theme']) ? sanitize_key(wp_unslash($_POST['color_theme'])) : '';
 
 		$args = array(
@@ -336,6 +355,7 @@ class Admin {
 			'color_theme' => $color_theme,
 			'show_label' => $show_label,
 			'label_text' => $label_text,
+			'nudge_text' => $nudge_text,
 			'url' => home_url('/'),
 			'title' => get_bloginfo('name')
 		);
@@ -355,5 +375,113 @@ class Admin {
 
 	public function get_version() {
 		return $this->version;
+	}
+
+	public function add_share_meta_box() {
+		$post_types = get_post_types(array('public' => true), 'names');
+		if (isset($post_types['attachment'])) {
+			unset($post_types['attachment']);
+		}
+		foreach ($post_types as $post_type) {
+			add_meta_box(
+				'lightshare_meta_box',
+				__('Lightshare Settings', 'lightshare'),
+				array($this, 'render_share_meta_box'),
+				$post_type,
+				'side',
+				'default'
+			);
+		}
+	}
+
+	public function render_share_meta_box($post) {
+		wp_nonce_field('lightshare_meta_box', 'lightshare_meta_nonce');
+
+		$disabled = get_post_meta($post->ID, '_lightshare_disable', true);
+		$position = get_post_meta($post->ID, '_lightshare_inline_position', true);
+		$networks = get_post_meta($post->ID, '_lightshare_networks', true);
+		$nudge_text = get_post_meta($post->ID, '_lightshare_nudge_text', true);
+
+		if (!is_array($networks)) {
+			$networks = array();
+		}
+
+		$network_definitions = Share_Button::get_network_definitions();
+		?>
+		<p>
+			<label>
+				<input type="checkbox" name="lightshare_disable" value="1" <?php checked((bool) $disabled, true); ?> />
+				<?php esc_html_e('Disable Lightshare on this post', 'lightshare'); ?>
+			</label>
+		</p>
+		<p>
+			<label for="lightshare_inline_position"><strong><?php esc_html_e('Inline Position', 'lightshare'); ?></strong></label>
+			<select name="lightshare_inline_position" id="lightshare_inline_position" style="width: 100%;">
+				<option value=""><?php esc_html_e('Inherit', 'lightshare'); ?></option>
+				<option value="before" <?php selected($position, 'before'); ?>><?php esc_html_e('Before content', 'lightshare'); ?></option>
+				<option value="after" <?php selected($position, 'after'); ?>><?php esc_html_e('After content', 'lightshare'); ?></option>
+			</select>
+		</p>
+		<p><strong><?php esc_html_e('Networks', 'lightshare'); ?></strong></p>
+		<div style="max-height: 160px; overflow: auto; padding: 4px 0;">
+			<?php foreach ($network_definitions as $slug => $data) : ?>
+				<label style="display:block; margin-bottom: 4px;">
+					<input type="checkbox" name="lightshare_networks[]" value="<?php echo esc_attr($slug); ?>" <?php checked(in_array($slug, $networks, true)); ?> />
+					<?php echo esc_html($data['label']); ?>
+				</label>
+			<?php endforeach; ?>
+		</div>
+		<p>
+			<label for="lightshare_nudge_text"><strong><?php esc_html_e('Nudge Text', 'lightshare'); ?></strong></label>
+			<textarea name="lightshare_nudge_text" id="lightshare_nudge_text" rows="3" style="width: 100%;"><?php echo esc_textarea($nudge_text); ?></textarea>
+		</p>
+		<?php
+	}
+
+	public function save_share_meta_box($post_id) {
+		if (!isset($_POST['lightshare_meta_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['lightshare_meta_nonce'])), 'lightshare_meta_box')) {
+			return;
+		}
+
+		if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+			return;
+		}
+
+		if (!current_user_can('edit_post', $post_id)) {
+			return;
+		}
+
+		$disabled = isset($_POST['lightshare_disable']) ? '1' : '';
+		if ($disabled) {
+			update_post_meta($post_id, '_lightshare_disable', '1');
+		} else {
+			delete_post_meta($post_id, '_lightshare_disable');
+		}
+
+		$position = isset($_POST['lightshare_inline_position']) ? sanitize_text_field(wp_unslash($_POST['lightshare_inline_position'])) : '';
+		if (in_array($position, array('before', 'after'), true)) {
+			update_post_meta($post_id, '_lightshare_inline_position', $position);
+		} else {
+			delete_post_meta($post_id, '_lightshare_inline_position');
+		}
+
+		$networks = array();
+		if (isset($_POST['lightshare_networks']) && is_array($_POST['lightshare_networks'])) {
+			$networks = array_map('sanitize_text_field', wp_unslash($_POST['lightshare_networks']));
+			$networks = array_intersect($networks, Share_Button::get_allowed_networks());
+			$networks = array_values(array_unique($networks));
+		}
+		if (!empty($networks)) {
+			update_post_meta($post_id, '_lightshare_networks', $networks);
+		} else {
+			delete_post_meta($post_id, '_lightshare_networks');
+		}
+
+		$nudge_text = isset($_POST['lightshare_nudge_text']) ? sanitize_text_field(wp_unslash($_POST['lightshare_nudge_text'])) : '';
+		if ($nudge_text !== '') {
+			update_post_meta($post_id, '_lightshare_nudge_text', $nudge_text);
+		} else {
+			delete_post_meta($post_id, '_lightshare_nudge_text');
+		}
 	}
 }

@@ -263,6 +263,13 @@ class Public_Core {
 
 	public function add_share_buttons($content) {
 		if (is_singular() && is_main_query()) {
+			$post_id = get_the_ID();
+			if ($post_id) {
+				$disabled = get_post_meta($post_id, '_lightshare_disable', true);
+				if ($disabled) {
+					return $content;
+				}
+			}
 			// Check if inline sharing is enabled
 			$inline_enabled = LS_Options::get_option('inline.enabled', false);
 
@@ -270,8 +277,23 @@ class Public_Core {
 				// Check if enabled for this post type
 				$post_types = LS_Options::get_option('inline.post_types', array('post'));
 				if (is_singular($post_types)) {
-					$buttons = Share_Button::render_buttons();
+					$args = array();
+					if ($post_id) {
+						$override_networks = get_post_meta($post_id, '_lightshare_networks', true);
+						if (is_array($override_networks) && !empty($override_networks)) {
+							$args['networks'] = implode(',', $override_networks);
+						}
+						$nudge_text = get_post_meta($post_id, '_lightshare_nudge_text', true);
+						if (is_string($nudge_text) && $nudge_text !== '') {
+							$args['nudge_text'] = $nudge_text;
+						}
+					}
+					$buttons = Share_Button::render_buttons($args);
 					$position = LS_Options::get_option('inline.position', 'after');
+					$override_position = $post_id ? get_post_meta($post_id, '_lightshare_inline_position', true) : '';
+					if (in_array($override_position, array('before', 'after'), true)) {
+						$position = $override_position;
+					}
 					if ($position === 'before') {
 						return $buttons . $content;
 					}
@@ -289,11 +311,30 @@ class Public_Core {
 			$post_types = LS_Options::get_option('floating.post_types', array('post', 'page'));
 			
 			if (is_singular($post_types)) {
+				$post_id = get_the_ID();
+				if ($post_id) {
+					$disabled = get_post_meta($post_id, '_lightshare_disable', true);
+					if ($disabled) {
+						return;
+					}
+				}
 				$alignment = LS_Options::get_option('floating.button_alignment', 'left');
 				$size = LS_Options::get_option('floating.button_size', 'medium');
-				echo wp_kses_post(Share_Button::render_buttons(array(
+				$args = array(
 					'class' => 'lightshare-floating lightshare-floating-' . esc_attr($alignment) . ' lightshare-floating-size-' . esc_attr($size),
 					'show_label' => false
+				);
+				if ($post_id) {
+					$override_networks = get_post_meta($post_id, '_lightshare_networks', true);
+					if (is_array($override_networks) && !empty($override_networks)) {
+						$args['networks'] = implode(',', $override_networks);
+					}
+				}
+				echo wp_kses_post(Share_Button::render_buttons(array(
+					'class' => $args['class'],
+					'show_label' => $args['show_label'],
+					'networks' => isset($args['networks']) ? $args['networks'] : '',
+					'show_nudge' => false
 				)));
 			}
 		}
