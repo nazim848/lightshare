@@ -46,7 +46,61 @@ class LS_Options {
 		if (!is_array($options)) {
 			$options = array();
 		}
-		return array_replace_recursive($defaults, $options);
+		return self::merge_options($defaults, $options);
+	}
+
+	/**
+	 * Recursively merge saved options with defaults.
+	 * Lists (numeric arrays) are replaced entirely to avoid re-adding defaults.
+	 *
+	 * @param mixed $defaults
+	 * @param mixed $options
+	 * @return mixed
+	 */
+	private static function merge_options($defaults, $options) {
+		if (!is_array($defaults)) {
+			return $options;
+		}
+		if (!is_array($options)) {
+			return $defaults;
+		}
+
+		$defaults_is_list = self::is_list_array($defaults);
+		$options_is_list = self::is_list_array($options);
+		if ($defaults_is_list && $options_is_list) {
+			// Replace list-type defaults with saved list (even if empty).
+			return $options;
+		}
+
+		$merged = $defaults;
+		foreach ($options as $key => $value) {
+			if (array_key_exists($key, $defaults)) {
+				$merged[$key] = self::merge_options($defaults[$key], $value);
+			} else {
+				$merged[$key] = $value;
+			}
+		}
+		return $merged;
+	}
+
+	/**
+	 * Determine if an array is a list (numeric, sequential keys).
+	 *
+	 * @param array $array
+	 * @return bool
+	 */
+	private static function is_list_array($array) {
+		if (function_exists('array_is_list')) {
+			return array_is_list($array);
+		}
+		$expected_key = 0;
+		foreach ($array as $key => $_value) {
+			if ($key !== $expected_key) {
+				return false;
+			}
+			$expected_key++;
+		}
+		return true;
 	}
 
 	/**

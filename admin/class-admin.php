@@ -36,6 +36,8 @@ class Admin {
 			return;
 		}
 		wp_enqueue_style('lightshare-admin', plugin_dir_url(__FILE__) . 'css/lightshare-admin.css', array(), $this->version, 'all');
+		// Load frontend styles to make preview match frontend output.
+		wp_enqueue_style('lightshare-public', LIGHTSHARE_PLUGIN_URL . 'public/css/lightshare-public.css', array(), $this->version, 'all');
 	}
 
 	public function enqueue_scripts($hook) {
