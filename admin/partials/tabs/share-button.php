@@ -89,6 +89,21 @@ $lightshare_ordered_networks += $lightshare_available_networks;
             </tr>
             <tr valign="top">
                 <th scope="row">
+                    <div class="lightshare-title-wrapper">Color Theme
+                        <span class="dashicons dashicons-editor-help" data-title="Choose the color theme for share buttons."></span>
+                    </div>
+                </th>
+                <td>
+                    <select name="lightshare_options[share][color_theme]">
+                        <option value="brand" <?php selected(LS_Options::get_option('share.color_theme', 'brand'), 'brand'); ?>>Default (Brand colors)</option>
+                        <option value="dark" <?php selected(LS_Options::get_option('share.color_theme', 'brand'), 'dark'); ?>>Dark</option>
+                        <option value="gray" <?php selected(LS_Options::get_option('share.color_theme', 'brand'), 'gray'); ?>>Gray</option>
+                        <option value="white" <?php selected(LS_Options::get_option('share.color_theme', 'brand'), 'white'); ?>>White</option>
+                    </select>
+                </td>
+            </tr>
+            <tr valign="top">
+                <th scope="row">
                     <div class="lightshare-title-wrapper">Show Label
                         <span class="dashicons dashicons-editor-help" data-title="Toggle the Share label before the buttons."></span>
                     </div>

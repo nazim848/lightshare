@@ -91,6 +91,10 @@ class LightshareAdmin {
 			"change",
 			this.updatePreview.bind(this)
 		);
+		this.$("select[name='lightshare_options[share][color_theme]']").on(
+			"change",
+			this.updatePreview.bind(this)
+		);
 		this.$("input[name='lightshare_options[share][show_label]']").on(
 			"change",
 			this.updatePreview.bind(this)
@@ -330,6 +334,9 @@ class LightshareAdmin {
 		const labelText = this.$(
 			"input[name='lightshare_options[share][label_text]']"
 		).val();
+		const colorTheme = this.$(
+			"select[name='lightshare_options[share][color_theme]']"
+		).val();
 
 		this.$.ajax({
 			url: lightshare_admin.ajax_url,
@@ -339,11 +346,22 @@ class LightshareAdmin {
 				nonce: lightshare_admin.nonce,
 				networks: activeNetworks.join(","),
 				style: style || "",
+				color_theme: colorTheme || "",
 				show_label: showLabel ? 1 : 0,
 				label_text: labelText || ""
 			},
 			success: response => {
 				if (response.success && response.data?.html) {
+					if (response.data?.css) {
+						const styleId = "lightshare-preview-theme";
+						let styleTag = document.getElementById(styleId);
+						if (!styleTag) {
+							styleTag = document.createElement("style");
+							styleTag.id = styleId;
+							document.head.appendChild(styleTag);
+						}
+						styleTag.textContent = response.data.css;
+					}
 					$preview.html(response.data.html);
 				}
 			}

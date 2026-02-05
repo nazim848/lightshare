@@ -111,21 +111,27 @@ class Share_Button {
 	 *
 	 * @return string
 	 */
-	public static function get_network_color_css() {
+	public static function get_network_color_css($theme_override = null, $scope_selector = '') {
 		$definitions = self::get_network_definitions();
+		$theme = self::get_color_theme($theme_override);
 		$rules = array();
+		$scope = $scope_selector ? rtrim($scope_selector) . ' ' : '';
 
 		foreach ($definitions as $slug => $definition) {
-			if (!isset($definition['color'])) {
-				continue;
-			}
-			$color = sanitize_hex_color($definition['color']);
+			$color = self::resolve_theme_color($definition, $theme);
 			if (empty($color)) {
 				continue;
 			}
 			$slug = sanitize_key($slug);
-			$rules[] = ".lightshare-{$slug} { background-color: {$color}; }";
-			$rules[] = ".lightshare-style-minimal .lightshare-{$slug} { color: {$color} !important; }";
+			$rules[] = "{$scope}.lightshare-{$slug} { background-color: {$color}; }";
+			$minimal_color = ($theme === 'white') ? '#111111' : $color;
+			$rules[] = "{$scope}.lightshare-style-minimal .lightshare-{$slug} { color: {$minimal_color} !important; }";
+		}
+
+		if ($theme === 'white') {
+			$rules[] = "{$scope}.lightshare-theme-white .lightshare-button { color: #111111 !important; }";
+			$rules[] = "{$scope}.lightshare-theme-white .lightshare-button:hover { color: #111111 !important; }";
+			$rules[] = "{$scope}.lightshare-theme-white .lightshare-button { border: 1px solid #eaeaea; }";
 		}
 
 		return implode("\n", $rules);
@@ -136,15 +142,13 @@ class Share_Button {
 	 *
 	 * @return string
 	 */
-	public static function get_admin_network_color_css() {
+	public static function get_admin_network_color_css($theme_override = null) {
 		$definitions = self::get_network_definitions();
+		$theme = self::get_color_theme($theme_override);
 		$rules = array();
 
 		foreach ($definitions as $slug => $definition) {
-			if (!isset($definition['color'])) {
-				continue;
-			}
-			$color = sanitize_hex_color($definition['color']);
+			$color = self::resolve_theme_color($definition, $theme);
 			if (empty($color)) {
 				continue;
 			}
@@ -152,7 +156,48 @@ class Share_Button {
 			$rules[] = "li.lightshare-social-network-{$slug} label.active { background: {$color}; }";
 		}
 
+		if ($theme === 'white') {
+			$rules[] = ".lightshare-social-networks li label.active { color: #111111; }";
+		}
+
 		return implode("\n", $rules);
+	}
+
+	/**
+	 * Resolve the active color theme.
+	 *
+	 * @return string
+	 */
+	private static function get_color_theme($override = null) {
+		$theme_source = $override !== null ? $override : LS_Options::get_option('share.color_theme', 'brand');
+		$theme = sanitize_key($theme_source);
+		$allowed = array('brand', 'dark', 'gray', 'white');
+		if (!in_array($theme, $allowed, true)) {
+			$theme = 'brand';
+		}
+		return $theme;
+	}
+
+	/**
+	 * Resolve a color based on the selected theme.
+	 *
+	 * @param array  $definition
+	 * @param string $theme
+	 * @return string
+	 */
+	private static function resolve_theme_color($definition, $theme) {
+		$brand = isset($definition['color']) ? sanitize_hex_color($definition['color']) : '';
+		switch ($theme) {
+			case 'dark':
+				return '#111111';
+			case 'gray':
+				return '#6c757d';
+			case 'white':
+				return '#ffffff';
+			case 'brand':
+			default:
+				return $brand;
+		}
 	}
 
 	/**
@@ -314,7 +359,8 @@ class Share_Button {
 		}
 		$encoded_image = urlencode($image_url);
 
-		$wrapper_class = 'lightshare-container lightshare-style-' . esc_attr($style);
+		$color_theme = self::get_color_theme(isset($args['color_theme']) ? $args['color_theme'] : null);
+		$wrapper_class = 'lightshare-container lightshare-style-' . esc_attr($style) . ' lightshare-theme-' . esc_attr($color_theme);
 		if (!empty($args['class'])) {
 			$wrapper_class .= ' ' . esc_attr($args['class']);
 		}

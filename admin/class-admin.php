@@ -202,6 +202,7 @@ class Admin {
 				'social_networks_order' => 'array',
 				'show_counts' => 'boolean',
 				'style' => 'text_field',
+				'color_theme' => 'text_field',
 				'show_label' => 'boolean',
 				'label_text' => 'text_field',
 				'ai_association_text' => 'text_field'
@@ -326,10 +327,12 @@ class Admin {
 		$style = isset($_POST['style']) ? sanitize_text_field(wp_unslash($_POST['style'])) : '';
 		$show_label = isset($_POST['show_label']) ? (bool) absint(wp_unslash($_POST['show_label'])) : true;
 		$label_text = isset($_POST['label_text']) ? sanitize_text_field(wp_unslash($_POST['label_text'])) : '';
+		$color_theme = isset($_POST['color_theme']) ? sanitize_key(wp_unslash($_POST['color_theme'])) : '';
 
 		$args = array(
 			'networks' => $networks,
 			'style' => $style,
+			'color_theme' => $color_theme,
 			'show_label' => $show_label,
 			'label_text' => $label_text,
 			'url' => home_url('/'),
@@ -337,9 +340,11 @@ class Admin {
 		);
 
 		$html = Share_Button::render_buttons($args);
+		$css = Share_Button::get_network_color_css($color_theme, '#lightshare-preview');
 
 		wp_send_json_success(array(
-			'html' => $html
+			'html' => $html,
+			'css' => $css
 		));
 	}
 
