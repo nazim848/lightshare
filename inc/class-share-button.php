@@ -115,6 +115,7 @@ class Share_Button {
 		$definitions = self::get_network_definitions();
 		$theme = self::get_color_theme($theme_override);
 		$rules = array();
+		$scope_selector = self::sanitize_css_selector($scope_selector);
 		$scope = $scope_selector ? rtrim($scope_selector) . ' ' : '';
 
 		if ($theme !== 'brand') {
@@ -123,14 +124,14 @@ class Share_Button {
 				$rules[] = "{$scope}.lightshare-theme-{$theme} .lightshare-button { background-color: {$color}; }";
 			}
 		} else {
-		foreach ($definitions as $slug => $definition) {
-			$color = self::resolve_theme_color($definition, $theme);
-			if (empty($color)) {
-				continue;
+			foreach ($definitions as $slug => $definition) {
+				$color = self::resolve_theme_color($definition, $theme);
+				if (empty($color)) {
+					continue;
+				}
+				$slug = sanitize_key($slug);
+				$rules[] = "{$scope}.lightshare-{$slug} { background-color: {$color}; }";
 			}
-			$slug = sanitize_key($slug);
-			$rules[] = "{$scope}.lightshare-{$slug} { background-color: {$color}; }";
-		}
 		}
 
 		if ($theme === 'white') {
@@ -139,7 +140,7 @@ class Share_Button {
 			$rules[] = "{$scope}.lightshare-theme-white .lightshare-button { border: 1px solid #eaeaea; }";
 		}
 
-		return implode("\n", $rules);
+		return self::sanitize_inline_css(implode("\n", $rules));
 	}
 
 	/**
@@ -158,14 +159,14 @@ class Share_Button {
 				$rules[] = ".lightshare-social-networks li label.active { background: {$color}; }";
 			}
 		} else {
-		foreach ($definitions as $slug => $definition) {
-			$color = self::resolve_theme_color($definition, $theme);
-			if (empty($color)) {
-				continue;
+			foreach ($definitions as $slug => $definition) {
+				$color = self::resolve_theme_color($definition, $theme);
+				if (empty($color)) {
+					continue;
+				}
+				$slug = sanitize_key($slug);
+				$rules[] = "li.lightshare-social-network-{$slug} label.active { background: {$color}; }";
 			}
-			$slug = sanitize_key($slug);
-			$rules[] = "li.lightshare-social-network-{$slug} label.active { background: {$color}; }";
-		}
 		}
 
 		if ($theme === 'white') {
@@ -173,7 +174,33 @@ class Share_Button {
 			$rules[] = ".lightshare-social-networks li label.active { border: 1px solid #eaeaea; }";
 		}
 
-		return implode("\n", $rules);
+		return self::sanitize_inline_css(implode("\n", $rules));
+	}
+
+	/**
+	 * Sanitize a CSS selector fragment used to scope generated rules.
+	 *
+	 * @param string $selector Raw selector.
+	 * @return string
+	 */
+	private static function sanitize_css_selector($selector) {
+		$selector = is_string($selector) ? $selector : '';
+		$selector = wp_strip_all_tags($selector);
+		$selector = preg_replace('/[^a-zA-Z0-9\-\_\#\.\,\:\s\>\+\~\[\]\(\)\=\"\'\*]/', '', $selector);
+		return trim((string) $selector);
+	}
+
+	/**
+	 * Sanitize inline CSS output before rendering.
+	 *
+	 * @param string $css Raw CSS.
+	 * @return string
+	 */
+	public static function sanitize_inline_css($css) {
+		$css = is_string($css) ? $css : '';
+		$css = wp_strip_all_tags($css);
+		$css = preg_replace('/[^\x09\x0A\x0D\x20-\x7E]/', '', $css);
+		return trim((string) $css);
 	}
 
 	/**
@@ -473,7 +500,7 @@ class Share_Button {
 				$data_attr = $network === 'copy' ? ' data-url="' . esc_attr($permalink) . '"' : '';
 				$target = ($network === 'copy' || $network === 'email') ? '' : ' target="_blank" rel="noopener noreferrer"';
 				/* translators: %s: Social network label. */
-				$aria_label = ($network === 'copy') ? __('Copy link', 'lightshare') : sprintf(__('Share on %s', 'lightshare'), $label);
+				$aria_label = ($network === 'copy') ? __('Copy link', 'lightshare-social-sharing') : sprintf(__('Share on %s', 'lightshare-social-sharing'), $label);
 
 				$html .= sprintf(
 					'<a href="%s" class="lightshare-button lightshare-%s%s"%s%s title="Share on %s" aria-label="%s">',
@@ -523,7 +550,7 @@ class Share_Button {
 		}
 
 		$params = array(
-			'utm_source' => LS_Options::get_option('share.utm_source', 'lightshare'),
+			'utm_source' => LS_Options::get_option('share.utm_source', 'lightshare-social-sharing'),
 			'utm_medium' => LS_Options::get_option('share.utm_medium', 'share'),
 			'utm_campaign' => LS_Options::get_option('share.utm_campaign', '')
 		);

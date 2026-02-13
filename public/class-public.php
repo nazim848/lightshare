@@ -105,7 +105,10 @@ class Public_Core {
 			$this->version,
 			'all'
 		);
-		wp_add_inline_style($this->plugin_name . '-public', Share_Button::get_network_color_css());
+		$public_css = Share_Button::sanitize_inline_css(Share_Button::get_network_color_css());
+		if (!empty($public_css)) {
+			wp_add_inline_style($this->plugin_name . '-public', $public_css);
+		}
 	}
 
 	public function enqueue_scripts() {
@@ -306,10 +309,10 @@ class Public_Core {
 
 	public function add_floating_buttons() {
 		$enabled = LS_Options::get_option('floating.enabled', false);
-		
+
 		if ($enabled) {
 			$post_types = LS_Options::get_option('floating.post_types', array('post', 'page'));
-			
+
 			if (is_singular($post_types)) {
 				$post_id = get_the_ID();
 				if ($post_id) {

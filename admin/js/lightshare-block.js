@@ -14,22 +14,22 @@
 	var ToggleControl = wp.components.ToggleControl;
 	var ServerSideRender = wp.serverSideRender;
 
-	registerBlockType('lightshare/share-buttons', {
-		title: __('Lightshare Buttons', 'lightshare'),
-		icon: 'share',
-		category: 'widgets',
+	registerBlockType("lightshare/share-buttons", {
+		title: __("Lightshare Buttons", "lightshare-social-sharing"),
+		icon: "share",
+		category: "widgets",
 		attributes: {
 			networks: {
-				type: 'string',
-				default: ''
+				type: "string",
+				default: ""
 			},
 			showLabel: {
-				type: 'boolean',
+				type: "boolean",
 				default: true
 			},
 			labelText: {
-				type: 'string',
-				default: ''
+				type: "string",
+				default: ""
 			}
 		},
 		edit: function (props) {
@@ -39,26 +39,35 @@
 			return [
 				el(
 					InspectorControls,
-					{ key: 'inspector' },
+					{ key: "inspector" },
 					el(
 						PanelBody,
-						{ title: __('Lightshare Settings', 'lightshare'), initialOpen: true },
+						{
+							title: __(
+								"Lightshare Settings",
+								"lightshare-social-sharing"
+							),
+							initialOpen: true
+						},
 						el(TextControl, {
-							label: __('Networks (comma-separated)', 'lightshare'),
+							label: __(
+								"Networks (comma-separated)",
+								"lightshare-social-sharing"
+							),
 							value: attributes.networks,
 							onChange: function (value) {
 								setAttributes({ networks: value });
 							}
 						}),
 						el(ToggleControl, {
-							label: __('Show Label', 'lightshare'),
+							label: __("Show Label", "lightshare-social-sharing"),
 							checked: attributes.showLabel,
 							onChange: function (value) {
 								setAttributes({ showLabel: value });
 							}
 						}),
 						el(TextControl, {
-							label: __('Label Text', 'lightshare'),
+							label: __("Label Text", "lightshare-social-sharing"),
 							value: attributes.labelText,
 							onChange: function (value) {
 								setAttributes({ labelText: value });
@@ -67,10 +76,10 @@
 					)
 				),
 				el(
-					'div',
-					{ className: 'lightshare-block-preview' },
+					"div",
+					{ className: "lightshare-block-preview" },
 					el(ServerSideRender, {
-						block: 'lightshare/share-buttons',
+						block: "lightshare/share-buttons",
 						attributes: attributes
 					})
 				)
@@ -81,13 +90,16 @@
 		}
 	});
 
-	registerBlockVariation('core/shortcode', {
-		name: 'lightshare-shortcode',
-		title: __('Lightshare Shortcode', 'lightshare'),
-		description: __('Insert the Lightshare shortcode.', 'lightshare'),
-		attributes: { text: '[lightshare]' },
+	registerBlockVariation("core/shortcode", {
+		name: "lightshare-shortcode",
+		title: __("Lightshare Shortcode", "lightshare-social-sharing"),
+		description: __(
+			"Insert the Lightshare shortcode.",
+			"lightshare-social-sharing"
+		),
+		attributes: { text: "[lightshare]" },
 		isActive: function (blockAttributes) {
-			return blockAttributes.text === '[lightshare]';
+			return blockAttributes.text === "[lightshare]";
 		}
 	});
 })(window.wp);

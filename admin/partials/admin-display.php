@@ -5,7 +5,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 // Verify user capabilities
 if (!current_user_can('manage_options')) {
 	wp_die(
-		esc_html__('You do not have sufficient permissions to access this page.', 'lightshare'),
+		esc_html__('You do not have sufficient permissions to access this page.', 'lightshare-social-sharing'),
 		'',
 		array('response' => 403)
 	);
@@ -32,7 +32,7 @@ if (!array_key_exists($lightshare_active_tab, $tabs)) {
 
 <div class="wrap">
 	<!-- Logo -->
-	<div class="lightshare-logo"></div>
+	<div class="lightshare-logo"><span class="lightshare-version">v<?php echo esc_html(LIGHTSHARE_VERSION); ?></span></div>
 	<div class="lightshare-admin-content">
 		<h2 class="nav-tab-wrapper">
 			<?php

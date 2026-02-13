@@ -40,9 +40,10 @@ $lightshare_ordered_networks += $lightshare_available_networks;
                     <ul class="lightshare-social-networks">
                         <?php foreach ($lightshare_ordered_networks as $lightshare_network => $lightshare_data) :
                             $lightshare_is_active = in_array($lightshare_network, $lightshare_social_networks);
+                            $lightshare_active_class = $lightshare_is_active ? 'active' : '';
                         ?>
-                            <li class="lightshare-social-network-<?php echo esc_attr($lightshare_network); ?> <?php echo $lightshare_is_active ? 'active' : ''; ?>" data-network="<?php echo esc_attr($lightshare_network); ?>">
-                                <label for="lightshare-share-social-network-input-<?php echo esc_attr($lightshare_network); ?>" class="<?php echo $lightshare_is_active ? 'active' : ''; ?>">
+                            <li class="lightshare-social-network-<?php echo esc_attr($lightshare_network); ?> <?php echo esc_attr($lightshare_active_class); ?>" data-network="<?php echo esc_attr($lightshare_network); ?>">
+                                <label for="lightshare-share-social-network-input-<?php echo esc_attr($lightshare_network); ?>" class="<?php echo esc_attr($lightshare_active_class); ?>">
                                     <?php echo wp_kses_post($lightshare_data['icon']); ?>
                                     <?php echo esc_html($lightshare_data['label']); ?>
                                     <input type="checkbox"
@@ -54,7 +55,7 @@ $lightshare_ordered_networks += $lightshare_available_networks;
                             </li>
                         <?php endforeach; ?>
                     </ul>
-                    <input type="hidden" id="lightshare_social_networks_order" name="lightshare_options[share][social_networks_order]" value="<?php echo esc_attr(json_encode(array_keys($lightshare_ordered_networks))); ?>">
+                    <input type="hidden" id="lightshare_social_networks_order" name="lightshare_options[share][social_networks_order]" value="<?php echo esc_attr(wp_json_encode(array_keys($lightshare_ordered_networks))); ?>">
                 </td>
             </tr>
             <tr valign="top">
@@ -191,15 +192,15 @@ $lightshare_ordered_networks += $lightshare_available_networks;
                     </div>
                     <div class="lightshare-utm-fields" style="display: none;">
                         <p style="margin-bottom: 6px;">
-                            <label><?php esc_html_e('utm_source', 'lightshare'); ?></label><br>
-                            <input type="text" name="lightshare_options[share][utm_source]" value="<?php echo esc_attr(LS_Options::get_option('share.utm_source', 'lightshare')); ?>" class="regular-text" />
+                            <label><?php esc_html_e('utm_source', 'lightshare-social-sharing'); ?></label><br>
+                            <input type="text" name="lightshare_options[share][utm_source]" value="<?php echo esc_attr(LS_Options::get_option('share.utm_source', 'lightshare-social-sharing')); ?>" class="regular-text" />
                         </p>
                         <p style="margin-bottom: 6px;">
-                            <label><?php esc_html_e('utm_medium', 'lightshare'); ?></label><br>
+                            <label><?php esc_html_e('utm_medium', 'lightshare-social-sharing'); ?></label><br>
                             <input type="text" name="lightshare_options[share][utm_medium]" value="<?php echo esc_attr(LS_Options::get_option('share.utm_medium', 'share')); ?>" class="regular-text" />
                         </p>
                         <p style="margin-bottom: 0;">
-                            <label><?php esc_html_e('utm_campaign', 'lightshare'); ?></label><br>
+                            <label><?php esc_html_e('utm_campaign', 'lightshare-social-sharing'); ?></label><br>
                             <input type="text" name="lightshare_options[share][utm_campaign]" value="<?php echo esc_attr(LS_Options::get_option('share.utm_campaign', '')); ?>" class="regular-text" />
                         </p>
                     </div>
@@ -210,7 +211,7 @@ $lightshare_ordered_networks += $lightshare_available_networks;
         </table>
     </div>
     <div class="lightshare-card">
-        <h3 class="lightshare-preview-title"><?php esc_html_e('Preview', 'lightshare'); ?></h3>
+        <h3 class="lightshare-preview-title"><?php esc_html_e('Preview', 'lightshare-social-sharing'); ?></h3>
         <div id="lightshare-preview" class="lightshare-preview"></div>
     </div>
 </div>

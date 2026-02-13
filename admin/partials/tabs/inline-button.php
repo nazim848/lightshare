@@ -30,7 +30,7 @@ $lightshare_post_types = get_post_types(array('public' => true), 'objects');
 			</tr>
 		</table>
 
-		<div class="inline-button-settings" style="display: <?php echo LS_Options::get_option('inline.enabled') ? 'block' : 'none'; ?>;">
+		<div class="inline-button-settings" style="display: <?php echo esc_attr(LS_Options::get_option('inline.enabled') ? 'block' : 'none'); ?>;">
 			<table class="form-table">
 				<tr valign="top">
 					<th scope="row">

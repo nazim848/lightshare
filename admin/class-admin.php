@@ -40,8 +40,14 @@ class Admin {
 		wp_enqueue_style('lightshare-admin', plugin_dir_url(__FILE__) . 'css/lightshare-admin.css', array(), $this->version, 'all');
 		// Load frontend styles to make preview match frontend output.
 		wp_enqueue_style('lightshare-public', LIGHTSHARE_PLUGIN_URL . 'public/css/lightshare-public.css', array(), $this->version, 'all');
-		wp_add_inline_style('lightshare-public', Share_Button::get_network_color_css());
-		wp_add_inline_style('lightshare-admin', Share_Button::get_admin_network_color_css());
+		$public_css = Share_Button::sanitize_inline_css(Share_Button::get_network_color_css());
+		$admin_css = Share_Button::sanitize_inline_css(Share_Button::get_admin_network_color_css());
+		if (!empty($public_css)) {
+			wp_add_inline_style('lightshare-public', $public_css);
+		}
+		if (!empty($admin_css)) {
+			wp_add_inline_style('lightshare-admin', $admin_css);
+		}
 	}
 
 	public function enqueue_scripts($hook) {
@@ -72,7 +78,10 @@ class Admin {
 			array(),
 			$this->version
 		);
-		wp_add_inline_style('lightshare-block-preview', Share_Button::get_network_color_css());
+		$block_preview_css = Share_Button::sanitize_inline_css(Share_Button::get_network_color_css());
+		if (!empty($block_preview_css)) {
+			wp_add_inline_style('lightshare-block-preview', $block_preview_css);
+		}
 	}
 
 	// Save the settings
@@ -145,19 +154,19 @@ class Admin {
 		if (get_transient('lightshare_activation_notice')) {
 ?>
 			<div class="updated notice is-dismissible">
-				<p><?php esc_html_e('Thank you for installing Lightshare! Please visit the ', 'lightshare'); ?>
-					<a href="<?php echo esc_url(admin_url('options-general.php?page=lightshare')); ?>"><?php esc_html_e('settings page', 'lightshare'); ?></a>
-					<?php esc_html_e('to configure the plugin.', 'lightshare'); ?>
+				<p><?php esc_html_e('Thank you for installing Lightshare! Please visit the ', 'lightshare-social-sharing'); ?>
+					<a href="<?php echo esc_url(admin_url('options-general.php?page=lightshare')); ?>"><?php esc_html_e('settings page', 'lightshare-social-sharing'); ?></a>
+					<?php esc_html_e('to configure the plugin.', 'lightshare-social-sharing'); ?>
 				</p>
 			</div>
-<?php
+		<?php
 			delete_transient('lightshare_activation_notice');
 		}
 	}
 
 	// Add action links to the plugin page
 	public function add_action_links($links) {
-		$settings_link = '<a href="' . admin_url('options-general.php?page=lightshare') . '">' . __('Settings', 'lightshare') . '</a>';
+		$settings_link = '<a href="' . esc_url(admin_url('options-general.php?page=lightshare')) . '">' . esc_html__('Settings', 'lightshare-social-sharing') . '</a>';
 		array_unshift($links, $settings_link);
 		return $links;
 	}
@@ -285,7 +294,7 @@ class Admin {
 		// Verify nonce and capabilities
 		if (!check_ajax_referer('lightshare_options_verify', 'nonce', false) || !current_user_can('manage_options')) {
 			wp_send_json_error(array(
-				'message' => __('Security check failed or insufficient permissions.', 'lightshare')
+				'message' => __('Security check failed or insufficient permissions.', 'lightshare-social-sharing')
 			));
 		}
 
@@ -300,11 +309,11 @@ class Admin {
 
 		if ($update_result) {
 			wp_send_json_success(array(
-				'message' => __('Settings have been reset to default values.', 'lightshare')
+				'message' => __('Settings have been reset to default values.', 'lightshare-social-sharing')
 			));
 		} else {
 			wp_send_json_error(array(
-				'message' => __('Failed to reset settings. Please try again.', 'lightshare')
+				'message' => __('Failed to reset settings. Please try again.', 'lightshare-social-sharing')
 			));
 		}
 	}
@@ -313,7 +322,7 @@ class Admin {
 		// Verify nonce and capabilities
 		if (!check_ajax_referer('lightshare_options_verify', 'nonce', false) || !current_user_can('manage_options')) {
 			wp_send_json_error(array(
-				'message' => __('Security check failed or insufficient permissions.', 'lightshare')
+				'message' => __('Security check failed or insufficient permissions.', 'lightshare-social-sharing')
 			));
 		}
 
@@ -330,7 +339,7 @@ class Admin {
 
 		wp_send_json_success(array(
 			/* translators: %d number of rows removed */
-			'message' => sprintf(__('Share counts cleared. Rows removed: %d', 'lightshare'), $total_deleted)
+			'message' => sprintf(__('Share counts cleared. Rows removed: %d', 'lightshare-social-sharing'), $total_deleted)
 		));
 	}
 
@@ -338,7 +347,7 @@ class Admin {
 		// Verify nonce and capabilities
 		if (!check_ajax_referer('lightshare_options_verify', 'nonce', false) || !current_user_can('manage_options')) {
 			wp_send_json_error(array(
-				'message' => __('Security check failed or insufficient permissions.', 'lightshare')
+				'message' => __('Security check failed or insufficient permissions.', 'lightshare-social-sharing')
 			));
 		}
 
@@ -361,7 +370,7 @@ class Admin {
 		);
 
 		$html = Share_Button::render_buttons($args);
-		$css = Share_Button::get_network_color_css($color_theme, '#lightshare-preview');
+		$css = Share_Button::sanitize_inline_css(Share_Button::get_network_color_css($color_theme, '#lightshare-preview'));
 
 		wp_send_json_success(array(
 			'html' => $html,
@@ -385,7 +394,7 @@ class Admin {
 		foreach ($post_types as $post_type) {
 			add_meta_box(
 				'lightshare_meta_box',
-				__('Lightshare Settings', 'lightshare'),
+				__('Lightshare Settings', 'lightshare-social-sharing'),
 				array($this, 'render_share_meta_box'),
 				$post_type,
 				'side',
@@ -411,18 +420,18 @@ class Admin {
 		<p>
 			<label>
 				<input type="checkbox" name="lightshare_disable" value="1" <?php checked((bool) $disabled, true); ?> />
-				<?php esc_html_e('Disable Lightshare on this post', 'lightshare'); ?>
+				<?php esc_html_e('Disable Lightshare on this post', 'lightshare-social-sharing'); ?>
 			</label>
 		</p>
 		<p>
-			<label for="lightshare_inline_position"><strong><?php esc_html_e('Inline Position', 'lightshare'); ?></strong></label>
+			<label for="lightshare_inline_position"><strong><?php esc_html_e('Inline Position', 'lightshare-social-sharing'); ?></strong></label>
 			<select name="lightshare_inline_position" id="lightshare_inline_position" style="width: 100%;">
-				<option value=""><?php esc_html_e('Inherit', 'lightshare'); ?></option>
-				<option value="before" <?php selected($position, 'before'); ?>><?php esc_html_e('Before content', 'lightshare'); ?></option>
-				<option value="after" <?php selected($position, 'after'); ?>><?php esc_html_e('After content', 'lightshare'); ?></option>
+				<option value=""><?php esc_html_e('Inherit', 'lightshare-social-sharing'); ?></option>
+				<option value="before" <?php selected($position, 'before'); ?>><?php esc_html_e('Before content', 'lightshare-social-sharing'); ?></option>
+				<option value="after" <?php selected($position, 'after'); ?>><?php esc_html_e('After content', 'lightshare-social-sharing'); ?></option>
 			</select>
 		</p>
-		<p><strong><?php esc_html_e('Networks', 'lightshare'); ?></strong></p>
+		<p><strong><?php esc_html_e('Networks', 'lightshare-social-sharing'); ?></strong></p>
 		<div style="max-height: 160px; overflow: auto; padding: 4px 0;">
 			<?php foreach ($network_definitions as $slug => $data) : ?>
 				<label style="display:block; margin-bottom: 4px;">
@@ -432,10 +441,10 @@ class Admin {
 			<?php endforeach; ?>
 		</div>
 		<p>
-			<label for="lightshare_nudge_text"><strong><?php esc_html_e('Nudge Text', 'lightshare'); ?></strong></label>
+			<label for="lightshare_nudge_text"><strong><?php esc_html_e('Nudge Text', 'lightshare-social-sharing'); ?></strong></label>
 			<textarea name="lightshare_nudge_text" id="lightshare_nudge_text" rows="3" style="width: 100%;"><?php echo esc_textarea($nudge_text); ?></textarea>
 		</p>
-		<?php
+<?php
 	}
 
 	public function save_share_meta_box($post_id) {

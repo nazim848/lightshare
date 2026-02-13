@@ -3,16 +3,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Lightshare - Lightweight Social Sharing 1.0.0\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/lightshare\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/lightshare-social-sharing\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-02-05T09:51:28+00:00\n"
+"POT-Creation-Date: 2026-02-13T10:17:31+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
-"X-Domain: lightshare\n"
+"X-Domain: lightshare-social-sharing\n"
 
 #. Plugin Name of the plugin
 #: lightshare.php
@@ -34,71 +34,71 @@ msgstr ""
 msgid "https://nazimansari.com"
 msgstr ""
 
-#: admin/class-admin.php:148
+#: admin/class-admin.php:157
 msgid "Thank you for installing Lightshare! Please visit the "
 msgstr ""
 
-#: admin/class-admin.php:149
+#: admin/class-admin.php:158
 msgid "settings page"
 msgstr ""
 
-#: admin/class-admin.php:150
+#: admin/class-admin.php:159
 msgid "to configure the plugin."
 msgstr ""
 
-#: admin/class-admin.php:160
+#: admin/class-admin.php:169
 msgid "Settings"
 msgstr ""
 
-#: admin/class-admin.php:288
-#: admin/class-admin.php:316
-#: admin/class-admin.php:341
+#: admin/class-admin.php:297
+#: admin/class-admin.php:325
+#: admin/class-admin.php:350
 msgid "Security check failed or insufficient permissions."
 msgstr ""
 
-#: admin/class-admin.php:303
+#: admin/class-admin.php:312
 msgid "Settings have been reset to default values."
 msgstr ""
 
-#: admin/class-admin.php:307
+#: admin/class-admin.php:316
 msgid "Failed to reset settings. Please try again."
 msgstr ""
 
 #. translators: %d number of rows removed
-#: admin/class-admin.php:333
+#: admin/class-admin.php:342
 msgid "Share counts cleared. Rows removed: %d"
 msgstr ""
 
-#: admin/class-admin.php:388
-#: admin/js/lightshare-block.js:45
+#: admin/class-admin.php:397
+#: admin/js/lightshare-block.js:46
 msgid "Lightshare Settings"
 msgstr ""
 
-#: admin/class-admin.php:414
+#: admin/class-admin.php:423
 msgid "Disable Lightshare on this post"
 msgstr ""
 
-#: admin/class-admin.php:418
+#: admin/class-admin.php:427
 msgid "Inline Position"
 msgstr ""
 
-#: admin/class-admin.php:420
+#: admin/class-admin.php:429
 msgid "Inherit"
 msgstr ""
 
-#: admin/class-admin.php:421
+#: admin/class-admin.php:430
 msgid "Before content"
 msgstr ""
 
-#: admin/class-admin.php:422
+#: admin/class-admin.php:431
 msgid "After content"
 msgstr ""
 
-#: admin/class-admin.php:425
+#: admin/class-admin.php:434
 msgid "Networks"
 msgstr ""
 
-#: admin/class-admin.php:435
+#: admin/class-admin.php:444
 msgid "Nudge Text"
 msgstr ""
 
@@ -122,25 +122,13 @@ msgstr ""
 msgid "Preview"
 msgstr ""
 
-#: inc/class-core-tweaks.php:103
-msgid "Sorry, you do not have permission to make REST API requests."
-msgstr ""
-
-#: inc/class-core-tweaks.php:130
-msgid "Lightshare Warning"
-msgstr ""
-
-#: inc/class-core-tweaks.php:131
-msgid "WP_POST_REVISIONS is already enabled somewhere else on your site. We suggest only enabling this feature in one place."
-msgstr ""
-
 #. translators: %s: Social network label.
-#: inc/class-share-button.php:476
+#: inc/class-share-button.php:503
 msgid "Copy link"
 msgstr ""
 
 #. translators: %s: Social network label.
-#: inc/class-share-button.php:476
+#: inc/class-share-button.php:503
 msgid "Share on %s"
 msgstr ""
 
@@ -152,22 +140,22 @@ msgstr ""
 msgid "Lightshare Buttons"
 msgstr ""
 
-#: admin/js/lightshare-block.js:47
+#: admin/js/lightshare-block.js:53
 msgid "Networks (comma-separated)"
 msgstr ""
 
-#: admin/js/lightshare-block.js:54
+#: admin/js/lightshare-block.js:63
 msgid "Show Label"
 msgstr ""
 
-#: admin/js/lightshare-block.js:61
+#: admin/js/lightshare-block.js:70
 msgid "Label Text"
 msgstr ""
 
-#: admin/js/lightshare-block.js:86
+#: admin/js/lightshare-block.js:95
 msgid "Lightshare Shortcode"
 msgstr ""
 
-#: admin/js/lightshare-block.js:87
+#: admin/js/lightshare-block.js:96
 msgid "Insert the Lightshare shortcode."
 msgstr ""
