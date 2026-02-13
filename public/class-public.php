@@ -333,13 +333,43 @@ class Public_Core {
 						$args['networks'] = implode(',', $override_networks);
 					}
 				}
-				echo wp_kses_post(Share_Button::render_buttons(array(
+				$floating_html = Share_Button::render_buttons(array(
 					'class' => $args['class'],
 					'show_label' => $args['show_label'],
 					'networks' => isset($args['networks']) ? $args['networks'] : '',
 					'show_nudge' => false
-				)));
+				));
+				echo wp_kses($floating_html, $this->get_allowed_share_html());
 			}
 		}
+	}
+
+	/**
+	 * Return allowed HTML for rendering share buttons with SVG icons.
+	 *
+	 * @return array
+	 */
+	private function get_allowed_share_html() {
+		$allowed = wp_kses_allowed_html('post');
+		$allowed['svg'] = array(
+			'xmlns' => true,
+			'width' => true,
+			'height' => true,
+			'viewbox' => true,
+			'viewBox' => true,
+			'fill' => true,
+			'class' => true,
+			'aria-hidden' => true,
+			'focusable' => true,
+			'role' => true
+		);
+		$allowed['path'] = array(
+			'd' => true,
+			'fill' => true,
+			'fill-rule' => true,
+			'clip-rule' => true
+		);
+
+		return $allowed;
 	}
 }
