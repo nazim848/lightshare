@@ -6,6 +6,10 @@ const initLightsharePublic = () => {
 	}
 	window.__lightsharePublicInitialized = true;
 
+	// How long the toast stays visible (ms).
+	const TOAST_DURATION = 2000;
+
+	// Parse a scroll offset string (e.g. '200', '50%', '100px') into { amount, unit }.
 	function parseScrollOffset(offsetValue) {
 		if (!offsetValue) {
 			return null;
@@ -23,6 +27,7 @@ const initLightsharePublic = () => {
 		};
 	}
 
+	// Send a POST request with URL-encoded data and return parsed JSON.
 	function postAjax(url, data) {
 		return fetch(url, {
 			method: 'POST',
@@ -34,6 +39,7 @@ const initLightsharePublic = () => {
 		}).then(response => response.json());
 	}
 
+	// Legacy clipboard fallback using a hidden textarea and execCommand.
 	function fallbackCopyText(text) {
 		const textarea = document.createElement('textarea');
 		textarea.value = text;
@@ -56,6 +62,7 @@ const initLightsharePublic = () => {
 		return copied;
 	}
 
+	// Copy text to clipboard using Clipboard API with execCommand fallback.
 	function copyText(text) {
 		if (
 			navigator.clipboard &&
@@ -74,6 +81,7 @@ const initLightsharePublic = () => {
 		});
 	}
 
+	// Initialize scroll-based visibility toggling for floating share buttons.
 	function initFloatingScrollVisibility() {
 		const floatingElements = document.querySelectorAll('.lightshare-floating');
 		floatingElements.forEach(floating => {
@@ -94,6 +102,8 @@ const initLightsharePublic = () => {
 			floating.classList.add('lightshare-floating-hidden');
 
 			let ticking = false;
+
+			// Calculate scroll threshold and toggle visibility class.
 			const updateVisibility = () => {
 				const documentHeight = Math.max(
 					document.body.scrollHeight,
@@ -107,32 +117,21 @@ const initLightsharePublic = () => {
 				const threshold = parsedOffset.unit === '%'
 					? maxScroll * (parsedOffset.amount / 100)
 					: parsedOffset.amount;
-				const currentScroll =
-					window.scrollY ||
-					window.pageYOffset ||
-					document.documentElement.scrollTop ||
-					document.body.scrollTop ||
-					0;
+				const currentScroll = window.scrollY || 0;
 
 				floating.classList.toggle('lightshare-floating-hidden', currentScroll < threshold);
 			};
 
+			// Throttled scroll/resize handler gated by requestAnimationFrame.
 			const onScrollOrResize = () => {
 				if (ticking) {
 					return;
 				}
 				ticking = true;
-				if (window.requestAnimationFrame) {
-					window.requestAnimationFrame(() => {
-						updateVisibility();
-						ticking = false;
-					});
-				} else {
-					setTimeout(() => {
-						updateVisibility();
-						ticking = false;
-					}, 16);
-				}
+				requestAnimationFrame(() => {
+					updateVisibility();
+					ticking = false;
+				});
 			};
 
 			updateVisibility();
@@ -141,6 +140,7 @@ const initLightsharePublic = () => {
 		});
 	}
 
+	// Display a brief toast notification at the bottom of the screen.
 	function showToast(message) {
 		let toast = document.getElementById('lightshare-toast');
 		if (!toast) {
@@ -154,9 +154,33 @@ const initLightsharePublic = () => {
 		toast.classList.add('is-visible');
 		setTimeout(() => {
 			toast.classList.remove('is-visible');
-		}, 2000);
+		}, TOAST_DURATION);
 	}
 
+	// Extract the network slug from a share button's class list (e.g. 'lightshare-twitter' -> 'twitter').
+	function getNetworkFromButton(button) {
+		for (const className of button.classList) {
+			if (
+				className.startsWith('lightshare-') &&
+				className !== 'lightshare-button' &&
+				className !== 'lightshare-copy'
+			) {
+				return className.slice('lightshare-'.length);
+			}
+		}
+		return '';
+	}
+
+	// Resolve AJAX URL and nonce from container data attributes or global config.
+	function getAjaxConfig(container) {
+		const config = window.lightshare_ajax;
+		return {
+			ajaxUrl: container.getAttribute('data-ajax-url') || config?.ajax_url || '',
+			nonce: container.getAttribute('data-nonce') || config?.nonce || ''
+		};
+	}
+
+	// Delegated click handler for all share button interactions.
 	document.addEventListener('click', event => {
 		const button = event.target.closest('.lightshare-buttons a');
 		if (!button) {
@@ -173,39 +197,15 @@ const initLightsharePublic = () => {
 			event.preventDefault();
 			const url = button.dataset.url || '';
 			if (url) {
-				copyText(url).then(() => {
-					showToast('Link copied');
-				}).catch(error => {
-					console.error('Could not copy text: ', error);
-				});
+				copyText(url)
+					.then(() => showToast('Link copied'))
+					.catch(() => showToast('Failed to copy link'));
 			}
 		}
 
 		const postId = container.dataset.postId;
-		let network = '';
-
-		button.classList.forEach(className => {
-			if (
-				!network &&
-				className.indexOf('lightshare-') === 0 &&
-				className !== 'lightshare-button' &&
-				className !== 'lightshare-copy'
-			) {
-				network = className.replace('lightshare-', '');
-			}
-		});
-
-		if (isCopy) {
-			network = 'copy';
-		}
-
-		let ajaxUrl = container.getAttribute('data-ajax-url');
-		let nonce = container.getAttribute('data-nonce');
-		if (!ajaxUrl || !nonce) {
-			const ajaxConfig = window.lightshare_ajax || null;
-			ajaxUrl = ajaxConfig && ajaxConfig.ajax_url ? ajaxConfig.ajax_url : '';
-			nonce = ajaxConfig && ajaxConfig.nonce ? ajaxConfig.nonce : '';
-		}
+		const network = isCopy ? 'copy' : getNetworkFromButton(button);
+		const { ajaxUrl, nonce } = getAjaxConfig(container);
 
 		if (!ajaxUrl || !nonce || !postId || !network) {
 			return;
@@ -213,16 +213,16 @@ const initLightsharePublic = () => {
 
 		postAjax(ajaxUrl, {
 			action: 'lightshare_track_click',
-			nonce: nonce,
+			nonce,
 			post_id: postId,
-			network: network
+			network
 		}).then(response => {
-			if (!response || !response.success) {
+			if (!response?.success) {
 				return;
 			}
 
 			const previous = container.previousElementSibling;
-			const countSpan = previous && previous.matches('.lightshare-label')
+			const countSpan = previous?.matches('.lightshare-label')
 				? previous.querySelector('.lightshare-total-count')
 				: null;
 
@@ -230,7 +230,7 @@ const initLightsharePublic = () => {
 				countSpan.textContent = `(${response.data.count})`;
 			}
 		}).catch(() => {
-			// Do nothing if click tracking fails.
+			// Silent fail for click tracking.
 		});
 	});
 
