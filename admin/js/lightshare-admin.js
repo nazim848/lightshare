@@ -1,82 +1,47 @@
 class LightshareAdmin {
-	/** @type {number} Animation transition duration in ms. */
+	// Animation timing constants.
 	static ANIMATION_DURATION = 150;
-
-	/** @type {number} Delay before cleaning up animation styles (slightly > ANIMATION_DURATION). */
 	static ANIMATION_CLEANUP_DELAY = 160;
-
-	/** @type {number} How long an inline notice is visible before fading out. */
 	static NOTICE_DISPLAY_DURATION = 3000;
-
-	/** @type {number} Duration of the notice fade-out transition. */
 	static NOTICE_FADE_DURATION = 300;
-
-	/** @type {number} Debounce delay for preview updates triggered by text input. */
 	static PREVIEW_DEBOUNCE_DELAY = 400;
-
-	/** @type {number} Delay before reloading after a settings reset. */
 	static RELOAD_DELAY = 1500;
 
 	constructor() {
-		/** @type {HTMLElement|null} The list item currently being dragged. */
 		this.draggedItem = null;
-
-		/** @type {boolean} Whether a dragover rAF callback is pending. */
 		this._dragRafPending = false;
-
 		this.cacheElements();
 		this.init();
 	}
 
-	/**
-	 * Cache frequently accessed DOM elements to avoid repeated lookups.
-	 */
+	// Cache frequently accessed DOM elements.
 	cacheElements() {
-		/** @type {HTMLButtonElement|null} */
 		this.submitButton = document.getElementById("submit");
-
-		/** @type {HTMLElement|null} */
 		this.previewContainer = document.getElementById("lightshare-preview");
-
-		/** @type {HTMLElement|null} */
 		this.styleSelect = document.querySelector(
 			"select[name='lightshare_options[share][style]']"
 		);
-
-		/** @type {HTMLElement|null} */
 		this.colorThemeSelect = document.querySelector(
 			"select[name='lightshare_options[share][color_theme]']"
 		);
-
-		/** @type {HTMLElement|null} */
 		this.showLabelInput = document.querySelector(
 			"input[name='lightshare_options[share][show_label]']"
 		);
-
-		/** @type {HTMLElement|null} */
 		this.labelTextInput = document.querySelector(
 			"input[name='lightshare_options[share][label_text]']"
 		);
-
-		/** @type {HTMLElement|null} */
 		this.nudgeTextInput = document.querySelector(
 			"input[name='lightshare_options[share][nudge_text]']"
 		);
-
-		/** @type {HTMLElement|null} */
 		this.showCountsInput = document.querySelector(
 			"input[name='lightshare_options[share][show_counts]']"
 		);
-
-		/** @type {HTMLElement|null} */
 		this.utmEnabledInput = document.querySelector(
 			"input[name='lightshare_options[share][utm_enabled]']"
 		);
 	}
 
-	/**
-	 * Bootstrap all admin UI features.
-	 */
+	// Bootstrap all admin UI features.
 	init() {
 		this.initializeTabs();
 		this.setupEventHandlers();
@@ -87,13 +52,7 @@ class LightshareAdmin {
 		this.initializeSortable();
 	}
 
-	/**
-	 * Create a debounced version of a function.
-	 *
-	 * @param {Function} fn       - The function to debounce.
-	 * @param {number}   [delay]  - Delay in ms (defaults to PREVIEW_DEBOUNCE_DELAY).
-	 * @returns {Function} Debounced function.
-	 */
+	// Create a debounced version of a function.
 	debounce(fn, delay = LightshareAdmin.PREVIEW_DEBOUNCE_DELAY) {
 		let timer;
 		return (...args) => {
@@ -102,12 +61,7 @@ class LightshareAdmin {
 		};
 	}
 
-	/**
-	 * Send a POST request with URL-encoded data.
-	 *
-	 * @param {Object} data - Key-value pairs to send.
-	 * @returns {Promise<Object>} Parsed JSON response.
-	 */
+	// Send a POST request with URL-encoded data.
 	postAjax(data) {
 		return fetch(lightshare_admin.ajax_url, {
 			method: "POST",
@@ -119,12 +73,7 @@ class LightshareAdmin {
 		}).then(response => response.json());
 	}
 
-	/**
-	 * Send a POST request with FormData (multipart).
-	 *
-	 * @param {FormData} formData - The form data to send.
-	 * @returns {Promise<Object>} Parsed JSON response.
-	 */
+	// Send a POST request with FormData (multipart).
 	postFormData(formData) {
 		return fetch(lightshare_admin.ajax_url, {
 			method: "POST",
@@ -133,9 +82,7 @@ class LightshareAdmin {
 		}).then(response => response.json());
 	}
 
-	/**
-	 * Bind click handler for the "Reset Settings" button.
-	 */
+	// Bind click handler for the "Reset Settings" button.
 	setupResetSettings() {
 		const button = document.getElementById("lightshare-reset-settings");
 		if (button) {
@@ -143,9 +90,7 @@ class LightshareAdmin {
 		}
 	}
 
-	/**
-	 * Bind click handler for the "Reset Counts" button.
-	 */
+	// Bind click handler for the "Reset Counts" button.
 	setupResetCounts() {
 		const button = document.getElementById("lightshare-reset-counts");
 		if (button) {
@@ -153,15 +98,7 @@ class LightshareAdmin {
 		}
 	}
 
-	/**
-	 * Generic handler for reset-type AJAX actions with confirmation.
-	 *
-	 * @param {Event}    e              - The click event.
-	 * @param {string}   action         - The WP AJAX action name.
-	 * @param {string}   confirmMessage - Confirmation dialog text.
-	 * @param {string}   successMessage - Fallback success message.
-	 * @param {Function} [onSuccess]    - Optional callback after a successful response.
-	 */
+	// Generic handler for reset-type AJAX actions with confirmation.
 	handleResetAction(e, action, confirmMessage, successMessage, onSuccess) {
 		e.preventDefault();
 
@@ -204,11 +141,7 @@ class LightshareAdmin {
 			});
 	}
 
-	/**
-	 * Handle "Reset Settings" button click.
-	 *
-	 * @param {Event} e - Click event.
-	 */
+	// Handle "Reset Settings" button click.
 	handleResetSettings(e) {
 		this.handleResetAction(
 			e,
@@ -221,11 +154,7 @@ class LightshareAdmin {
 		);
 	}
 
-	/**
-	 * Handle "Reset Counts" button click.
-	 *
-	 * @param {Event} e - Click event.
-	 */
+	// Handle "Reset Counts" button click.
 	handleResetCounts(e) {
 		this.handleResetAction(
 			e,
@@ -235,23 +164,14 @@ class LightshareAdmin {
 		);
 	}
 
-	/**
-	 * Update a query string parameter in a URI using the URL API.
-	 *
-	 * @param {string} uri   - The full URI.
-	 * @param {string} key   - Parameter name.
-	 * @param {string} value - Parameter value.
-	 * @returns {string} Updated URI.
-	 */
+	// Update a query string parameter in a URI using the URL API.
 	updateQueryStringParameter(uri, key, value) {
 		const url = new URL(uri, window.location.origin);
 		url.searchParams.set(key, value);
 		return url.toString();
 	}
 
-	/**
-	 * Set up all event handlers for the admin settings page.
-	 */
+	// Set up all event handlers for the admin settings page.
 	setupEventHandlers() {
 		document.querySelectorAll(".nav-tab-wrapper a").forEach(tab => {
 			tab.addEventListener("click", this.handleTabClick.bind(this));
@@ -290,12 +210,7 @@ class LightshareAdmin {
 		});
 	}
 
-	/**
-	 * Toggle visibility of a settings section with slide animation.
-	 *
-	 * @param {string}  selector  - CSS selector for target elements.
-	 * @param {boolean} isVisible - Whether to show or hide.
-	 */
+	// Toggle visibility of a settings section with slide animation.
 	toggleSection(selector, isVisible) {
 		document.querySelectorAll(selector).forEach(element => {
 			if (isVisible) {
@@ -306,29 +221,17 @@ class LightshareAdmin {
 		});
 	}
 
-	/**
-	 * Handle floating button toggle change.
-	 *
-	 * @param {Event} e - Change event.
-	 */
+	// Handle floating button toggle change.
 	handleFloatingButtonToggle(e) {
 		this.toggleSection(".floating-button-settings", e.target.checked);
 	}
 
-	/**
-	 * Handle inline button toggle change.
-	 *
-	 * @param {Event} e - Change event.
-	 */
+	// Handle inline button toggle change.
 	handleInlineButtonToggle(e) {
 		this.toggleSection(".inline-button-settings", e.target.checked);
 	}
 
-	/**
-	 * Handle tab navigation click.
-	 *
-	 * @param {Event} e - Click event.
-	 */
+	// Handle tab navigation click.
 	handleTabClick(e) {
 		e.preventDefault();
 		const href = e.currentTarget.getAttribute("href") || "";
@@ -341,11 +244,7 @@ class LightshareAdmin {
 		);
 	}
 
-	/**
-	 * Handle settings form submission via AJAX.
-	 *
-	 * @param {Event} e - Submit event.
-	 */
+	// Handle settings form submission via AJAX.
 	handleFormSubmit(e) {
 		e.preventDefault();
 		const form = e.currentTarget;
@@ -385,12 +284,7 @@ class LightshareAdmin {
 			});
 	}
 
-	/**
-	 * Display an inline notice message below the submit button.
-	 *
-	 * @param {string} message - The notice text.
-	 * @param {string} type    - Notice type ('success' or 'error').
-	 */
+	// Display an inline notice message below the submit button.
 	showNotice(message, type) {
 		document.querySelectorAll(".lightshare-inline-notice").forEach(notice => {
 			notice.remove();
@@ -416,9 +310,7 @@ class LightshareAdmin {
 		}, LightshareAdmin.NOTICE_DISPLAY_DURATION);
 	}
 
-	/**
-	 * Show a loading state on the submit button and disable it.
-	 */
+	// Show a loading state on the submit button and disable it.
 	showLoadingIndicator() {
 		if (this.submitButton) {
 			this.submitButton.value = "Saving...";
@@ -426,9 +318,7 @@ class LightshareAdmin {
 		}
 	}
 
-	/**
-	 * Restore the submit button to its default state.
-	 */
+	// Restore the submit button to its default state.
 	hideLoadingIndicator() {
 		if (this.submitButton) {
 			this.submitButton.value = "Save Changes";
@@ -436,11 +326,7 @@ class LightshareAdmin {
 		}
 	}
 
-	/**
-	 * Animate an element open with a height transition.
-	 *
-	 * @param {HTMLElement} element - The element to slide down.
-	 */
+	// Animate an element open with a height transition.
 	slideDown(element) {
 		if (!element) {
 			return;
@@ -465,11 +351,7 @@ class LightshareAdmin {
 		}, LightshareAdmin.ANIMATION_CLEANUP_DELAY);
 	}
 
-	/**
-	 * Animate an element closed with a height transition.
-	 *
-	 * @param {HTMLElement} element - The element to slide up.
-	 */
+	// Animate an element closed with a height transition.
 	slideUp(element) {
 		if (!element || window.getComputedStyle(element).display === "none") {
 			return;
@@ -489,11 +371,7 @@ class LightshareAdmin {
 		}, LightshareAdmin.ANIMATION_CLEANUP_DELAY);
 	}
 
-	/**
-	 * Fade a table row into view.
-	 *
-	 * @param {HTMLElement} row - The table row to fade in.
-	 */
+	// Fade a table row into view.
 	fadeRowIn(row) {
 		if (!row) {
 			return;
@@ -516,11 +394,7 @@ class LightshareAdmin {
 		}, LightshareAdmin.ANIMATION_CLEANUP_DELAY);
 	}
 
-	/**
-	 * Fade a table row out of view.
-	 *
-	 * @param {HTMLElement} row - The table row to fade out.
-	 */
+	// Fade a table row out of view.
 	fadeRowOut(row) {
 		if (!row || window.getComputedStyle(row).display === "none") {
 			return;
@@ -539,12 +413,7 @@ class LightshareAdmin {
 		}, LightshareAdmin.ANIMATION_CLEANUP_DELAY);
 	}
 
-	/**
-	 * Show or hide conditional fields based on their toggle checkbox state.
-	 *
-	 * @param {Object}  [options]         - Options hash.
-	 * @param {boolean} [options.animate] - Whether to animate the transition (default true).
-	 */
+	// Show or hide conditional fields based on their toggle checkbox state.
 	syncConditionalFields(options = {}) {
 		const animate = options.animate !== false;
 
@@ -562,7 +431,7 @@ class LightshareAdmin {
 				const isVisible =
 					window.getComputedStyle(target).display !== "none";
 
-				// Show target when checkbox is checked and target is hidden.
+				// Show target when checked and hidden.
 				if (input.checked && !isVisible) {
 					if (animate) {
 						isRow ? this.fadeRowIn(target) : this.slideDown(target);
@@ -573,7 +442,7 @@ class LightshareAdmin {
 					return;
 				}
 
-				// Hide target when checkbox is unchecked and target is visible.
+				// Hide target when unchecked and visible.
 				if (!input.checked && isVisible) {
 					if (animate) {
 						isRow ? this.fadeRowOut(target) : this.slideUp(target);
@@ -585,19 +454,13 @@ class LightshareAdmin {
 		});
 	}
 
-	/**
-	 * Read the active tab from the URL and activate it.
-	 */
+	// Read the active tab from the URL and activate it.
 	initializeTabs() {
 		const urlParams = new URLSearchParams(window.location.search);
 		this.setActiveTab(urlParams.get("tab") || "share-button");
 	}
 
-	/**
-	 * Activate a specific tab by its ID.
-	 *
-	 * @param {string} tab - The tab ID to activate.
-	 */
+	// Activate a specific tab by its ID.
 	setActiveTab(tab) {
 		document.querySelectorAll(".nav-tab-wrapper a").forEach(link => {
 			link.classList.remove("nav-tab-active");
@@ -625,9 +488,7 @@ class LightshareAdmin {
 		}
 	}
 
-	/**
-	 * Serialize the current network order into the hidden input field.
-	 */
+	// Serialize the current network order into the hidden input field.
 	updateNetworksOrder() {
 		const orderInput = document.getElementById("lightshare_social_networks_order");
 		if (!orderInput) {
@@ -645,9 +506,7 @@ class LightshareAdmin {
 		orderInput.value = JSON.stringify(networks);
 	}
 
-	/**
-	 * Initialize drag-and-drop sorting for the social networks list.
-	 */
+	// Initialize drag-and-drop sorting for the social networks list.
 	initializeSortable() {
 		const list = document.querySelector(".lightshare-social-networks");
 		if (!list) {
@@ -744,9 +603,7 @@ class LightshareAdmin {
 		this.updateNetworksOrder();
 	}
 
-	/**
-	 * Initialize the live preview if the preview container exists.
-	 */
+	// Initialize the live preview if the preview container exists.
 	setupPreview() {
 		if (!this.previewContainer) {
 			return;
@@ -754,13 +611,8 @@ class LightshareAdmin {
 		this.updatePreview();
 	}
 
-	/**
-	 * Fetch and render a live preview of the share buttons via AJAX.
-	 *
-	 * Note: The server response HTML is injected via innerHTML. This is safe
-	 * because the endpoint requires manage_options capability, validates a nonce,
-	 * and Share_Button::render_buttons() escapes all output.
-	 */
+	// Fetch and render a live preview of the share buttons via AJAX.
+	// Note: innerHTML is safe here — endpoint requires manage_options + nonce, output is escaped server-side.
 	updatePreview() {
 		if (!this.previewContainer) {
 			return;
