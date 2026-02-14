@@ -104,7 +104,9 @@
 	margin: 0; /* Reset default margin */
 	opacity: 1;
 	visibility: visible;
-	transition: opacity 0.3s ease, visibility 0.3s ease;
+	transition:
+		opacity 0.3s ease,
+		visibility 0.3s ease;
 }
 
 .lightshare-floating.lightshare-floating-hidden {
@@ -123,15 +125,11 @@
 }
 
 .lightshare-floating-left {
-	left: 0;
-	border-top-left-radius: 0;
-	border-bottom-left-radius: 0;
+	left: 15px;
 }
 
 .lightshare-floating-right {
-	right: 0;
-	border-top-right-radius: 0;
-	border-bottom-right-radius: 0;
+	right: 15px;
 }
 
 .lightshare-floating .lightshare-button {

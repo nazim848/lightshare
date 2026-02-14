@@ -1,185 +1,338 @@
 class LightshareAdmin {
-	constructor($) {
-		this.$ = $;
+	/** @type {number} Animation transition duration in ms. */
+	static ANIMATION_DURATION = 150;
+
+	/** @type {number} Delay before cleaning up animation styles (slightly > ANIMATION_DURATION). */
+	static ANIMATION_CLEANUP_DELAY = 160;
+
+	/** @type {number} How long an inline notice is visible before fading out. */
+	static NOTICE_DISPLAY_DURATION = 3000;
+
+	/** @type {number} Duration of the notice fade-out transition. */
+	static NOTICE_FADE_DURATION = 300;
+
+	/** @type {number} Debounce delay for preview updates triggered by text input. */
+	static PREVIEW_DEBOUNCE_DELAY = 400;
+
+	/** @type {number} Delay before reloading after a settings reset. */
+	static RELOAD_DELAY = 1500;
+
+	constructor() {
+		/** @type {HTMLElement|null} The list item currently being dragged. */
+		this.draggedItem = null;
+
+		/** @type {boolean} Whether a dragover rAF callback is pending. */
+		this._dragRafPending = false;
+
+		this.cacheElements();
 		this.init();
 	}
 
+	/**
+	 * Cache frequently accessed DOM elements to avoid repeated lookups.
+	 */
+	cacheElements() {
+		/** @type {HTMLButtonElement|null} */
+		this.submitButton = document.getElementById("submit");
+
+		/** @type {HTMLElement|null} */
+		this.previewContainer = document.getElementById("lightshare-preview");
+
+		/** @type {HTMLElement|null} */
+		this.styleSelect = document.querySelector(
+			"select[name='lightshare_options[share][style]']"
+		);
+
+		/** @type {HTMLElement|null} */
+		this.colorThemeSelect = document.querySelector(
+			"select[name='lightshare_options[share][color_theme]']"
+		);
+
+		/** @type {HTMLElement|null} */
+		this.showLabelInput = document.querySelector(
+			"input[name='lightshare_options[share][show_label]']"
+		);
+
+		/** @type {HTMLElement|null} */
+		this.labelTextInput = document.querySelector(
+			"input[name='lightshare_options[share][label_text]']"
+		);
+
+		/** @type {HTMLElement|null} */
+		this.nudgeTextInput = document.querySelector(
+			"input[name='lightshare_options[share][nudge_text]']"
+		);
+
+		/** @type {HTMLElement|null} */
+		this.showCountsInput = document.querySelector(
+			"input[name='lightshare_options[share][show_counts]']"
+		);
+
+		/** @type {HTMLElement|null} */
+		this.utmEnabledInput = document.querySelector(
+			"input[name='lightshare_options[share][utm_enabled]']"
+		);
+	}
+
+	/**
+	 * Bootstrap all admin UI features.
+	 */
 	init() {
 		this.initializeTabs();
 		this.setupEventHandlers();
 		this.setupResetSettings();
 		this.setupResetCounts();
 		this.setupPreview();
-		this.syncConditionalFields();
+		this.syncConditionalFields({ animate: false });
 		this.initializeSortable();
 	}
 
+	/**
+	 * Create a debounced version of a function.
+	 *
+	 * @param {Function} fn       - The function to debounce.
+	 * @param {number}   [delay]  - Delay in ms (defaults to PREVIEW_DEBOUNCE_DELAY).
+	 * @returns {Function} Debounced function.
+	 */
+	debounce(fn, delay = LightshareAdmin.PREVIEW_DEBOUNCE_DELAY) {
+		let timer;
+		return (...args) => {
+			clearTimeout(timer);
+			timer = setTimeout(() => fn.apply(this, args), delay);
+		};
+	}
+
+	/**
+	 * Send a POST request with URL-encoded data.
+	 *
+	 * @param {Object} data - Key-value pairs to send.
+	 * @returns {Promise<Object>} Parsed JSON response.
+	 */
+	postAjax(data) {
+		return fetch(lightshare_admin.ajax_url, {
+			method: "POST",
+			credentials: "same-origin",
+			headers: {
+				"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+			},
+			body: new URLSearchParams(data)
+		}).then(response => response.json());
+	}
+
+	/**
+	 * Send a POST request with FormData (multipart).
+	 *
+	 * @param {FormData} formData - The form data to send.
+	 * @returns {Promise<Object>} Parsed JSON response.
+	 */
+	postFormData(formData) {
+		return fetch(lightshare_admin.ajax_url, {
+			method: "POST",
+			credentials: "same-origin",
+			body: formData
+		}).then(response => response.json());
+	}
+
+	/**
+	 * Bind click handler for the "Reset Settings" button.
+	 */
 	setupResetSettings() {
-		this.$("#lightshare-reset-settings").on(
-			"click",
-			this.handleResetSettings.bind(this)
-		);
+		const button = document.getElementById("lightshare-reset-settings");
+		if (button) {
+			button.addEventListener("click", this.handleResetSettings.bind(this));
+		}
 	}
 
+	/**
+	 * Bind click handler for the "Reset Counts" button.
+	 */
 	setupResetCounts() {
-		this.$("#lightshare-reset-counts").on(
-			"click",
-			this.handleResetCounts.bind(this)
-		);
+		const button = document.getElementById("lightshare-reset-counts");
+		if (button) {
+			button.addEventListener("click", this.handleResetCounts.bind(this));
+		}
 	}
 
+	/**
+	 * Generic handler for reset-type AJAX actions with confirmation.
+	 *
+	 * @param {Event}    e              - The click event.
+	 * @param {string}   action         - The WP AJAX action name.
+	 * @param {string}   confirmMessage - Confirmation dialog text.
+	 * @param {string}   successMessage - Fallback success message.
+	 * @param {Function} [onSuccess]    - Optional callback after a successful response.
+	 */
+	handleResetAction(e, action, confirmMessage, successMessage, onSuccess) {
+		e.preventDefault();
+
+		if (!confirm(confirmMessage)) {
+			return;
+		}
+
+		const button = e.currentTarget;
+		button.disabled = true;
+
+		this.showLoadingIndicator();
+		this.postAjax({
+			action,
+			nonce: lightshare_admin.nonce
+		})
+			.then(response => {
+				this.hideLoadingIndicator();
+				button.disabled = false;
+
+				if (response.success) {
+					this.showNotice(
+						(response.data && response.data.message) || successMessage,
+						"success"
+					);
+					if (onSuccess) {
+						onSuccess(response);
+					}
+				} else {
+					this.showNotice(
+						(response.data && response.data.message) ||
+							"Operation failed. Please try again.",
+						"error"
+					);
+				}
+			})
+			.catch(() => {
+				this.hideLoadingIndicator();
+				button.disabled = false;
+				this.showNotice("An error occurred. Please try again.", "error");
+			});
+	}
+
+	/**
+	 * Handle "Reset Settings" button click.
+	 *
+	 * @param {Event} e - Click event.
+	 */
 	handleResetSettings(e) {
-		e.preventDefault();
-		if (
-			!confirm(
-				"Are you sure you want to reset all Lightshare settings? This action cannot be undone."
-			)
-		) {
-			return;
-		}
-
-		this.showLoadingIndicator();
-		this.$.ajax({
-			url: lightshare_admin.ajax_url,
-			type: "POST",
-			data: {
-				action: "lightshare_reset_settings",
-				nonce: lightshare_admin.nonce
-			},
-			success: response => {
-				this.hideLoadingIndicator();
-				if (response.success) {
-					this.showNotice(
-						"Settings reset successfully. The page will now reload.",
-						"success"
-					);
-					setTimeout(() => location.reload(), 1500);
-				} else {
-					this.showNotice(
-						response.data?.message ||
-							"Failed to reset settings. Please try again.",
-						"error"
-					);
-				}
-			},
-			error: () => {
-				this.hideLoadingIndicator();
-				this.showNotice("An error occurred. Please try again.", "error");
+		this.handleResetAction(
+			e,
+			"lightshare_reset_settings",
+			"Are you sure you want to reset all Lightshare settings? This action cannot be undone.",
+			"Settings reset successfully. The page will now reload.",
+			() => {
+				setTimeout(() => location.reload(), LightshareAdmin.RELOAD_DELAY);
 			}
-		});
-	}
-
-	updateQueryStringParameter(uri, key, value) {
-		const re = new RegExp("([?&])" + key + "=.*?(&|$)", "i");
-		const separator = uri.indexOf("?") !== -1 ? "&" : "?";
-		return uri.match(re)
-			? uri.replace(re, "$1" + key + "=" + value + "$2")
-			: uri + separator + key + "=" + value;
-	}
-
-	setupEventHandlers() {
-		this.$(".nav-tab-wrapper a").on("click", this.handleTabClick.bind(this));
-		this.$("form").on("submit", this.handleFormSubmit.bind(this));
-		this.$(".floating-button-toggle").on(
-			"change",
-			this.handleFloatingButtonToggle.bind(this)
-		);
-		this.$(".inline-button-toggle").on(
-			"change",
-			this.handleInlineButtonToggle.bind(this)
-		);
-		this.$("select[name='lightshare_options[share][style]']").on(
-			"change",
-			this.updatePreview.bind(this)
-		);
-		this.$("select[name='lightshare_options[share][color_theme]']").on(
-			"change",
-			this.updatePreview.bind(this)
-		);
-		this.$("input[name='lightshare_options[share][show_label]']").on(
-			"change",
-			this.updatePreview.bind(this)
-		);
-		this.$("input[name='lightshare_options[share][label_text]']").on(
-			"input",
-			this.updatePreview.bind(this)
-		);
-		this.$("input[name='lightshare_options[share][show_counts]']").on(
-			"change",
-			this.syncConditionalFields.bind(this)
-		);
-		this.$("input[name='lightshare_options[share][utm_enabled]']").on(
-			"change",
-			this.syncConditionalFields.bind(this)
-		);
-		this.$("input[name='lightshare_options[share][show_label]']").on(
-			"change",
-			this.syncConditionalFields.bind(this)
-		);
-		this.$("input[name='lightshare_options[share][nudge_text]']").on(
-			"input",
-			this.updatePreview.bind(this)
 		);
 	}
 
-	handleFloatingButtonToggle(e) {
-		const isChecked = e.target.checked;
-		this.$(".floating-button-settings").slideToggle(
-			isChecked ? "fast" : "fast"
-		);
-	}
-
-	handleInlineButtonToggle(e) {
-		const isChecked = e.target.checked;
-		this.$(".inline-button-settings").slideToggle(
-			isChecked ? "fast" : "fast"
-		);
-	}
-
+	/**
+	 * Handle "Reset Counts" button click.
+	 *
+	 * @param {Event} e - Click event.
+	 */
 	handleResetCounts(e) {
-		e.preventDefault();
-		if (
-			!confirm(
-				"Are you sure you want to reset all share counts? This action cannot be undone."
-			)
-		) {
-			return;
-		}
+		this.handleResetAction(
+			e,
+			"lightshare_reset_counts",
+			"Are you sure you want to reset all share counts? This action cannot be undone.",
+			"Share counts reset successfully."
+		);
+	}
 
-		this.showLoadingIndicator();
-		this.$.ajax({
-			url: lightshare_admin.ajax_url,
-			type: "POST",
-			data: {
-				action: "lightshare_reset_counts",
-				nonce: lightshare_admin.nonce
-			},
-			success: response => {
-				this.hideLoadingIndicator();
-				if (response.success) {
-					this.showNotice(
-						response.data?.message ||
-							"Share counts reset successfully.",
-						"success"
-					);
-				} else {
-					this.showNotice(
-						response.data?.message ||
-							"Failed to reset counts. Please try again.",
-						"error"
-					);
-				}
-			},
-			error: () => {
-				this.hideLoadingIndicator();
-				this.showNotice("An error occurred. Please try again.", "error");
+	/**
+	 * Update a query string parameter in a URI using the URL API.
+	 *
+	 * @param {string} uri   - The full URI.
+	 * @param {string} key   - Parameter name.
+	 * @param {string} value - Parameter value.
+	 * @returns {string} Updated URI.
+	 */
+	updateQueryStringParameter(uri, key, value) {
+		const url = new URL(uri, window.location.origin);
+		url.searchParams.set(key, value);
+		return url.toString();
+	}
+
+	/**
+	 * Set up all event handlers for the admin settings page.
+	 */
+	setupEventHandlers() {
+		document.querySelectorAll(".nav-tab-wrapper a").forEach(tab => {
+			tab.addEventListener("click", this.handleTabClick.bind(this));
+		});
+
+		document.querySelectorAll("form").forEach(form => {
+			form.addEventListener("submit", this.handleFormSubmit.bind(this));
+		});
+
+		document.querySelectorAll(".floating-button-toggle").forEach(input => {
+			input.addEventListener("change", this.handleFloatingButtonToggle.bind(this));
+		});
+
+		document.querySelectorAll(".inline-button-toggle").forEach(input => {
+			input.addEventListener("change", this.handleInlineButtonToggle.bind(this));
+		});
+
+		const boundUpdatePreview = this.updatePreview.bind(this);
+		const debouncedPreview = this.debounce(() => this.updatePreview());
+		const boundSyncFields = this.syncConditionalFields.bind(this);
+
+		// Data-driven bindings for preview and conditional field controls.
+		const fieldBindings = [
+			{ el: this.styleSelect, event: "change", handler: boundUpdatePreview },
+			{ el: this.colorThemeSelect, event: "change", handler: boundUpdatePreview },
+			{ el: this.showLabelInput, event: "change", handler: boundUpdatePreview },
+			{ el: this.labelTextInput, event: "input", handler: debouncedPreview },
+			{ el: this.nudgeTextInput, event: "input", handler: debouncedPreview },
+			{ el: this.showCountsInput, event: "change", handler: boundSyncFields },
+			{ el: this.utmEnabledInput, event: "change", handler: boundSyncFields },
+			{ el: this.showLabelInput, event: "change", handler: boundSyncFields }
+		];
+
+		fieldBindings.forEach(({ el, event, handler }) => {
+			el?.addEventListener(event, handler);
+		});
+	}
+
+	/**
+	 * Toggle visibility of a settings section with slide animation.
+	 *
+	 * @param {string}  selector  - CSS selector for target elements.
+	 * @param {boolean} isVisible - Whether to show or hide.
+	 */
+	toggleSection(selector, isVisible) {
+		document.querySelectorAll(selector).forEach(element => {
+			if (isVisible) {
+				this.slideDown(element);
+			} else {
+				this.slideUp(element);
 			}
 		});
 	}
 
+	/**
+	 * Handle floating button toggle change.
+	 *
+	 * @param {Event} e - Change event.
+	 */
+	handleFloatingButtonToggle(e) {
+		this.toggleSection(".floating-button-settings", e.target.checked);
+	}
+
+	/**
+	 * Handle inline button toggle change.
+	 *
+	 * @param {Event} e - Change event.
+	 */
+	handleInlineButtonToggle(e) {
+		this.toggleSection(".inline-button-settings", e.target.checked);
+	}
+
+	/**
+	 * Handle tab navigation click.
+	 *
+	 * @param {Event} e - Click event.
+	 */
 	handleTabClick(e) {
 		e.preventDefault();
-		const target = this.$(e.currentTarget).attr("href").substr(1);
+		const href = e.currentTarget.getAttribute("href") || "";
+		const target = href.charAt(0) === "#" ? href.substring(1) : href;
 		this.setActiveTab(target);
 		history.pushState(
 			null,
@@ -188,247 +341,483 @@ class LightshareAdmin {
 		);
 	}
 
+	/**
+	 * Handle settings form submission via AJAX.
+	 *
+	 * @param {Event} e - Submit event.
+	 */
 	handleFormSubmit(e) {
 		e.preventDefault();
-		const form = this.$(e.currentTarget);
-		const formData = new FormData(form[0]);
+		const form = e.currentTarget;
+		const formData = new FormData(form);
 
-		// Add unchecked checkboxes
-		form.find("input[type=checkbox]:not(:checked)").each(function () {
-			formData.append(this.name, "0");
-		});
+		form
+			.querySelectorAll("input[type=checkbox]:not(:checked)")
+			.forEach(checkbox => {
+				if (checkbox.name) {
+					formData.append(checkbox.name, "0");
+				}
+			});
 
 		formData.append("action", "lightshare_save_settings");
 		formData.append("lightshare_nonce", lightshare_admin.nonce);
 
 		this.showLoadingIndicator();
-
-		this.$.ajax({
-			url: lightshare_admin.ajax_url,
-			type: "POST",
-			data: formData,
-			processData: false,
-			contentType: false,
-			success: response => {
+		this.postFormData(formData)
+			.then(response => {
 				this.hideLoadingIndicator();
 				if (response.success) {
 					this.showNotice(response.data || "Settings saved.", "success");
 				} else {
 					this.showNotice(
-						response.data?.message ||
+						(response.data && response.data.message) ||
 							"Failed to save settings. Please try again.",
 						"error"
 					);
 				}
-			},
-			error: () => {
+			})
+			.catch(() => {
 				this.hideLoadingIndicator();
 				this.showNotice(
 					"An error occurred while saving. Please try again.",
 					"error"
 				);
-			}
-		});
+			});
 	}
 
+	/**
+	 * Display an inline notice message below the submit button.
+	 *
+	 * @param {string} message - The notice text.
+	 * @param {string} type    - Notice type ('success' or 'error').
+	 */
 	showNotice(message, type) {
-		this.$(".lightshare-inline-notice").remove();
-		const notice = this.$(`
-			<div class="lightshare-inline-notice notice-${type}">
-				${message}
-			</div>
-		`);
-		this.$("#submit").after(notice);
+		document.querySelectorAll(".lightshare-inline-notice").forEach(notice => {
+			notice.remove();
+		});
 
-		// Auto-dismiss after 3 seconds
+		const notice = document.createElement("div");
+		notice.className = `lightshare-inline-notice notice-${type}`;
+		notice.textContent = message;
+
+		if (this.submitButton && this.submitButton.parentNode) {
+			this.submitButton.parentNode.insertBefore(
+				notice,
+				this.submitButton.nextSibling
+			);
+		} else {
+			document.body.appendChild(notice);
+		}
+
 		setTimeout(() => {
-			notice.fadeOut(300, () => notice.remove());
-		}, 3000);
-
-		// Handle manual dismiss
-		notice.find(".notice-dismiss").on("click", () => {
-			notice.fadeOut(300, () => notice.remove());
-		});
+			notice.style.transition = `opacity ${LightshareAdmin.NOTICE_FADE_DURATION}ms ease`;
+			notice.style.opacity = "0";
+			setTimeout(() => notice.remove(), LightshareAdmin.NOTICE_FADE_DURATION);
+		}, LightshareAdmin.NOTICE_DISPLAY_DURATION);
 	}
 
+	/**
+	 * Show a loading state on the submit button and disable it.
+	 */
 	showLoadingIndicator() {
-		this.$("#submit").val("Saving...");
+		if (this.submitButton) {
+			this.submitButton.value = "Saving...";
+			this.submitButton.disabled = true;
+		}
 	}
 
+	/**
+	 * Restore the submit button to its default state.
+	 */
 	hideLoadingIndicator() {
-		this.$("#submit").val("Save Changes");
+		if (this.submitButton) {
+			this.submitButton.value = "Save Changes";
+			this.submitButton.disabled = false;
+		}
 	}
 
-	syncConditionalFields() {
-		const { $ } = this;
-		$("[data-toggle-target]").each(function () {
-			const $input = $(this);
-			const targetSelector = $input.data("toggle-target");
-			if (!targetSelector) return;
+	/**
+	 * Animate an element open with a height transition.
+	 *
+	 * @param {HTMLElement} element - The element to slide down.
+	 */
+	slideDown(element) {
+		if (!element) {
+			return;
+		}
 
-			const $target = $(targetSelector);
-			const isRow =
-				$input.data("toggle-mode") === "row" ||
-				$target.is("tr") ||
-				$target.data("toggle-row");
+		element.style.removeProperty("display");
+		if (window.getComputedStyle(element).display === "none") {
+			element.style.display = "block";
+		}
 
-			if ($input.is(":checked")) {
-				if (isRow) {
-					$target.show();
-					$target.find(".lightshare-toggle-content").stop(true, true).slideDown("fast");
-				} else {
-					$target.stop(true, true).slideDown("fast");
-				}
-			} else {
-				if (isRow) {
-					const $inner = $target.find(".lightshare-toggle-content");
-					$inner.stop(true, true).slideUp("fast", () => $target.hide());
-				} else {
-					$target.stop(true, true).slideUp("fast");
-				}
+		const targetHeight = element.scrollHeight;
+		element.style.overflow = "hidden";
+		element.style.height = "0px";
+		element.offsetHeight; // Force reflow.
+		element.style.transition = `height ${LightshareAdmin.ANIMATION_DURATION}ms ease`;
+		element.style.height = `${targetHeight}px`;
+
+		setTimeout(() => {
+			element.style.removeProperty("height");
+			element.style.removeProperty("overflow");
+			element.style.removeProperty("transition");
+		}, LightshareAdmin.ANIMATION_CLEANUP_DELAY);
+	}
+
+	/**
+	 * Animate an element closed with a height transition.
+	 *
+	 * @param {HTMLElement} element - The element to slide up.
+	 */
+	slideUp(element) {
+		if (!element || window.getComputedStyle(element).display === "none") {
+			return;
+		}
+
+		element.style.height = `${element.scrollHeight}px`;
+		element.style.overflow = "hidden";
+		element.offsetHeight; // Force reflow.
+		element.style.transition = `height ${LightshareAdmin.ANIMATION_DURATION}ms ease`;
+		element.style.height = "0px";
+
+		setTimeout(() => {
+			element.style.display = "none";
+			element.style.removeProperty("height");
+			element.style.removeProperty("overflow");
+			element.style.removeProperty("transition");
+		}, LightshareAdmin.ANIMATION_CLEANUP_DELAY);
+	}
+
+	/**
+	 * Fade a table row into view.
+	 *
+	 * @param {HTMLElement} row - The table row to fade in.
+	 */
+	fadeRowIn(row) {
+		if (!row) {
+			return;
+		}
+
+		row.style.removeProperty("display");
+		if (window.getComputedStyle(row).display === "none") {
+			row.style.display = "table-row";
+		}
+
+		row.style.opacity = "0";
+		row.style.transition = `opacity ${LightshareAdmin.ANIMATION_DURATION}ms ease`;
+		requestAnimationFrame(() => {
+			row.style.opacity = "1";
+		});
+
+		setTimeout(() => {
+			row.style.removeProperty("opacity");
+			row.style.removeProperty("transition");
+		}, LightshareAdmin.ANIMATION_CLEANUP_DELAY);
+	}
+
+	/**
+	 * Fade a table row out of view.
+	 *
+	 * @param {HTMLElement} row - The table row to fade out.
+	 */
+	fadeRowOut(row) {
+		if (!row || window.getComputedStyle(row).display === "none") {
+			return;
+		}
+
+		row.style.opacity = "1";
+		row.style.transition = `opacity ${LightshareAdmin.ANIMATION_DURATION}ms ease`;
+		requestAnimationFrame(() => {
+			row.style.opacity = "0";
+		});
+
+		setTimeout(() => {
+			row.style.display = "none";
+			row.style.removeProperty("opacity");
+			row.style.removeProperty("transition");
+		}, LightshareAdmin.ANIMATION_CLEANUP_DELAY);
+	}
+
+	/**
+	 * Show or hide conditional fields based on their toggle checkbox state.
+	 *
+	 * @param {Object}  [options]         - Options hash.
+	 * @param {boolean} [options.animate] - Whether to animate the transition (default true).
+	 */
+	syncConditionalFields(options = {}) {
+		const animate = options.animate !== false;
+
+		document.querySelectorAll("[data-toggle-target]").forEach(input => {
+			const targetSelector = input.dataset.toggleTarget;
+			if (!targetSelector) {
+				return;
 			}
+
+			document.querySelectorAll(targetSelector).forEach(target => {
+				const isRow =
+					input.dataset.toggleMode === "row" ||
+					target.matches("tr") ||
+					target.hasAttribute("data-toggle-row");
+				const isVisible =
+					window.getComputedStyle(target).display !== "none";
+
+				// Show target when checkbox is checked and target is hidden.
+				if (input.checked && !isVisible) {
+					if (animate) {
+						isRow ? this.fadeRowIn(target) : this.slideDown(target);
+					} else {
+						target.style.display = isRow ? "" : "";
+						target.style.removeProperty("display");
+					}
+					return;
+				}
+
+				// Hide target when checkbox is unchecked and target is visible.
+				if (!input.checked && isVisible) {
+					if (animate) {
+						isRow ? this.fadeRowOut(target) : this.slideUp(target);
+					} else {
+						target.style.display = "none";
+					}
+				}
+			});
 		});
 	}
 
+	/**
+	 * Read the active tab from the URL and activate it.
+	 */
 	initializeTabs() {
 		const urlParams = new URLSearchParams(window.location.search);
 		this.setActiveTab(urlParams.get("tab") || "share-button");
 	}
 
+	/**
+	 * Activate a specific tab by its ID.
+	 *
+	 * @param {string} tab - The tab ID to activate.
+	 */
 	setActiveTab(tab) {
-		const { $ } = this;
-		$(".nav-tab-wrapper a").removeClass("nav-tab-active");
-		$(`.nav-tab-wrapper a[href="#${tab}"]`).addClass("nav-tab-active");
-		$(".tab-content > div").hide();
-		$(`#${tab}`).show();
-		$("#lightshare_active_tab").val(tab);
-	}
-
-	initializeSortable() {
-		const { $ } = this;
-		$(".lightshare-social-networks").sortable({
-			items: "li", // Allow sorting of all items
-			opacity: 0.6,
-			cursor: "move",
-			update: (event, ui) => {
-				// Update the hidden input with the new order of all buttons
-				const networks = [];
-				$(".lightshare-social-networks li").each((index, element) => {
-					networks.push($(element).data("network"));
-				});
-				$("#lightshare_social_networks_order").val(
-					JSON.stringify(networks)
-				);
-				this.updatePreview();
-			}
+		document.querySelectorAll(".nav-tab-wrapper a").forEach(link => {
+			link.classList.remove("nav-tab-active");
 		});
 
-		// Handle checkbox changes
-		$('.lightshare-social-networks input[type="checkbox"]').on(
-			"change",
-			e => {
-				const $li = $(e.currentTarget).closest("li");
-				const $label = $(e.currentTarget).closest("label");
-
-				if (e.currentTarget.checked) {
-					$li.addClass("active");
-					$label.addClass("active");
-				} else {
-					$li.removeClass("active");
-					$label.removeClass("active");
-				}
-
-				// Update the order after checkbox change
-				const networks = [];
-				$(".lightshare-social-networks li").each((index, element) => {
-					networks.push($(element).data("network"));
-				});
-				$("#lightshare_social_networks_order").val(
-					JSON.stringify(networks)
-				);
-				this.updatePreview();
-			}
+		const activeTabLink = document.querySelector(
+			`.nav-tab-wrapper a[href="#${tab}"]`
 		);
+		if (activeTabLink) {
+			activeTabLink.classList.add("nav-tab-active");
+		}
+
+		document.querySelectorAll(".tab-content > div").forEach(content => {
+			content.style.display = "none";
+		});
+
+		const activeTab = document.getElementById(tab);
+		if (activeTab) {
+			activeTab.style.display = "block";
+		}
+
+		const activeTabInput = document.getElementById("lightshare_active_tab");
+		if (activeTabInput) {
+			activeTabInput.value = tab;
+		}
 	}
 
+	/**
+	 * Serialize the current network order into the hidden input field.
+	 */
+	updateNetworksOrder() {
+		const orderInput = document.getElementById("lightshare_social_networks_order");
+		if (!orderInput) {
+			return;
+		}
+
+		const networks = [];
+		document
+			.querySelectorAll(".lightshare-social-networks li")
+			.forEach(element => {
+				if (element.dataset.network) {
+					networks.push(element.dataset.network);
+				}
+			});
+		orderInput.value = JSON.stringify(networks);
+	}
+
+	/**
+	 * Initialize drag-and-drop sorting for the social networks list.
+	 */
+	initializeSortable() {
+		const list = document.querySelector(".lightshare-social-networks");
+		if (!list) {
+			return;
+		}
+
+		list.querySelectorAll("li").forEach(item => {
+			item.setAttribute("draggable", "true");
+
+			item.addEventListener("dragstart", event => {
+				this.draggedItem = item;
+				item.classList.add("is-dragging");
+				if (event.dataTransfer) {
+					event.dataTransfer.effectAllowed = "move";
+				}
+			});
+
+			item.addEventListener("dragend", () => {
+				item.classList.remove("is-dragging");
+				this.draggedItem = null;
+				this.updateNetworksOrder();
+				this.updatePreview();
+			});
+		});
+
+		// Throttled dragover handler using requestAnimationFrame.
+		list.addEventListener("dragover", event => {
+			event.preventDefault();
+
+			if (event.dataTransfer) {
+				event.dataTransfer.dropEffect = "move";
+			}
+
+			if (this._dragRafPending || !this.draggedItem) {
+				return;
+			}
+
+			const hoveredItem = event.target.closest("li");
+			if (!hoveredItem || hoveredItem === this.draggedItem) {
+				return;
+			}
+
+			// Capture coordinates before the rAF callback.
+			const clientX = event.clientX;
+			const clientY = event.clientY;
+
+			this._dragRafPending = true;
+			requestAnimationFrame(() => {
+				this._dragRafPending = false;
+
+				const rect = hoveredItem.getBoundingClientRect();
+				const pointerIsInsideRowBand =
+					clientY >= rect.top && clientY <= rect.bottom;
+				const insertBefore = pointerIsInsideRowBand
+					? clientX < rect.left + rect.width / 2
+					: clientY < rect.top + rect.height / 2;
+
+				if (insertBefore) {
+					list.insertBefore(this.draggedItem, hoveredItem);
+				} else {
+					list.insertBefore(this.draggedItem, hoveredItem.nextSibling);
+				}
+			});
+		});
+
+		list
+			.querySelectorAll('input[type="checkbox"]')
+			.forEach(checkbox => {
+				const li = checkbox.closest("li");
+				const label = checkbox.closest("label");
+
+				if (li) {
+					li.classList.toggle("active", checkbox.checked);
+				}
+				if (label) {
+					label.classList.toggle("active", checkbox.checked);
+				}
+
+				checkbox.addEventListener("change", event => {
+					const currentLi = event.currentTarget.closest("li");
+					const currentLabel = event.currentTarget.closest("label");
+					if (currentLi) {
+						currentLi.classList.toggle("active", event.currentTarget.checked);
+					}
+					if (currentLabel) {
+						currentLabel.classList.toggle("active", event.currentTarget.checked);
+					}
+
+					this.updateNetworksOrder();
+					this.updatePreview();
+				});
+			});
+
+		this.updateNetworksOrder();
+	}
+
+	/**
+	 * Initialize the live preview if the preview container exists.
+	 */
 	setupPreview() {
-		if (!this.$("#lightshare-preview").length) {
+		if (!this.previewContainer) {
 			return;
 		}
 		this.updatePreview();
 	}
 
+	/**
+	 * Fetch and render a live preview of the share buttons via AJAX.
+	 *
+	 * Note: The server response HTML is injected via innerHTML. This is safe
+	 * because the endpoint requires manage_options capability, validates a nonce,
+	 * and Share_Button::render_buttons() escapes all output.
+	 */
 	updatePreview() {
-		const $preview = this.$("#lightshare-preview");
-		if (!$preview.length) {
+		if (!this.previewContainer) {
 			return;
 		}
 
 		const activeNetworks = [];
-		this.$(".lightshare-social-networks li").each((index, element) => {
-			const $li = this.$(element);
-			const isChecked = $li.find("input[type=checkbox]").is(":checked");
-			if (isChecked) {
-				activeNetworks.push($li.data("network"));
+		document.querySelectorAll(".lightshare-social-networks li").forEach(li => {
+			const checkbox = li.querySelector("input[type=checkbox]");
+			if (checkbox && checkbox.checked && li.dataset.network) {
+				activeNetworks.push(li.dataset.network);
 			}
 		});
 
-		const style = this.$(
-			"select[name='lightshare_options[share][style]']"
-		).val();
-		const showLabel = this.$(
-			"input[name='lightshare_options[share][show_label]']"
-		).is(":checked");
-		const labelText = this.$(
-			"input[name='lightshare_options[share][label_text]']"
-		).val();
-		const nudgeText = this.$(
-			"input[name='lightshare_options[share][nudge_text]']"
-		).val();
-		const colorTheme = this.$(
-			"select[name='lightshare_options[share][color_theme]']"
-		).val();
+		const style = this.styleSelect?.value;
+		const showLabel = this.showLabelInput?.checked;
+		const labelText = this.labelTextInput?.value;
+		const nudgeText = this.nudgeTextInput?.value;
+		const colorTheme = this.colorThemeSelect?.value;
 
-		this.$.ajax({
-			url: lightshare_admin.ajax_url,
-			type: "POST",
-			data: {
-				action: "lightshare_preview_buttons",
-				nonce: lightshare_admin.nonce,
-				networks: activeNetworks.join(","),
-				style: style || "",
-				color_theme: colorTheme || "",
-				show_label: showLabel ? 1 : 0,
-				label_text: labelText || "",
-				nudge_text: nudgeText ?? ""
-			},
-			success: response => {
-				if (response.success && response.data?.html) {
-					if (response.data?.css) {
-						const styleId = "lightshare-preview-theme";
-						let styleTag = document.getElementById(styleId);
-						if (!styleTag) {
-							styleTag = document.createElement("style");
-							styleTag.id = styleId;
-							document.head.appendChild(styleTag);
-						}
-						styleTag.textContent = response.data.css;
-					}
-					$preview.html(response.data.html);
-				}
+		this.postAjax({
+			action: "lightshare_preview_buttons",
+			nonce: lightshare_admin.nonce,
+			networks: activeNetworks.join(","),
+			style: style || "",
+			color_theme: colorTheme || "",
+			show_label: showLabel ? 1 : 0,
+			label_text: labelText || "",
+			nudge_text: typeof nudgeText === "string" ? nudgeText : ""
+		}).then(response => {
+			if (!(response && response.success && response.data && response.data.html)) {
+				return;
 			}
+
+			if (response.data.css) {
+				const styleId = "lightshare-preview-theme";
+				let styleTag = document.getElementById(styleId);
+				if (!styleTag) {
+					styleTag = document.createElement("style");
+					styleTag.id = styleId;
+					document.head.appendChild(styleTag);
+				}
+				styleTag.textContent = response.data.css;
+			}
+
+			this.previewContainer.innerHTML = response.data.html;
 		});
 	}
 }
 
-// Initialize the admin functionality
-jQuery($ => {
-	const lightshareAdmin = new LightshareAdmin($);
+window.addEventListener("DOMContentLoaded", () => {
+	const lightshareAdmin = new LightshareAdmin();
 	window.setActiveTab = tab => lightshareAdmin.setActiveTab(tab);
 
-	// Show submit button with a slight delay to prevent flash
 	setTimeout(() => {
 		const submitButton = document.getElementById("submit-button");
-		if (submitButton) submitButton.style.display = "block";
+		if (submitButton) {
+			submitButton.style.display = "block";
+		}
 	}, 50);
 });

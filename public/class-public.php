@@ -100,7 +100,7 @@ class Public_Core {
 
 		wp_enqueue_style(
 			$this->plugin_name . '-public',
-			plugin_dir_url(__FILE__) . 'css/lightshare-public.css',
+			plugin_dir_url(__FILE__) . 'css/lightshare.css',
 			array(),
 			$this->version,
 			'all'
@@ -115,12 +115,14 @@ class Public_Core {
 		if (!$this->should_enqueue_assets()) {
 			return;
 		}
+		$script_path = plugin_dir_path(__FILE__) . 'js/lightshare.js';
+		$script_version = file_exists($script_path) ? (string) filemtime($script_path) : $this->version;
 
 		wp_enqueue_script(
 			$this->plugin_name . '-public',
-			plugin_dir_url(__FILE__) . 'js/lightshare-public.js',
-			array('jquery'),
-			$this->version,
+			plugin_dir_url(__FILE__) . 'js/lightshare.js',
+			array(),
+			$script_version,
 			false
 		);
 
@@ -329,10 +331,15 @@ class Public_Core {
 				if (!in_array($mobile_position, array('bottom', 'left', 'right'), true)) {
 					$mobile_position = 'bottom';
 				}
-				if (!is_string($scroll_offset) || !preg_match('/^\d+(?:\.\d+)?(?:px|%)$/', strtolower(trim($scroll_offset)))) {
+				if (is_string($scroll_offset)) {
+					$scroll_offset = strtolower(preg_replace('/\s+/', '', trim($scroll_offset)));
+				}
+				if (!is_string($scroll_offset) || !preg_match('/^\d+(?:\.\d+)?(?:px|%)?$/', $scroll_offset)) {
 					$scroll_offset = '';
 				} else {
-					$scroll_offset = strtolower(trim($scroll_offset));
+					if (!preg_match('/(px|%)$/', $scroll_offset)) {
+						$scroll_offset .= 'px';
+					}
 				}
 				$floating_class = 'lightshare-floating lightshare-floating-' . esc_attr($alignment) . ' lightshare-floating-size-' . esc_attr($size);
 				$floating_class .= ' lightshare-floating-mobile-' . esc_attr($mobile_position);

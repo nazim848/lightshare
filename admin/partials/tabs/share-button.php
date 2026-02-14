@@ -75,14 +75,14 @@ $lightshare_ordered_networks += $lightshare_available_networks;
             </tr>
             <tr valign="top" class="lightshare-count-threshold-row" data-toggle-row style="display: none;">
                 <th scope="row">
-                    <div class="lightshare-toggle-content" style="display: none;">
+                    <div class="lightshare-toggle-content">
                         <div class="lightshare-title-wrapper">Count Threshold
                             <span class="dashicons dashicons-editor-help" data-title="Only show total share counts when they reach this number."></span>
                         </div>
                     </div>
                 </th>
                 <td>
-                    <div class="lightshare-toggle-content" style="display: none;">
+                    <div class="lightshare-toggle-content">
                         <input type="number" min="0" name="lightshare_options[share][count_threshold]" value="<?php echo esc_attr(LS_Options::get_option('share.count_threshold', 0)); ?>" class="small-text" />
                         <p class="description">Set to 0 to show counts whenever available.</p>
                     </div>
@@ -133,14 +133,14 @@ $lightshare_ordered_networks += $lightshare_available_networks;
             </tr>
             <tr valign="top" class="lightshare-show-label-field" data-toggle-row style="display: none;">
                 <th scope="row">
-                    <div class="lightshare-toggle-content" style="display: none;">
+                    <div class="lightshare-toggle-content">
                         <div class="lightshare-title-wrapper">Label Text
                             <span class="dashicons dashicons-editor-help" data-title="Customize the Share label text."></span>
                         </div>
                     </div>
                 </th>
                 <td>
-                    <div class="lightshare-toggle-content" style="display: none;">
+                    <div class="lightshare-toggle-content">
                         <input type="text" name="lightshare_options[share][label_text]" value="<?php echo esc_attr(LS_Options::get_option('share.label_text', 'Share')); ?>" class="regular-text" />
                     </div>
                 </td>

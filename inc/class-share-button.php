@@ -591,9 +591,12 @@ class Share_Button {
 		if (!is_string($offset)) {
 			return '';
 		}
-		$offset = strtolower(trim($offset));
-		if ($offset === '' || !preg_match('/^\d+(?:\.\d+)?(?:px|%)$/', $offset)) {
+		$offset = strtolower(preg_replace('/\s+/', '', trim($offset)));
+		if ($offset === '' || !preg_match('/^\d+(?:\.\d+)?(?:px|%)?$/', $offset)) {
 			return '';
+		}
+		if (!preg_match('/(px|%)$/', $offset)) {
+			$offset .= 'px';
 		}
 		return ' data-scroll-offset="' . esc_attr($offset) . '"';
 	}
