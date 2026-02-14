@@ -425,7 +425,12 @@ class Share_Button {
 			$html .= '<div class="lightshare-nudge">' . esc_html($nudge_text) . '</div>';
 		}
 
-		$html .= '<div class="lightshare-buttons" data-post-id="' . esc_attr($post_id) . '">';
+		$html .= sprintf(
+			'<div class="lightshare-buttons" data-post-id="%d" data-ajax-url="%s" data-nonce="%s">',
+			(int) $post_id,
+			esc_url(admin_url('admin-ajax.php')),
+			esc_attr(wp_create_nonce('lightshare_nonce'))
+		);
 
 		$networks = apply_filters('lightshare_networks', $networks, $args, $post_id);
 		$network_definitions = self::get_network_definitions();

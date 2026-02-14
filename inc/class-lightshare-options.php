@@ -27,6 +27,8 @@ class LS_Options {
 				'enabled' => false,
 				'button_alignment' => 'right',
 				'button_size' => 'medium',
+				'hide_on_mobile' => false,
+				'mobile_position' => 'bottom',
 				'post_types' => array('post', 'page')
 			),
 			'inline' => array(

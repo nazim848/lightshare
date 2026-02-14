@@ -323,8 +323,18 @@ class Public_Core {
 				}
 				$alignment = LS_Options::get_option('floating.button_alignment', 'left');
 				$size = LS_Options::get_option('floating.button_size', 'medium');
+				$hide_on_mobile = LS_Options::get_option('floating.hide_on_mobile', false);
+				$mobile_position = LS_Options::get_option('floating.mobile_position', 'bottom');
+				if (!in_array($mobile_position, array('bottom', 'left', 'right'), true)) {
+					$mobile_position = 'bottom';
+				}
+				$floating_class = 'lightshare-floating lightshare-floating-' . esc_attr($alignment) . ' lightshare-floating-size-' . esc_attr($size);
+				$floating_class .= ' lightshare-floating-mobile-' . esc_attr($mobile_position);
+				if ($hide_on_mobile) {
+					$floating_class .= ' lightshare-floating-hide-mobile';
+				}
 				$args = array(
-					'class' => 'lightshare-floating lightshare-floating-' . esc_attr($alignment) . ' lightshare-floating-size-' . esc_attr($size),
+					'class' => $floating_class,
 					'show_label' => false
 				);
 				if ($post_id) {
@@ -351,6 +361,16 @@ class Public_Core {
 	 */
 	private function get_allowed_share_html() {
 		$allowed = wp_kses_allowed_html('post');
+		if (!isset($allowed['div'])) {
+			$allowed['div'] = array();
+		}
+		$allowed['div']['data-post-id'] = true;
+		$allowed['div']['data-ajax-url'] = true;
+		$allowed['div']['data-nonce'] = true;
+		if (!isset($allowed['a'])) {
+			$allowed['a'] = array();
+		}
+		$allowed['a']['data-url'] = true;
 		$allowed['svg'] = array(
 			'xmlns' => true,
 			'width' => true,

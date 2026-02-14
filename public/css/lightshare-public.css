@@ -19,7 +19,7 @@
 .lightshare-buttons {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 10px;
+	gap: 5px;
 }
 
 .lightshare-button {
@@ -106,7 +106,7 @@
 
 .lightshare-floating .lightshare-buttons {
 	flex-direction: column;
-	gap: 10px;
+	gap: 5px;
 }
 
 .lightshare-floating-left {
@@ -126,7 +126,12 @@
 	height: 40px;
 	padding: 0;
 	justify-content: center;
-	border-radius: 50%; /* Always circle in floating for now */
+	border-radius: 4px;
+}
+
+.lightshare-floating.lightshare-style-rounded .lightshare-button,
+.lightshare-floating.lightshare-style-circle .lightshare-button {
+	border-radius: 50%;
 }
 
 .lightshare-floating-size-small .lightshare-button {
@@ -190,7 +195,11 @@
 
 /* Hide on mobile if needed, or adjust */
 @media (max-width: 768px) {
-	.lightshare-floating {
+	.lightshare-floating.lightshare-floating-hide-mobile {
+		display: none;
+	}
+
+	.lightshare-floating.lightshare-floating-mobile-bottom {
 		top: auto;
 		bottom: 0;
 		left: 0;
@@ -203,12 +212,34 @@
 		border-top: 1px solid #eee;
 	}
 
-	.lightshare-floating .lightshare-buttons {
+	.lightshare-floating.lightshare-floating-mobile-bottom .lightshare-buttons {
 		flex-direction: row;
 		justify-content: center;
 	}
 
-	.lightshare-floating .lightshare-button {
+	.lightshare-floating.lightshare-floating-mobile-bottom .lightshare-button {
 		flex: 0 0 auto;
+	}
+
+	.lightshare-floating.lightshare-floating-mobile-left {
+		left: 0;
+		right: auto;
+		top: 50%;
+		bottom: auto;
+		transform: translateY(-50%);
+		width: auto;
+		border-top-left-radius: 0;
+		border-bottom-left-radius: 0;
+	}
+
+	.lightshare-floating.lightshare-floating-mobile-right {
+		right: 0;
+		left: auto;
+		top: 50%;
+		bottom: auto;
+		transform: translateY(-50%);
+		width: auto;
+		border-top-right-radius: 0;
+		border-bottom-right-radius: 0;
 	}
 }

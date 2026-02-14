@@ -54,13 +54,25 @@
 				network = 'copy';
 			}
 
+			var ajaxUrl = $container.attr('data-ajax-url');
+			var nonce = $container.attr('data-nonce');
+			if (!ajaxUrl || !nonce) {
+				var ajaxConfig = window.lightshare_ajax || null;
+				ajaxUrl = ajaxConfig && ajaxConfig.ajax_url ? ajaxConfig.ajax_url : '';
+				nonce = ajaxConfig && ajaxConfig.nonce ? ajaxConfig.nonce : '';
+			}
+
+			if (!ajaxUrl || !nonce) {
+				return;
+			}
+
 			if (postId && network) {
 				$.ajax({
-					url: lightshare_ajax.ajax_url,
+					url: ajaxUrl,
 					type: 'POST',
 					data: {
 						action: 'lightshare_track_click',
-						nonce: lightshare_ajax.nonce,
+						nonce: nonce,
 						post_id: postId,
 						network: network
 					},

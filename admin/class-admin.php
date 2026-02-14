@@ -230,6 +230,8 @@ class Admin {
 				'enabled' => 'boolean',
 				'button_alignment' => 'text_field',
 				'button_size' => 'text_field',
+				'hide_on_mobile' => 'boolean',
+				'mobile_position' => 'text_field',
 				'post_types' => 'array'
 			),
 			// Inline Button
@@ -253,24 +255,30 @@ class Admin {
 			$sanitized_options[$section] = array();
 
 			foreach ($rules as $key => $rule) {
-				if (!isset($options[$section][$key])) {
-					continue;
-				}
+					if (!isset($options[$section][$key])) {
+						continue;
+					}
 
-				switch ($rule) {
-					case 'boolean':
-						$sanitized_options[$section][$key] = (bool) $options[$section][$key];
-						break;
-					case 'text_field':
-						$value = sanitize_text_field($options[$section][$key]);
-						if ($section === 'share' && $key === 'style') {
-							$allowed_styles = array('default', 'rounded', 'circle');
-							if (!in_array($value, $allowed_styles, true)) {
-								$value = 'default';
+					switch ($rule) {
+						case 'boolean':
+							$sanitized_options[$section][$key] = (bool) $options[$section][$key];
+							break;
+						case 'text_field':
+							$value = sanitize_text_field($options[$section][$key]);
+							if ($section === 'share' && $key === 'style') {
+								$allowed_styles = array('default', 'rounded', 'circle');
+								if (!in_array($value, $allowed_styles, true)) {
+									$value = 'default';
+								}
 							}
-						}
-						$sanitized_options[$section][$key] = $value;
-						break;
+							if ($section === 'floating' && $key === 'mobile_position') {
+								$allowed_positions = array('bottom', 'left', 'right');
+								if (!in_array($value, $allowed_positions, true)) {
+									$value = 'bottom';
+								}
+							}
+							$sanitized_options[$section][$key] = $value;
+							break;
 					case 'array':
 						if (is_array($options[$section][$key])) {
 							$sanitized_options[$section][$key] = array_map('sanitize_text_field', $options[$section][$key]);
