@@ -19,7 +19,7 @@
 .lightshare-buttons {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 10px;
+	gap: 5px;
 }
 
 .lightshare-button {
@@ -102,23 +102,34 @@
 	border-radius: 8px;
 	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 	margin: 0; /* Reset default margin */
+	opacity: 1;
+	visibility: visible;
+	transition:
+		opacity 0.3s ease,
+		visibility 0.3s ease;
+}
+
+.lightshare-floating.lightshare-floating-hidden {
+	opacity: 0;
+	visibility: hidden;
+	pointer-events: none;
+}
+
+.lightshare-floating.lightshare-floating-scroll-gated {
+	display: none;
 }
 
 .lightshare-floating .lightshare-buttons {
 	flex-direction: column;
-	gap: 10px;
+	gap: 5px;
 }
 
 .lightshare-floating-left {
-	left: 0;
-	border-top-left-radius: 0;
-	border-bottom-left-radius: 0;
+	left: 15px;
 }
 
 .lightshare-floating-right {
-	right: 0;
-	border-top-right-radius: 0;
-	border-bottom-right-radius: 0;
+	right: 15px;
 }
 
 .lightshare-floating .lightshare-button {
@@ -126,7 +137,12 @@
 	height: 40px;
 	padding: 0;
 	justify-content: center;
-	border-radius: 50%; /* Always circle in floating for now */
+	border-radius: 4px;
+}
+
+.lightshare-floating.lightshare-style-rounded .lightshare-button,
+.lightshare-floating.lightshare-style-circle .lightshare-button {
+	border-radius: 50%;
 }
 
 .lightshare-floating-size-small .lightshare-button {
@@ -168,6 +184,28 @@
 	margin: 0;
 }
 
+.lightshare-floating .lightshare-floating-count {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	margin-bottom: 8px;
+	line-height: 1.1;
+}
+
+.lightshare-floating .lightshare-floating-count-value {
+	font-size: 16px;
+	font-weight: 700;
+	color: #111;
+}
+
+.lightshare-floating .lightshare-floating-count-label {
+	font-size: 11px;
+	font-weight: 500;
+	color: #666;
+	text-transform: lowercase;
+}
+
 .lightshare-toast {
 	position: fixed;
 	bottom: 24px;
@@ -189,8 +227,12 @@
 }
 
 /* Hide on mobile if needed, or adjust */
-@media (max-width: 768px) {
-	.lightshare-floating {
+@media (max-width: 767px) {
+	.lightshare-floating.lightshare-floating-mobile-bottom.lightshare-floating-scroll-gated {
+		display: none;
+	}
+
+	.lightshare-floating.lightshare-floating-mobile-bottom {
 		top: auto;
 		bottom: 0;
 		left: 0;
@@ -201,14 +243,46 @@
 		padding: 15px 10px; /* larger touch target area */
 		background: #fff;
 		border-top: 1px solid #eee;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 10px;
 	}
 
-	.lightshare-floating .lightshare-buttons {
+	.lightshare-floating.lightshare-floating-mobile-bottom
+		.lightshare-floating-count {
+		margin-bottom: 0;
+	}
+
+	.lightshare-floating.lightshare-floating-mobile-bottom .lightshare-buttons {
 		flex-direction: row;
 		justify-content: center;
 	}
 
-	.lightshare-floating .lightshare-button {
+	.lightshare-floating.lightshare-floating-mobile-bottom .lightshare-button {
 		flex: 0 0 auto;
+	}
+
+	.lightshare-floating.lightshare-floating-mobile-left {
+		left: 10px;
+		right: auto;
+		top: 50%;
+		bottom: auto;
+		transform: translateY(-50%);
+		width: auto;
+	}
+
+	.lightshare-floating.lightshare-floating-mobile-right {
+		right: 10px;
+		left: auto;
+		top: 50%;
+		bottom: auto;
+		transform: translateY(-50%);
+		width: auto;
+	}
+
+	/* Keep this last so mobile position classes cannot override it. */
+	.lightshare-floating.lightshare-floating-hide-mobile {
+		display: none !important;
 	}
 }

@@ -325,11 +325,18 @@
 	overflow: hidden;
 	float: left;
 	margin-bottom: 0px;
+	cursor: grab;
+}
+
+.lightshare-social-networks li.is-dragging {
+	opacity: 0.6;
+	cursor: grabbing;
 }
 .lightshare-social-networks li label {
 	position: relative;
 	width: 120px;
 	height: 18px;
+	border: 1px solid transparent;
 	font-size: 12px;
 	float: left;
 	padding-right: 8px;

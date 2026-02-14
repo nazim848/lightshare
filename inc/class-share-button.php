@@ -411,21 +411,36 @@ class Share_Button {
 		$show_counts = LS_Options::get_option('share.show_counts', false);
 		$total_shares = (int) get_post_meta($post_id, '_lightshare_total_shares', true);
 		$count_threshold = (int) LS_Options::get_option('share.count_threshold', 0);
+		$formatted_count = '';
 
 		$count_html = '';
 		if ($show_counts && $total_shares > 0 && $total_shares >= $count_threshold) {
-			$count_html = ' <span class="lightshare-total-count" aria-live="polite">(' . self::format_count($total_shares) . ')</span>';
+			$formatted_count = self::format_count($total_shares);
+			$count_html = ' <span class="lightshare-total-count" aria-live="polite">(' . $formatted_count . ')</span>';
 		}
 
 		// Optional label
 		if ($show_label) {
 			$html .= '<span class="lightshare-label">' . esc_html($label_text) . $count_html . ':</span>';
 		}
+		$show_floating_count = !empty($args['show_floating_count']);
+		if ($show_floating_count && $formatted_count !== '') {
+			$html .= '<div class="lightshare-floating-count" aria-live="polite">';
+			$html .= '<span class="lightshare-floating-count-value">' . esc_html($formatted_count) . '</span>';
+			$html .= '<span class="lightshare-floating-count-label">' . esc_html__('shares', 'lightshare-social-sharing') . '</span>';
+			$html .= '</div>';
+		}
 		if ($show_nudge && !empty($nudge_text)) {
 			$html .= '<div class="lightshare-nudge">' . esc_html($nudge_text) . '</div>';
 		}
 
-		$html .= '<div class="lightshare-buttons" data-post-id="' . esc_attr($post_id) . '">';
+		$html .= sprintf(
+			'<div class="lightshare-buttons" data-post-id="%d" data-ajax-url="%s" data-nonce="%s"%s>',
+			(int) $post_id,
+			esc_url(admin_url('admin-ajax.php')),
+			esc_attr(wp_create_nonce('lightshare_nonce')),
+			self::build_scroll_offset_data_attr(isset($args['scroll_offset']) ? $args['scroll_offset'] : '')
+		);
 
 		$networks = apply_filters('lightshare_networks', $networks, $args, $post_id);
 		$network_definitions = self::get_network_definitions();
@@ -564,6 +579,26 @@ class Share_Button {
 		}
 
 		return add_query_arg($params, $url);
+	}
+
+	/**
+	 * Build safe data attribute for floating scroll offset.
+	 *
+	 * @param mixed $offset Raw offset value.
+	 * @return string
+	 */
+	private static function build_scroll_offset_data_attr($offset) {
+		if (!is_string($offset)) {
+			return '';
+		}
+		$offset = strtolower(preg_replace('/\s+/', '', trim($offset)));
+		if ($offset === '' || !preg_match('/^\d+(?:\.\d+)?(?:px|%)?$/', $offset)) {
+			return '';
+		}
+		if (!preg_match('/(px|%)$/', $offset)) {
+			$offset .= 'px';
+		}
+		return ' data-scroll-offset="' . esc_attr($offset) . '"';
 	}
 
 	/**

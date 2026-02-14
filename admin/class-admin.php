@@ -39,7 +39,7 @@ class Admin {
 		}
 		wp_enqueue_style('lightshare-admin', plugin_dir_url(__FILE__) . 'css/lightshare-admin.css', array(), $this->version, 'all');
 		// Load frontend styles to make preview match frontend output.
-		wp_enqueue_style('lightshare-public', LIGHTSHARE_PLUGIN_URL . 'public/css/lightshare-public.css', array(), $this->version, 'all');
+		wp_enqueue_style('lightshare-public', LIGHTSHARE_PLUGIN_URL . 'public/css/lightshare.css', array(), $this->version, 'all');
 		$public_css = Share_Button::sanitize_inline_css(Share_Button::get_network_color_css());
 		$admin_css = Share_Button::sanitize_inline_css(Share_Button::get_admin_network_color_css());
 		if (!empty($public_css)) {
@@ -54,8 +54,9 @@ class Admin {
 		if ('settings_page_lightshare' !== $hook) {
 			return;
 		}
-		wp_enqueue_script('jquery-ui-sortable');
-		wp_enqueue_script('lightshare-admin', plugin_dir_url(__FILE__) . 'js/lightshare-admin.js', array('jquery', 'jquery-ui-sortable'), $this->version, false);
+		$script_path = plugin_dir_path(__FILE__) . 'js/lightshare-admin.js';
+		$script_version = file_exists($script_path) ? (string) filemtime($script_path) : $this->version;
+		wp_enqueue_script('lightshare-admin', plugin_dir_url(__FILE__) . 'js/lightshare-admin.js', array(), $script_version, false);
 		wp_localize_script('lightshare-admin', 'lightshare_admin', array(
 			'ajax_url' => admin_url('admin-ajax.php'),
 			'nonce' => wp_create_nonce('lightshare_options_verify')
@@ -74,7 +75,7 @@ class Admin {
 		// Load frontend styles in editor for accurate preview.
 		wp_enqueue_style(
 			'lightshare-block-preview',
-			LIGHTSHARE_PLUGIN_URL . 'public/css/lightshare-public.css',
+			LIGHTSHARE_PLUGIN_URL . 'public/css/lightshare.css',
 			array(),
 			$this->version
 		);
@@ -230,6 +231,9 @@ class Admin {
 				'enabled' => 'boolean',
 				'button_alignment' => 'text_field',
 				'button_size' => 'text_field',
+				'hide_on_mobile' => 'boolean',
+				'mobile_position' => 'text_field',
+				'scroll_offset' => 'text_field',
 				'post_types' => 'array'
 			),
 			// Inline Button
@@ -267,6 +271,22 @@ class Admin {
 							$allowed_styles = array('default', 'rounded', 'circle');
 							if (!in_array($value, $allowed_styles, true)) {
 								$value = 'default';
+							}
+						}
+						if ($section === 'floating' && $key === 'mobile_position') {
+							$allowed_positions = array('bottom', 'left', 'right');
+							if (!in_array($value, $allowed_positions, true)) {
+								$value = 'bottom';
+							}
+						}
+						if ($section === 'floating' && $key === 'scroll_offset') {
+							$normalized = strtolower(preg_replace('/\s+/', '', trim($value)));
+							$value = '';
+							if (preg_match('/^\d+(?:\.\d+)?(?:px|%)?$/', $normalized)) {
+								if (!preg_match('/(px|%)$/', $normalized)) {
+									$normalized .= 'px';
+								}
+								$value = $normalized;
 							}
 						}
 						$sanitized_options[$section][$key] = $value;

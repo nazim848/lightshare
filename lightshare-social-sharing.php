@@ -2,7 +2,7 @@
 /*
 Plugin Name: Lightshare - Lightweight Social Sharing
 Description: Lightshare is a lightweight, high-performance social media sharing plugin built with a focus on speed and minimal code footprint.
-Version: 1.0.0
+Version: 1.1.0
 Author: Nazim Husain
 Author URI: https://nazimansari.com
 License: GPLv2 or later
@@ -36,7 +36,7 @@ require __DIR__ . '/inc/class-lightshare-options.php';
 
 use Lightshare\LS_Options;
 
-define('LIGHTSHARE_VERSION', '1.0.0');
+define('LIGHTSHARE_VERSION', '1.1.0');
 define('LIGHTSHARE_PATH', plugin_dir_path(__FILE__));
 define('LIGHTSHARE_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('LIGHTSHARE_PLUGIN_FILE', __FILE__);

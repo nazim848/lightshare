@@ -100,7 +100,7 @@ class Public_Core {
 
 		wp_enqueue_style(
 			$this->plugin_name . '-public',
-			plugin_dir_url(__FILE__) . 'css/lightshare-public.css',
+			plugin_dir_url(__FILE__) . 'css/lightshare.css',
 			array(),
 			$this->version,
 			'all'
@@ -115,12 +115,14 @@ class Public_Core {
 		if (!$this->should_enqueue_assets()) {
 			return;
 		}
+		$script_path = plugin_dir_path(__FILE__) . 'js/lightshare.js';
+		$script_version = file_exists($script_path) ? (string) filemtime($script_path) : $this->version;
 
 		wp_enqueue_script(
 			$this->plugin_name . '-public',
-			plugin_dir_url(__FILE__) . 'js/lightshare-public.js',
-			array('jquery'),
-			$this->version,
+			plugin_dir_url(__FILE__) . 'js/lightshare.js',
+			array(),
+			$script_version,
 			false
 		);
 
@@ -323,8 +325,32 @@ class Public_Core {
 				}
 				$alignment = LS_Options::get_option('floating.button_alignment', 'left');
 				$size = LS_Options::get_option('floating.button_size', 'medium');
+				$hide_on_mobile = LS_Options::get_option('floating.hide_on_mobile', false);
+				$mobile_position = LS_Options::get_option('floating.mobile_position', 'bottom');
+				$scroll_offset = LS_Options::get_option('floating.scroll_offset', '');
+				if (!in_array($mobile_position, array('bottom', 'left', 'right'), true)) {
+					$mobile_position = 'bottom';
+				}
+				if (is_string($scroll_offset)) {
+					$scroll_offset = strtolower(preg_replace('/\s+/', '', trim($scroll_offset)));
+				}
+				if (!is_string($scroll_offset) || !preg_match('/^\d+(?:\.\d+)?(?:px|%)?$/', $scroll_offset)) {
+					$scroll_offset = '';
+				} else {
+					if (!preg_match('/(px|%)$/', $scroll_offset)) {
+						$scroll_offset .= 'px';
+					}
+				}
+				$floating_class = 'lightshare-floating lightshare-floating-' . esc_attr($alignment) . ' lightshare-floating-size-' . esc_attr($size);
+				$floating_class .= ' lightshare-floating-mobile-' . esc_attr($mobile_position);
+				if ($scroll_offset !== '') {
+					$floating_class .= ' lightshare-floating-scroll-gated';
+				}
+				if ($hide_on_mobile) {
+					$floating_class .= ' lightshare-floating-hide-mobile';
+				}
 				$args = array(
-					'class' => 'lightshare-floating lightshare-floating-' . esc_attr($alignment) . ' lightshare-floating-size-' . esc_attr($size),
+					'class' => $floating_class,
 					'show_label' => false
 				);
 				if ($post_id) {
@@ -337,6 +363,8 @@ class Public_Core {
 					'class' => $args['class'],
 					'show_label' => $args['show_label'],
 					'networks' => isset($args['networks']) ? $args['networks'] : '',
+					'show_floating_count' => true,
+					'scroll_offset' => $scroll_offset,
 					'show_nudge' => false
 				));
 				echo wp_kses($floating_html, $this->get_allowed_share_html());
@@ -351,6 +379,17 @@ class Public_Core {
 	 */
 	private function get_allowed_share_html() {
 		$allowed = wp_kses_allowed_html('post');
+		if (!isset($allowed['div'])) {
+			$allowed['div'] = array();
+		}
+		$allowed['div']['data-post-id'] = true;
+		$allowed['div']['data-ajax-url'] = true;
+		$allowed['div']['data-nonce'] = true;
+		$allowed['div']['data-scroll-offset'] = true;
+		if (!isset($allowed['a'])) {
+			$allowed['a'] = array();
+		}
+		$allowed['a']['data-url'] = true;
 		$allowed['svg'] = array(
 			'xmlns' => true,
 			'width' => true,
