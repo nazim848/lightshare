@@ -110,6 +110,21 @@ $lightshare_post_types = get_post_types(array('public' => true), 'objects');
 							</select>
 						</td>
 					</tr>
+					<tr valign="top">
+						<th scope="row">
+							<div class="lightshare-title-wrapper"> Show After Scroll
+								<span class="dashicons dashicons-editor-help" data-title="Show floating buttons only after this scroll amount (e.g. 300px or 25%)."></span>
+							</div>
+						</th>
+						<td>
+							<input
+								type="text"
+								name="lightshare_options[floating][scroll_offset]"
+								value="<?php echo esc_attr(LS_Options::get_option('floating.scroll_offset', '')); ?>"
+								placeholder="300px or 25%"
+							/>
+						</td>
+					</tr>
 				</table>
 			</div>
 		</div>

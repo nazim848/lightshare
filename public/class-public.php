@@ -325,11 +325,20 @@ class Public_Core {
 				$size = LS_Options::get_option('floating.button_size', 'medium');
 				$hide_on_mobile = LS_Options::get_option('floating.hide_on_mobile', false);
 				$mobile_position = LS_Options::get_option('floating.mobile_position', 'bottom');
+				$scroll_offset = LS_Options::get_option('floating.scroll_offset', '');
 				if (!in_array($mobile_position, array('bottom', 'left', 'right'), true)) {
 					$mobile_position = 'bottom';
 				}
+				if (!is_string($scroll_offset) || !preg_match('/^\d+(?:\.\d+)?(?:px|%)$/', strtolower(trim($scroll_offset)))) {
+					$scroll_offset = '';
+				} else {
+					$scroll_offset = strtolower(trim($scroll_offset));
+				}
 				$floating_class = 'lightshare-floating lightshare-floating-' . esc_attr($alignment) . ' lightshare-floating-size-' . esc_attr($size);
 				$floating_class .= ' lightshare-floating-mobile-' . esc_attr($mobile_position);
+				if ($scroll_offset !== '') {
+					$floating_class .= ' lightshare-floating-scroll-gated';
+				}
 				if ($hide_on_mobile) {
 					$floating_class .= ' lightshare-floating-hide-mobile';
 				}
@@ -347,6 +356,7 @@ class Public_Core {
 					'class' => $args['class'],
 					'show_label' => $args['show_label'],
 					'networks' => isset($args['networks']) ? $args['networks'] : '',
+					'scroll_offset' => $scroll_offset,
 					'show_nudge' => false
 				));
 				echo wp_kses($floating_html, $this->get_allowed_share_html());
@@ -367,6 +377,7 @@ class Public_Core {
 		$allowed['div']['data-post-id'] = true;
 		$allowed['div']['data-ajax-url'] = true;
 		$allowed['div']['data-nonce'] = true;
+		$allowed['div']['data-scroll-offset'] = true;
 		if (!isset($allowed['a'])) {
 			$allowed['a'] = array();
 		}

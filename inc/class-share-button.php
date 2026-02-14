@@ -426,10 +426,11 @@ class Share_Button {
 		}
 
 		$html .= sprintf(
-			'<div class="lightshare-buttons" data-post-id="%d" data-ajax-url="%s" data-nonce="%s">',
+			'<div class="lightshare-buttons" data-post-id="%d" data-ajax-url="%s" data-nonce="%s"%s>',
 			(int) $post_id,
 			esc_url(admin_url('admin-ajax.php')),
-			esc_attr(wp_create_nonce('lightshare_nonce'))
+			esc_attr(wp_create_nonce('lightshare_nonce')),
+			self::build_scroll_offset_data_attr(isset($args['scroll_offset']) ? $args['scroll_offset'] : '')
 		);
 
 		$networks = apply_filters('lightshare_networks', $networks, $args, $post_id);
@@ -569,6 +570,23 @@ class Share_Button {
 		}
 
 		return add_query_arg($params, $url);
+	}
+
+	/**
+	 * Build safe data attribute for floating scroll offset.
+	 *
+	 * @param mixed $offset Raw offset value.
+	 * @return string
+	 */
+	private static function build_scroll_offset_data_attr($offset) {
+		if (!is_string($offset)) {
+			return '';
+		}
+		$offset = strtolower(trim($offset));
+		if ($offset === '' || !preg_match('/^\d+(?:\.\d+)?(?:px|%)$/', $offset)) {
+			return '';
+		}
+		return ' data-scroll-offset="' . esc_attr($offset) . '"';
 	}
 
 	/**

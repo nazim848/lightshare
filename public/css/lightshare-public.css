@@ -102,6 +102,19 @@
 	border-radius: 8px;
 	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 	margin: 0; /* Reset default margin */
+	opacity: 1;
+	visibility: visible;
+	transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.lightshare-floating.lightshare-floating-hidden {
+	opacity: 0;
+	visibility: hidden;
+	pointer-events: none;
+}
+
+.lightshare-floating.lightshare-floating-scroll-gated {
+	display: none;
 }
 
 .lightshare-floating .lightshare-buttons {

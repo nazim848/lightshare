@@ -29,6 +29,7 @@ class LS_Options {
 				'button_size' => 'medium',
 				'hide_on_mobile' => false,
 				'mobile_position' => 'bottom',
+				'scroll_offset' => '',
 				'post_types' => array('post', 'page')
 			),
 			'inline' => array(

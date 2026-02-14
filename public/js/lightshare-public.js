@@ -2,6 +2,71 @@
 	'use strict';
 
 	$(document).ready(function() {
+		function parseScrollOffset(offsetValue) {
+			if (!offsetValue) {
+				return null;
+			}
+			var value = String(offsetValue).trim().toLowerCase();
+			var match = value.match(/^(\d+(?:\.\d+)?)(px|%)$/);
+			if (!match) {
+				return null;
+			}
+			return {
+				amount: parseFloat(match[1]),
+				unit: match[2]
+			};
+		}
+
+		function initFloatingScrollVisibility() {
+			$('.lightshare-floating').each(function() {
+				var $floating = $(this);
+				var $buttonGroup = $floating.find('.lightshare-buttons').first();
+				var parsedOffset = parseScrollOffset($buttonGroup.attr('data-scroll-offset'));
+
+				if (!parsedOffset) {
+					$floating.removeClass('lightshare-floating-scroll-gated lightshare-floating-hidden');
+					return;
+				}
+				$floating.removeClass('lightshare-floating-scroll-gated');
+				$floating.addClass('lightshare-floating-hidden');
+
+				var ticking = false;
+				var updateVisibility = function() {
+					var maxScroll = Math.max(0, $(document).height() - $(window).height());
+					var threshold = parsedOffset.unit === '%'
+						? maxScroll * (parsedOffset.amount / 100)
+						: parsedOffset.amount;
+					var currentScroll = $(window).scrollTop() || 0;
+					if (currentScroll >= threshold) {
+						$floating.removeClass('lightshare-floating-hidden');
+					} else {
+						$floating.addClass('lightshare-floating-hidden');
+					}
+				};
+
+				var onScrollOrResize = function() {
+					if (ticking) {
+						return;
+					}
+					ticking = true;
+					if (window.requestAnimationFrame) {
+						window.requestAnimationFrame(function() {
+							updateVisibility();
+							ticking = false;
+						});
+					} else {
+						setTimeout(function() {
+							updateVisibility();
+							ticking = false;
+						}, 16);
+					}
+				};
+
+				updateVisibility();
+				$(window).on('scroll resize', onScrollOrResize);
+			});
+		}
+
 		function showToast(message) {
 			var $toast = $('#lightshare-toast');
 			if (!$toast.length) {
@@ -17,13 +82,13 @@
 		// Handle Copy Link button
 		$('.lightshare-copy').on('click', function(e) {
 			e.preventDefault();
-			
+
 			var url = $(this).data('url');
-			
+
 			if (!url) {
 				return;
 			}
-			
+
 			navigator.clipboard.writeText(url).then(function() {
 				showToast('Link copied');
 			}).catch(function(err) {
@@ -32,14 +97,11 @@
 		});
 
 		// Track Clicks
-		$('.lightshare-buttons a').on('click', function(e) {
-			// Don't prevent default unless it's copy (already handled)
-			// We want the link to open.
-			
+		$('.lightshare-buttons a').on('click', function() {
 			var $container = $(this).closest('.lightshare-buttons');
 			var postId = $container.data('post-id');
 			var network = '';
-			
+
 			// Get network from class lightshare-{network}
 			var classes = $(this).attr('class').split(' ');
 			for (var i = 0; i < classes.length; i++) {
@@ -48,7 +110,7 @@
 					break;
 				}
 			}
-			
+
 			// Special case for copy since it doesn't open a link
 			if ($(this).hasClass('lightshare-copy')) {
 				network = 'copy';
@@ -78,22 +140,17 @@
 					},
 					success: function(response) {
 						if (response.success) {
-							// Update count if visible
 							var $countSpan = $container.prev('.lightshare-label').find('.lightshare-total-count');
 							if ($countSpan.length) {
 								$countSpan.text('(' + response.data.count + ')');
-							} else {
-								// If count wasn't visible (e.g. was 0), and we want to show it now?
-								// Only if the setting is on. But we can't check the PHP setting easily here.
-								// We assume if the span is missing, either setting is off or count was 0.
-								// If count was 0, it might not be rendered.
-								// We can try to append it if we know setting is on, but cleaner to just update if exists.
 							}
 						}
 					}
 				});
 			}
 		});
+
+		initFloatingScrollVisibility();
 	});
 
 })( jQuery );
