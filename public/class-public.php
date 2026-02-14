@@ -356,6 +356,7 @@ class Public_Core {
 					'class' => $args['class'],
 					'show_label' => $args['show_label'],
 					'networks' => isset($args['networks']) ? $args['networks'] : '',
+					'show_floating_count' => true,
 					'scroll_offset' => $scroll_offset,
 					'show_nudge' => false
 				));
