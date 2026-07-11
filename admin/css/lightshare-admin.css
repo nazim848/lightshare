@@ -1611,12 +1611,42 @@
 	/* Keep the compact chip checkbox on mobile; the chip itself remains the touch target. */
 	.ls-admin .ls-chip input[type="checkbox"],
 	.ls-admin .lightshare-checkbox input[type="checkbox"] {
+		appearance: none !important;
+		-webkit-appearance: none !important;
 		width: 18px !important;
 		height: 18px !important;
 		min-width: 18px !important;
 		min-height: 18px !important;
 		margin: 0 !important;
+		border: 2px solid #1d2327 !important;
+		border-radius: 2px !important;
+		background: #fff !important;
+		box-shadow: none !important;
+		position: relative !important;
 		flex: 0 0 18px;
+	}
+
+	.ls-admin .ls-chip input[type="checkbox"]:checked,
+	.ls-admin .lightshare-checkbox input[type="checkbox"]:checked {
+		border-color: var(--ls-brand) !important;
+		background: var(--ls-brand) !important;
+	}
+
+	.ls-admin .ls-chip input[type="checkbox"]:checked::before,
+	.ls-admin .lightshare-checkbox input[type="checkbox"]:checked::before {
+		content: "" !important;
+		display: block !important;
+		position: absolute !important;
+		top: 2px !important;
+		left: 5px !important;
+		width: 5px !important;
+		height: 9px !important;
+		margin: 0 !important;
+		border: solid #fff !important;
+		border-width: 0 2px 2px 0 !important;
+		background: none !important;
+		box-shadow: none !important;
+		transform: rotate(45deg) !important;
 	}
 }
 
