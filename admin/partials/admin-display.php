@@ -57,6 +57,7 @@ $lightshare_active_label = $tabs[$lightshare_active_tab]['label'];
 
 			<p class="ls-sidebar__label"><?php esc_html_e('Settings', 'lightshare-social-sharing'); ?></p>
 
+			<div class="ls-nav-scroll">
 			<nav class="ls-nav nav-tab-wrapper" role="tablist" aria-label="<?php esc_attr_e('Lightshare settings sections', 'lightshare-social-sharing'); ?>">
 				<?php foreach ($tabs as $lightshare_tab_id => $lightshare_tab) :
 					$lightshare_is_active = ($lightshare_tab_id === $lightshare_active_tab);
@@ -79,6 +80,7 @@ $lightshare_active_label = $tabs[$lightshare_active_tab]['label'];
 					</a>
 				<?php endforeach; ?>
 			</nav>
+			</div>
 
 			<div class="ls-sidebar__footer">
 				<p><?php esc_html_e('Configure how Lightshare appears and behaves on your site.', 'lightshare-social-sharing'); ?></p>
