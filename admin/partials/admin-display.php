@@ -58,32 +58,27 @@ $lightshare_active_label = $tabs[$lightshare_active_tab]['label'];
 			<p class="ls-sidebar__label"><?php esc_html_e('Settings', 'lightshare-social-sharing'); ?></p>
 
 			<div class="ls-nav-scroll">
-			<nav class="ls-nav nav-tab-wrapper" role="tablist" aria-label="<?php esc_attr_e('Lightshare settings sections', 'lightshare-social-sharing'); ?>">
-				<?php foreach ($tabs as $lightshare_tab_id => $lightshare_tab) :
-					$lightshare_is_active = ($lightshare_tab_id === $lightshare_active_tab);
-					$lightshare_class = $lightshare_is_active ? ' is-active nav-tab-active' : '';
+				<nav class="ls-nav nav-tab-wrapper" role="tablist" aria-label="<?php esc_attr_e('Lightshare settings sections', 'lightshare-social-sharing'); ?>">
+					<?php foreach ($tabs as $lightshare_tab_id => $lightshare_tab) :
+						$lightshare_is_active = ($lightshare_tab_id === $lightshare_active_tab);
+						$lightshare_class = $lightshare_is_active ? ' is-active nav-tab-active' : '';
 					?>
-					<a
-						href="#<?php echo esc_attr($lightshare_tab_id); ?>"
-						class="ls-nav__tab nav-tab<?php echo esc_attr($lightshare_class); ?>"
-						role="tab"
-						aria-selected="<?php echo $lightshare_is_active ? 'true' : 'false'; ?>"
-						data-tab="<?php echo esc_attr($lightshare_tab_id); ?>"
-					>
-						<span class="ls-nav__icon">
-							<span class="dashicons <?php echo esc_attr($lightshare_tab['icon']); ?>" aria-hidden="true"></span>
-						</span>
-						<span class="ls-nav__text">
-							<span class="ls-nav__title"><?php echo esc_html($lightshare_tab['label']); ?></span>
-							<span class="ls-nav__desc"><?php echo esc_html($lightshare_tab['desc']); ?></span>
-						</span>
-					</a>
-				<?php endforeach; ?>
-			</nav>
-			</div>
-
-			<div class="ls-sidebar__footer">
-				<p><?php esc_html_e('Configure how Lightshare appears and behaves on your site.', 'lightshare-social-sharing'); ?></p>
+						<a
+							href="#<?php echo esc_attr($lightshare_tab_id); ?>"
+							class="ls-nav__tab nav-tab<?php echo esc_attr($lightshare_class); ?>"
+							role="tab"
+							aria-selected="<?php echo $lightshare_is_active ? 'true' : 'false'; ?>"
+							data-tab="<?php echo esc_attr($lightshare_tab_id); ?>">
+							<span class="ls-nav__icon">
+								<span class="dashicons <?php echo esc_attr($lightshare_tab['icon']); ?>" aria-hidden="true"></span>
+							</span>
+							<span class="ls-nav__text">
+								<span class="ls-nav__title"><?php echo esc_html($lightshare_tab['label']); ?></span>
+								<span class="ls-nav__desc"><?php echo esc_html($lightshare_tab['desc']); ?></span>
+							</span>
+						</a>
+					<?php endforeach; ?>
+				</nav>
 			</div>
 		</aside>
 
