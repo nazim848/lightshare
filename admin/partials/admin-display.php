@@ -88,7 +88,6 @@ $lightshare_active_label = $tabs[$lightshare_active_tab]['label'];
 		<div class="ls-main">
 			<header class="ls-header">
 				<div class="ls-header__meta">
-					<p class="ls-header__eyebrow"><?php esc_html_e('Lightshare', 'lightshare-social-sharing'); ?></p>
 					<h1 id="ls-page-title"><?php echo esc_html($lightshare_active_label); ?></h1>
 				</div>
 				<div class="ls-header__actions">
