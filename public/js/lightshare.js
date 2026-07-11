@@ -157,8 +157,132 @@ const initLightsharePublic = () => {
 		}, TOAST_DURATION);
 	}
 
+	function getString(key, fallback) {
+		return window.lightshare_ajax?.strings?.[key] || fallback;
+	}
+
+	function normalizeMastodonInstance(value) {
+		let candidate = String(value || '').trim();
+		if (!candidate) {
+			return '';
+		}
+		if (!/^https?:\/\//i.test(candidate)) {
+			candidate = `https://${candidate}`;
+		}
+		try {
+			const url = new URL(candidate);
+			if (
+				url.protocol !== 'https:' ||
+				!url.hostname ||
+				url.username ||
+				url.password ||
+				url.port
+			) {
+				return '';
+			}
+			return url.hostname.toLowerCase();
+		} catch (error) {
+			return '';
+		}
+	}
+
+	function getSavedMastodonInstance() {
+		try {
+			return localStorage.getItem('lightshare_mastodon_instance') || '';
+		} catch (error) {
+			return '';
+		}
+	}
+
+	function saveMastodonInstance(instance) {
+		try {
+			localStorage.setItem('lightshare_mastodon_instance', instance);
+		} catch (error) {
+			// Sharing still works when browser storage is unavailable.
+		}
+	}
+
+	function openMastodonDialog(shareText, trigger) {
+		const backdrop = document.createElement('div');
+		backdrop.className = 'lightshare-dialog-backdrop';
+		backdrop.innerHTML = `
+			<div class="lightshare-dialog" role="dialog" aria-modal="true" aria-labelledby="lightshare-mastodon-title">
+				<h2 id="lightshare-mastodon-title">${getString('mastodon_title', 'Share on Mastodon')}</h2>
+				<p>${getString('mastodon_help', 'Enter your Mastodon server, for example mastodon.social.')}</p>
+				<form class="lightshare-mastodon-form">
+					<label for="lightshare-mastodon-instance">${getString('mastodon_label', 'Mastodon server')}</label>
+					<input id="lightshare-mastodon-instance" type="text" inputmode="url" autocomplete="url" placeholder="mastodon.social" required>
+					<p class="lightshare-dialog-error" role="alert" hidden></p>
+					<div class="lightshare-dialog-actions">
+						<button type="button" class="lightshare-dialog-cancel">${getString('cancel', 'Cancel')}</button>
+						<button type="submit">${getString('mastodon_share', 'Continue to Mastodon')}</button>
+					</div>
+				</form>
+			</div>`;
+
+		const dialog = backdrop.querySelector('.lightshare-dialog');
+		const form = backdrop.querySelector('form');
+		const input = backdrop.querySelector('input');
+		const error = backdrop.querySelector('.lightshare-dialog-error');
+		const cancel = backdrop.querySelector('.lightshare-dialog-cancel');
+		const focusable = () => Array.from(dialog.querySelectorAll('button, input'));
+
+		const close = () => {
+			document.removeEventListener('keydown', onKeydown);
+			backdrop.remove();
+			trigger?.focus();
+		};
+		const onKeydown = event => {
+			if (event.key === 'Escape') {
+				close();
+				return;
+			}
+			if (event.key === 'Tab') {
+				const items = focusable();
+				const first = items[0];
+				const last = items[items.length - 1];
+				if (event.shiftKey && document.activeElement === first) {
+					event.preventDefault();
+					last.focus();
+				} else if (!event.shiftKey && document.activeElement === last) {
+					event.preventDefault();
+					first.focus();
+				}
+			}
+		};
+
+		input.value = getSavedMastodonInstance();
+		cancel.addEventListener('click', close);
+		backdrop.addEventListener('click', event => {
+			if (event.target === backdrop) {
+				close();
+			}
+		});
+		form.addEventListener('submit', event => {
+			event.preventDefault();
+			const instance = normalizeMastodonInstance(input.value);
+			if (!instance) {
+				error.textContent = getString('invalid_instance', 'Enter a valid Mastodon server using HTTPS.');
+				error.hidden = false;
+				input.setAttribute('aria-invalid', 'true');
+				input.focus();
+				return;
+			}
+			saveMastodonInstance(instance);
+			window.open(`https://${instance}/share?text=${encodeURIComponent(shareText)}`, '_blank', 'noopener,noreferrer');
+			close();
+		});
+
+		document.body.appendChild(backdrop);
+		document.addEventListener('keydown', onKeydown);
+		input.focus();
+	}
+
 	// Extract the network slug from a share button's class list (e.g. 'lightshare-twitter' -> 'twitter').
 	function getNetworkFromButton(button) {
+		if (button.dataset.network) {
+			return button.dataset.network;
+		}
 		for (const className of button.classList) {
 			if (
 				className.startsWith('lightshare-') &&
@@ -192,19 +316,28 @@ const initLightsharePublic = () => {
 			return;
 		}
 
-		const isCopy = button.classList.contains('lightshare-copy');
-		if (isCopy) {
+		const action = button.dataset.lightshareAction || (button.classList.contains('lightshare-copy') ? 'copy' : 'link');
+		if (action === 'copy') {
 			event.preventDefault();
-			const url = button.dataset.url || '';
-			if (url) {
-				copyText(url)
-					.then(() => showToast('Link copied'))
-					.catch(() => showToast('Failed to copy link'));
+			const copyValue = button.dataset.copyText || button.dataset.url || '';
+			if (copyValue) {
+				copyText(copyValue)
+					.then(() => showToast(getString('link_copied', 'Link copied')))
+					.catch(() => showToast(getString('copy_failed', 'Failed to copy')));
 			}
+		} else if (action === 'copy-and-open') {
+			event.preventDefault();
+			window.open(button.href, '_blank', 'noopener,noreferrer');
+			copyText(button.dataset.copyText || '')
+				.then(() => showToast(getString('prompt_copied', 'Prompt copied — paste it into Claude')))
+				.catch(() => showToast(getString('copy_failed', 'Failed to copy')));
+		} else if (action === 'mastodon-instance') {
+			event.preventDefault();
+			openMastodonDialog(button.dataset.copyText || '', button);
 		}
 
 		const postId = container.dataset.postId;
-		const network = isCopy ? 'copy' : getNetworkFromButton(button);
+		const network = getNetworkFromButton(button);
 		const { ajaxUrl, nonce } = getAjaxConfig(container);
 
 		if (!ajaxUrl || !nonce || !postId || !network) {

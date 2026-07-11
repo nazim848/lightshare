@@ -44,7 +44,7 @@ $lightshare_ordered_networks += $lightshare_available_networks;
                         ?>
                             <li class="lightshare-social-network-<?php echo esc_attr($lightshare_network); ?> <?php echo esc_attr($lightshare_active_class); ?>" data-network="<?php echo esc_attr($lightshare_network); ?>">
                                 <label for="lightshare-share-social-network-input-<?php echo esc_attr($lightshare_network); ?>" class="<?php echo esc_attr($lightshare_active_class); ?>">
-                                    <?php echo wp_kses_post($lightshare_data['icon']); ?>
+                                    <?php echo wp_kses($lightshare_data['icon'], Share_Button::get_allowed_icon_html()); ?>
                                     <?php echo esc_html($lightshare_data['label']); ?>
                                     <input type="checkbox"
                                         id="lightshare-share-social-network-input-<?php echo esc_attr($lightshare_network); ?>"
