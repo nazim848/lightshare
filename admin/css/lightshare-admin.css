@@ -30,7 +30,7 @@
 	--ls-shadow-lg: 0 12px 32px rgba(16, 24, 40, 0.1);
 	--ls-focus: 0 0 0 3px var(--ls-brand-ring);
 	--ls-transition: 160ms ease;
-	--ls-sidebar-width: 248px;
+	--ls-sidebar-width: 255px;
 	--ls-admin-bar: 32px;
 	--primary-color: var(--ls-brand);
 
