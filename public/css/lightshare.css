@@ -19,7 +19,7 @@
 .lightshare-buttons {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 5px;
+	gap: 7px;
 }
 
 .lightshare-button {
