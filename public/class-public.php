@@ -98,11 +98,14 @@ class Public_Core {
 			return;
 		}
 
+		$style_path = plugin_dir_path(__FILE__) . 'css/lightshare.css';
+		$style_version = file_exists($style_path) ? (string) filemtime($style_path) : $this->version;
+
 		wp_enqueue_style(
 			$this->plugin_name . '-public',
 			plugin_dir_url(__FILE__) . 'css/lightshare.css',
 			array(),
-			$this->version,
+			$style_version,
 			'all'
 		);
 		$public_css = Share_Button::sanitize_inline_css(Share_Button::get_network_color_css());

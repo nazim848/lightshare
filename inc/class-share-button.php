@@ -25,6 +25,36 @@ class Share_Button {
 	}
 
 	/**
+	 * Get the network slugs whose brand colors ship in the public stylesheet.
+	 *
+	 * Filtered third-party networks are intentionally excluded so their brand
+	 * colors can be emitted as a small inline fallback.
+	 *
+	 * @return array
+	 */
+	private static function get_builtin_networks() {
+		return array(
+			'facebook',
+			'twitter',
+			'linkedin',
+			'telegram',
+			'threads',
+			'mastodon',
+			'copy',
+			'pinterest',
+			'bluesky',
+			'whatsapp',
+			'reddit',
+			'email',
+			'chatgpt',
+			'google-ai',
+			'perplexity',
+			'grok',
+			'claude'
+		);
+	}
+
+	/**
 	 * Get network definitions (label + icon).
 	 *
 	 * @return array
@@ -98,7 +128,7 @@ class Share_Button {
 			),
 			'google-ai' => array(
 				'label' => 'Google AI',
-				'icon' => '<svg width="100" height="115" viewBox="0 0 100 115" xmlns="http://www.w3.org/2000/svg"><path d="M32.5 19.5a6 6 0 1 1-12 0 6 6 0 0 1 12 0m0 25a6 6 0 1 1-12 0 6 6 0 0 1 12 0m0 25a6 6 0 1 1-12 0 6 6 0 0 1 12 0m0 25a6 6 0 1 1-12 0 6 6 0 0 1 12 0M55 7a7 7 0 1 1-14 0 7 7 0 0 1 14 0m0 25a7 7 0 1 1-14 0 7 7 0 0 1 14 0m0 25a7 7 0 1 1-14 0 7 7 0 0 1 14 0m0 25a7 7 0 1 1-14 0 7 7 0 0 1 14 0m0 25.5a7 7 0 1 1-14 0 7 7 0 0 1 14 0m22.5-87.75a8.25 8.25 0 1 1-16.5 0 8.25 8.25 0 0 1 16.5 0m0 25a8.25 8.25 0 1 1-16.5 0 8.25 8.25 0 0 1 16.5 0m0 25a8.25 8.25 0 1 1-16.5 0 8.25 8.25 0 0 1 16.5 0m0 25a8.251 8.251 0 0 1-14.084 5.834A8.251 8.251 0 0 1 69.25 86.5a8.25 8.25 0 0 1 8.25 8.25M100 32a9.5 9.5 0 1 1-19 0 9.5 9.5 0 0 1 19 0m-90 0a5 5 0 1 1-10 0 5 5 0 0 1 10 0m0 25a5 5 0 1 1-10 0 5 5 0 0 1 10 0m0 25a5 5 0 1 1-10 0 5 5 0 0 1 10 0m90-25a9.5 9.5 0 1 1-19 0 9.5 9.5 0 0 1 19 0m0 25a9.5 9.5 0 1 1-19 0 9.5 9.5 0 0 1 19 0" fill="currentColor"></path></svg>',
+				'icon' => '<svg viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg" width="30" height="30"><path d="M29.001 15.155a15.04 15.04 0 0 0-14.088 14.088h-.057A15.036 15.036 0 0 0 .768 15.155v-.056A15.036 15.036 0 0 0 14.856 1.01h.057a15.04 15.04 0 0 0 14.088 14.089z" fill="currentColor"/></svg>',
 				'color' => '#1a73e8'
 			),
 			'perplexity' => array(
@@ -138,26 +168,19 @@ class Share_Button {
 		$scope_selector = self::sanitize_css_selector($scope_selector);
 		$scope = $scope_selector ? rtrim($scope_selector) . ' ' : '';
 
-		if ($theme !== 'brand') {
-			$color = self::resolve_theme_color(array('color' => '#000000'), $theme);
-			if (!empty($color)) {
-				$rules[] = "{$scope}.lightshare-theme-{$theme} .lightshare-button { background-color: {$color}; }";
-			}
-		} else {
+		if ($theme === 'brand') {
+			$builtin_networks = self::get_builtin_networks();
 			foreach ($definitions as $slug => $definition) {
+				if (in_array($slug, $builtin_networks, true)) {
+					continue;
+				}
 				$color = self::resolve_theme_color($definition, $theme);
 				if (empty($color)) {
 					continue;
 				}
 				$slug = sanitize_key($slug);
-				$rules[] = "{$scope}.lightshare-{$slug} { background-color: {$color}; }";
+				$rules[] = "{$scope}.lightshare-theme-brand .lightshare-{$slug} { background-color: {$color}; }";
 			}
-		}
-
-		if ($theme === 'white') {
-			$rules[] = "{$scope}.lightshare-theme-white .lightshare-button { color: #111111 !important; }";
-			$rules[] = "{$scope}.lightshare-theme-white .lightshare-button:hover { color: #111111 !important; }";
-			$rules[] = "{$scope}.lightshare-theme-white .lightshare-button { border: 1px solid #eaeaea; }";
 		}
 
 		return self::sanitize_inline_css(implode("\n", $rules));
