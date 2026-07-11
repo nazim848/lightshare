@@ -8,6 +8,7 @@ SVN_ROOT="/Users/nazim/Documents/Web Development/SVN/${PLUGIN_SLUG}"
 SVN_TRUNK="${SVN_ROOT}/trunk"
 SVN_ASSETS="${SVN_ROOT}/assets"
 SVN_URL="https://plugins.svn.wordpress.org/${PLUGIN_SLUG}"
+WP_ORG_USER="${WP_ORG_USER:-nazim848}"
 
 DRY_RUN=false
 TRUNK_ONLY=false
@@ -164,7 +165,7 @@ confirm "Commit these changes to WordPress.org SVN?" || {
 	exit 0
 }
 
-svn commit "$SVN_TRUNK" "$SVN_ASSETS" -m "Release ${VERSION}"
+svn commit "$SVN_TRUNK" "$SVN_ASSETS" -m "Release ${VERSION}" --username "$WP_ORG_USER"
 
 if [ "$TRUNK_ONLY" = false ]; then
 	confirm "Create SVN tag ${VERSION}?" || {
@@ -172,7 +173,7 @@ if [ "$TRUNK_ONLY" = false ]; then
 		exit 0
 	}
 
-	svn copy "${SVN_URL}/trunk" "$TAG_URL" -m "Tagging version ${VERSION}"
+	svn copy "${SVN_URL}/trunk" "$TAG_URL" -m "Tagging version ${VERSION}" --username "$WP_ORG_USER"
 fi
 
 echo "Deployment complete."
