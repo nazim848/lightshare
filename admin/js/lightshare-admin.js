@@ -20,6 +20,8 @@ class LightshareAdmin {
 		this.submitButton = document.getElementById("submit");
 		this.mobileSaveButtons = document.querySelectorAll(".ls-mobile-save-btn");
 		this.previewContainer = document.getElementById("lightshare-preview");
+		this.previewCanvas = document.querySelector("[data-preview-canvas]");
+		this.previewModeButtons = document.querySelectorAll("[data-preview-mode]");
 		this.styleInputs = document.querySelectorAll(
 			"input[name='lightshare_options[share][style]']"
 		);
@@ -65,6 +67,7 @@ class LightshareAdmin {
 		this.setupResetSettings();
 		this.setupResetCounts();
 		this.setupPreview();
+		this.setupPreviewModes();
 		this.setupChoiceCards();
 		this.syncConditionalFields({ animate: false });
 		this.initializeSortable();
@@ -884,6 +887,26 @@ class LightshareAdmin {
 			return;
 		}
 		this.updatePreview();
+	}
+
+	// Switch the preview between desktop and mobile article contexts.
+	setupPreviewModes() {
+		if (!this.previewCanvas || !this.previewModeButtons.length) {
+			return;
+		}
+
+		this.previewModeButtons.forEach(button => {
+			button.addEventListener("click", () => {
+				const mode = button.dataset.previewMode;
+				const isMobile = mode === "mobile";
+				this.previewCanvas.classList.toggle("is-mobile", isMobile);
+				this.previewModeButtons.forEach(modeButton => {
+					const isActive = modeButton === button;
+					modeButton.classList.toggle("is-active", isActive);
+					modeButton.setAttribute("aria-pressed", isActive ? "true" : "false");
+				});
+			});
+		});
 	}
 
 	// Fetch and render a live preview of the share buttons via AJAX.

@@ -312,9 +312,27 @@ if (!empty($lightshare_site_host)) {
 							<p class="ls-card__desc"><?php esc_html_e('Updates as you change networks, style, and labels.', 'lightshare-social-sharing'); ?></p>
 						</div>
 					</div>
+					<div class="ls-preview__modes" role="group" aria-label="<?php esc_attr_e('Preview device', 'lightshare-social-sharing'); ?>">
+						<button type="button" class="ls-preview__mode is-active" data-preview-mode="desktop" aria-pressed="true">
+							<span class="dashicons dashicons-desktop" aria-hidden="true"></span>
+							<span class="screen-reader-text"><?php esc_html_e('Desktop preview', 'lightshare-social-sharing'); ?></span>
+						</button>
+						<button type="button" class="ls-preview__mode" data-preview-mode="mobile" aria-pressed="false">
+							<span class="dashicons dashicons-smartphone" aria-hidden="true"></span>
+							<span class="screen-reader-text"><?php esc_html_e('Mobile preview', 'lightshare-social-sharing'); ?></span>
+						</button>
+					</div>
 				</header>
 				<div class="ls-card__body">
-					<div id="lightshare-preview" class="ls-preview lightshare-preview"></div>
+					<div class="ls-preview__canvas" data-preview-canvas>
+						<article class="ls-preview__article">
+							<p class="ls-preview__eyebrow"><?php esc_html_e('Example article', 'lightshare-social-sharing'); ?></p>
+							<h3><?php esc_html_e('Make your next article easier to share', 'lightshare-social-sharing'); ?></h3>
+							<p><?php esc_html_e('This live sample shows how your share controls will sit alongside real content.', 'lightshare-social-sharing'); ?></p>
+							<div id="lightshare-preview" class="ls-preview lightshare-preview" aria-live="polite"></div>
+							<p class="ls-preview__article-tail"><?php esc_html_e('Keep readers engaged and give them a simple way to share what they found useful.', 'lightshare-social-sharing'); ?></p>
+						</article>
+					</div>
 				</div>
 			</section>
 		</aside>
