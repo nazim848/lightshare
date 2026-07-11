@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name: Lightshare - Lightweight Social Sharing
+Plugin Name: Lightshare – Social & AI Share Buttons
 Description: Lightshare is a lightweight, high-performance social media sharing plugin built with a focus on speed and minimal code footprint.
 Version: 1.2.0
 Author: Nazim Husain

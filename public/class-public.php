@@ -406,31 +406,7 @@ class Public_Core {
 		$allowed['a']['data-network'] = true;
 		$allowed['a']['data-lightshare-action'] = true;
 		$allowed['a']['data-copy-text'] = true;
-		$allowed['svg'] = array(
-			'xmlns' => true,
-			'width' => true,
-			'height' => true,
-			'viewbox' => true,
-			'viewBox' => true,
-			'fill' => true,
-			'class' => true,
-			'aria-hidden' => true,
-			'focusable' => true,
-			'role' => true
-		);
-		$allowed['g'] = array(
-			'clip-path' => true
-		);
-		$allowed['defs'] = array();
-		$allowed['clippath'] = array(
-			'id' => true
-		);
-		$allowed['path'] = array(
-			'd' => true,
-			'fill' => true,
-			'fill-rule' => true,
-			'clip-rule' => true
-		);
+		$allowed = array_merge($allowed, Share_Button::get_allowed_icon_html());
 
 		return $allowed;
 	}

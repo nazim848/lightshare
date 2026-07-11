@@ -25,6 +25,44 @@ class Share_Button {
 	}
 
 	/**
+	 * Get the HTML allowlist used for network SVG icons.
+	 *
+	 * Keeping this allowlist centralized ensures complex icons are sanitized
+	 * consistently in the admin screen and on the frontend.
+	 *
+	 * @return array
+	 */
+	public static function get_allowed_icon_html() {
+		return array(
+			'svg' => array(
+				'xmlns' => true,
+				'width' => true,
+				'height' => true,
+				'viewbox' => true,
+				'viewBox' => true,
+				'fill' => true,
+				'class' => true,
+				'aria-hidden' => true,
+				'focusable' => true,
+				'role' => true
+			),
+			'g' => array(
+				'clip-path' => true
+			),
+			'defs' => array(),
+			'clippath' => array(
+				'id' => true
+			),
+			'path' => array(
+				'd' => true,
+				'fill' => true,
+				'fill-rule' => true,
+				'clip-rule' => true
+			)
+		);
+	}
+
+	/**
 	 * Get the network slugs whose brand colors ship in the public stylesheet.
 	 *
 	 * Filtered third-party networks are intentionally excluded so their brand
