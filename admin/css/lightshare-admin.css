@@ -3,10 +3,10 @@
    ========================================================================== */
 
 .ls-admin {
-	--ls-brand: #8161ff;
-	--ls-brand-hover: #6f4ff0;
+	--ls-brand: #6f4ff0;
+	--ls-brand-hover: #5b3fd6;
 	--ls-brand-soft: #f4f1ff;
-	--ls-brand-ring: rgba(129, 97, 255, 0.28);
+	--ls-brand-ring: rgba(111, 79, 240, 0.28);
 	--ls-ink: #101828;
 	--ls-text: #344054;
 	--ls-muted: #667085;
@@ -359,6 +359,12 @@
 	margin-left: auto;
 }
 
+.ls-admin .ls-save-status {
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--ls-muted);
+}
+
 .ls-admin .ls-main > form {
 	flex: 1;
 	padding: 20px 24px 28px;
@@ -411,6 +417,13 @@
 .ls-admin .ls-btn:disabled {
 	opacity: 0.65;
 	cursor: not-allowed;
+}
+
+.ls-admin .ls-btn--primary.is-saved:disabled {
+	background: var(--ls-success);
+	border-color: var(--ls-success);
+	color: #fff;
+	opacity: 1;
 }
 
 .ls-admin .ls-btn--primary {
@@ -989,6 +1002,21 @@
 		background var(--ls-transition);
 }
 
+.ls-admin .lightshare-social-networks li:focus-visible label {
+	box-shadow: var(--ls-focus);
+	outline: none;
+}
+
+.ls-admin .ls-network-drag-handle {
+	width: 14px;
+	height: 14px;
+	font-size: 14px;
+	line-height: 14px;
+	color: currentColor;
+	opacity: 0.65;
+	cursor: grab;
+}
+
 .ls-admin .lightshare-social-networks li label:hover {
 	transform: translateY(-1px);
 	box-shadow: var(--ls-shadow-sm);
@@ -1171,6 +1199,68 @@
 	background: var(--ls-brand-soft);
 	border-color: #c4b5fd;
 	color: #5b3fd6;
+}
+
+.ls-admin .ls-segmented {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 3px;
+	margin: 0;
+	border: 1px solid var(--ls-border);
+	border-radius: var(--ls-radius-sm);
+	background: #f9fafb;
+}
+
+.ls-admin .ls-segmented label {
+	position: relative;
+	margin: 0;
+	cursor: pointer;
+}
+
+.ls-admin .ls-segmented input {
+	position: absolute;
+	opacity: 0;
+	pointer-events: none;
+}
+
+.ls-admin .ls-segmented span {
+	display: block;
+	min-width: 72px;
+	padding: 7px 12px;
+	border-radius: 6px;
+	color: var(--ls-muted);
+	font-size: 12px;
+	font-weight: 600;
+	line-height: 1.25;
+	text-align: center;
+	transition: background var(--ls-transition), color var(--ls-transition), box-shadow var(--ls-transition);
+}
+
+.ls-admin .ls-segmented input:checked + span {
+	background: #fff;
+	box-shadow: var(--ls-shadow-sm);
+	color: var(--ls-brand-hover);
+}
+
+.ls-admin .ls-segmented input:focus-visible + span {
+	box-shadow: var(--ls-focus);
+}
+
+.ls-admin .ls-segmented:disabled {
+	opacity: 0.55;
+}
+
+.ls-admin .ls-segmented:disabled label {
+	cursor: not-allowed;
+}
+
+.ls-admin .ls-mobile-position-row.is-disabled {
+	background: linear-gradient(90deg, rgba(242, 244, 247, 0.55), transparent);
+}
+
+.ls-admin .ls-mobile-position-note[hidden] {
+	display: none;
 }
 
 /* --------------------------------------------------------------------------

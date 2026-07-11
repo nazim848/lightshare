@@ -71,8 +71,9 @@ if (!empty($lightshare_site_host)) {
 							$lightshare_is_active = in_array($lightshare_network, $lightshare_social_networks, true);
 							$lightshare_active_class = $lightshare_is_active ? 'active' : '';
 							?>
-							<li class="lightshare-social-network-<?php echo esc_attr($lightshare_network); ?> <?php echo esc_attr($lightshare_active_class); ?>" data-network="<?php echo esc_attr($lightshare_network); ?>">
+							<li class="lightshare-social-network-<?php echo esc_attr($lightshare_network); ?> <?php echo esc_attr($lightshare_active_class); ?>" data-network="<?php echo esc_attr($lightshare_network); ?>" tabindex="0" aria-label="<?php echo esc_attr( sprintf( __( 'Reorder %s. Use Alt plus left or right arrow keys to move it.', 'lightshare-social-sharing' ), $lightshare_data['label'] ) ); ?>">
 								<label for="lightshare-share-social-network-input-<?php echo esc_attr($lightshare_network); ?>" class="<?php echo esc_attr($lightshare_active_class); ?>">
+									<span class="ls-network-drag-handle dashicons dashicons-menu" aria-hidden="true"></span>
 									<?php echo wp_kses($lightshare_data['icon'], Share_Button::get_allowed_icon_html()); ?>
 									<?php echo esc_html($lightshare_data['label']); ?>
 									<input type="checkbox"
@@ -85,7 +86,7 @@ if (!empty($lightshare_site_host)) {
 						<?php endforeach; ?>
 					</ul>
 					<input type="hidden" id="lightshare_social_networks_order" name="lightshare_options[share][social_networks_order]" value="<?php echo esc_attr(wp_json_encode(array_keys($lightshare_ordered_networks))); ?>">
-					<p class="ls-networks-hint"><?php esc_html_e('Click a network to enable or disable it. Drag chips to change display order.', 'lightshare-social-sharing'); ?></p>
+					<p class="ls-networks-hint"><?php esc_html_e('Click a network to enable or disable it. Drag the handle to change its order, or use Alt + left/right arrow keys.', 'lightshare-social-sharing'); ?></p>
 				</div>
 			</section>
 

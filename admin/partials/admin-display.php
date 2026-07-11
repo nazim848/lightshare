@@ -92,7 +92,8 @@ $lightshare_active_label = $tabs[$lightshare_active_tab]['label'];
 					<h1 id="ls-page-title"><?php echo esc_html($lightshare_active_label); ?></h1>
 				</div>
 				<div class="ls-header__actions">
-					<button type="submit" form="lightshare-settings-form" id="submit" name="submit" class="ls-btn ls-btn--primary">
+					<span id="ls-save-status" class="ls-save-status" role="status" aria-live="polite"></span>
+					<button type="submit" form="lightshare-settings-form" id="submit" name="submit" class="ls-btn ls-btn--primary" disabled data-ls-save-label="<?php esc_attr_e('Save Changes', 'lightshare-social-sharing'); ?>" data-ls-saving-label="<?php esc_attr_e('Saving…', 'lightshare-social-sharing'); ?>" data-ls-saved-label="<?php esc_attr_e('Saved', 'lightshare-social-sharing'); ?>">
 						<?php esc_html_e('Save Changes', 'lightshare-social-sharing'); ?>
 					</button>
 				</div>
@@ -121,7 +122,7 @@ $lightshare_active_label = $tabs[$lightshare_active_tab]['label'];
 	</div>
 
 	<div class="ls-mobile-save">
-		<button type="submit" form="lightshare-settings-form" class="ls-btn ls-btn--primary ls-mobile-save-btn">
+		<button type="submit" form="lightshare-settings-form" class="ls-btn ls-btn--primary ls-mobile-save-btn" disabled data-ls-save-label="<?php esc_attr_e('Save Changes', 'lightshare-social-sharing'); ?>" data-ls-saving-label="<?php esc_attr_e('Saving…', 'lightshare-social-sharing'); ?>" data-ls-saved-label="<?php esc_attr_e('Saved', 'lightshare-social-sharing'); ?>">
 			<?php esc_html_e('Save Changes', 'lightshare-social-sharing'); ?>
 		</button>
 	</div>

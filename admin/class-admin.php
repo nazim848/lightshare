@@ -65,6 +65,8 @@ class Admin {
 			'i18n'    => array(
 				'saveChanges'          => __('Save Changes', 'lightshare-social-sharing'),
 				'saving'               => __('Saving...', 'lightshare-social-sharing'),
+				'saved'                => __('Saved', 'lightshare-social-sharing'),
+				'unsavedChanges'       => __('Unsaved changes', 'lightshare-social-sharing'),
 				'settingsSaved'        => __('Settings saved.', 'lightshare-social-sharing'),
 				'saveFailed'           => __('Failed to save settings. Please try again.', 'lightshare-social-sharing'),
 				'saveError'            => __('An error occurred while saving. Please try again.', 'lightshare-social-sharing'),

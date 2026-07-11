@@ -53,6 +53,8 @@ class LightshareAdmin {
 		this.modalTitle = document.getElementById("ls-modal-title");
 		this.modalBody = document.getElementById("ls-modal-body");
 		this.modalConfirm = document.getElementById("ls-modal-confirm");
+		this.saveStatus = document.getElementById("ls-save-status");
+		this.hideOnMobileInput = document.getElementById("lightshare-hide-on-mobile");
 	}
 
 	// Bootstrap all admin UI features.
@@ -66,6 +68,8 @@ class LightshareAdmin {
 		this.setupChoiceCards();
 		this.syncConditionalFields({ animate: false });
 		this.initializeSortable();
+		this.syncFloatingMobilePosition();
+		this.setSaveState("clean");
 	}
 
 	// Localized string helper with fallbacks.
@@ -250,13 +254,11 @@ class LightshareAdmin {
 		button.disabled = true;
 		button.classList.add("is-loading");
 
-		this.showLoadingIndicator();
 		this.postAjax({
 			action,
 			nonce: lightshare_admin.nonce
 		})
 			.then(response => {
-				this.hideLoadingIndicator();
 				button.disabled = false;
 				button.classList.remove("is-loading");
 
@@ -277,7 +279,6 @@ class LightshareAdmin {
 				}
 			})
 			.catch(() => {
-				this.hideLoadingIndicator();
 				button.disabled = false;
 				button.classList.remove("is-loading");
 				this.showNotice(
@@ -337,10 +338,16 @@ class LightshareAdmin {
 		const form = document.getElementById("lightshare-settings-form");
 		if (form) {
 			form.addEventListener("submit", this.handleFormSubmit.bind(this));
+			form.addEventListener("input", this.markDirty.bind(this));
+			form.addEventListener("change", this.markDirty.bind(this));
 		}
 
 		document.querySelectorAll(".floating-button-toggle").forEach(input => {
 			input.addEventListener("change", this.handleFloatingButtonToggle.bind(this));
+		});
+
+		this.hideOnMobileInput?.addEventListener("change", () => {
+			this.syncFloatingMobilePosition();
 		});
 
 		document.querySelectorAll(".inline-button-toggle").forEach(input => {
@@ -392,6 +399,36 @@ class LightshareAdmin {
 		this.toggleSection(".floating-button-settings", e.target.checked);
 	}
 
+	// Keep mobile-only controls meaningful when the floating button is hidden.
+	syncFloatingMobilePosition() {
+		if (!this.hideOnMobileInput) {
+			return;
+		}
+
+		const isHiddenOnMobile = this.hideOnMobileInput.checked;
+		const row = document.querySelector(".ls-mobile-position-row");
+		const controls = document.querySelector("[data-mobile-position-controls]");
+		const preservedValue = document.querySelector(".ls-mobile-position-preserve");
+		const note = document.querySelector(".ls-mobile-position-note");
+
+		if (row) {
+			row.classList.toggle("is-disabled", isHiddenOnMobile);
+		}
+		if (controls) {
+			controls.disabled = isHiddenOnMobile;
+		}
+		if (preservedValue) {
+			const selectedPosition = controls?.querySelector("input:checked");
+			if (selectedPosition) {
+				preservedValue.value = selectedPosition.value;
+			}
+			preservedValue.disabled = !isHiddenOnMobile;
+		}
+		if (note) {
+			note.hidden = !isHiddenOnMobile;
+		}
+	}
+
 	// Handle inline button toggle change.
 	handleInlineButtonToggle(e) {
 		this.toggleSection(".inline-button-settings", e.target.checked);
@@ -427,15 +464,15 @@ class LightshareAdmin {
 		formData.append("action", "lightshare_save_settings");
 		formData.append("lightshare_nonce", lightshare_admin.nonce);
 
-		this.showLoadingIndicator();
+		this.setSaveState("saving");
 		this.postFormData(formData)
 			.then(response => {
-				this.hideLoadingIndicator();
 				if (response.success) {
 					this.showNotice(
 						response.data || this.i18n("settingsSaved", "Settings saved."),
 						"success"
 					);
+					this.setSaveState("saved");
 				} else {
 					this.showNotice(
 						(response.data && response.data.message) ||
@@ -445,10 +482,10 @@ class LightshareAdmin {
 							),
 						"error"
 					);
+					this.setSaveState("dirty");
 				}
 			})
 			.catch(() => {
-				this.hideLoadingIndicator();
 				this.showNotice(
 					this.i18n(
 						"saveError",
@@ -456,7 +493,48 @@ class LightshareAdmin {
 					),
 					"error"
 				);
+				this.setSaveState("dirty");
 			});
+	}
+
+	markDirty() {
+		if (this.saveState !== "saving") {
+			this.setSaveState("dirty");
+		}
+	}
+
+	setSaveState(state) {
+		this.saveState = state;
+		const statusMessages = {
+			clean: "",
+			dirty: this.i18n("unsavedChanges", "Unsaved changes"),
+			saving: this.i18n("saving", "Saving..."),
+			saved: this.i18n("settingsSaved", "Settings saved.")
+		};
+
+		if (this.saveStatus) {
+			this.saveStatus.textContent = statusMessages[state] || "";
+		}
+
+		[this.submitButton, ...this.mobileSaveButtons].filter(Boolean).forEach(button => {
+			const label = button.dataset.lsSaveLabel || this.i18n("saveChanges", "Save Changes");
+			const savingLabel = button.dataset.lsSavingLabel || this.i18n("saving", "Saving...");
+			const savedLabel = button.dataset.lsSavedLabel || this.i18n("saved", "Saved");
+			button.disabled = state !== "dirty";
+			button.classList.toggle("is-loading", state === "saving");
+			button.classList.toggle("is-saved", state === "saved");
+			button.toggleAttribute("aria-busy", state === "saving");
+			button.textContent = state === "saving" ? savingLabel : state === "saved" ? savedLabel : label;
+		});
+
+		if (state === "saved") {
+			clearTimeout(this._savedStateTimer);
+			this._savedStateTimer = setTimeout(() => {
+				if (this.saveState === "saved") {
+					this.setSaveState("clean");
+				}
+			}, 1800);
+		}
 	}
 
 	// Display a toast notice.
@@ -488,45 +566,6 @@ class LightshareAdmin {
 				toast.hidden = true;
 			}, LightshareAdmin.NOTICE_FADE_DURATION);
 		}, LightshareAdmin.NOTICE_DISPLAY_DURATION);
-	}
-
-	// Show a loading state on save buttons.
-	showLoadingIndicator() {
-		const label = this.i18n("saving", "Saving...");
-		if (this.submitButton) {
-			this.submitButton.disabled = true;
-			this.submitButton.classList.add("is-loading");
-			this.submitButton.setAttribute("aria-busy", "true");
-			if (this.submitButton.tagName === "INPUT") {
-				this.submitButton.value = label;
-			}
-		}
-		this.mobileSaveButtons.forEach(btn => {
-			btn.disabled = true;
-			btn.classList.add("is-loading");
-			btn.setAttribute("aria-busy", "true");
-		});
-	}
-
-	// Restore save buttons to default state.
-	hideLoadingIndicator() {
-		const label = this.i18n("saveChanges", "Save Changes");
-		if (this.submitButton) {
-			this.submitButton.disabled = false;
-			this.submitButton.classList.remove("is-loading");
-			this.submitButton.removeAttribute("aria-busy");
-			if (this.submitButton.tagName === "INPUT") {
-				this.submitButton.value = label;
-			} else {
-				this.submitButton.textContent = label;
-			}
-		}
-		this.mobileSaveButtons.forEach(btn => {
-			btn.disabled = false;
-			btn.classList.remove("is-loading");
-			btn.removeAttribute("aria-busy");
-			btn.textContent = label;
-		});
 	}
 
 	// Animate an element open with a height transition.
@@ -745,6 +784,28 @@ class LightshareAdmin {
 				this.draggedItem = null;
 				this.updateNetworksOrder();
 				this.updatePreview();
+				this.markDirty();
+			});
+
+			item.addEventListener("keydown", event => {
+				if (!event.altKey || !["ArrowLeft", "ArrowRight"].includes(event.key)) {
+					return;
+				}
+
+				const items = Array.from(list.querySelectorAll("li"));
+				const index = items.indexOf(item);
+				const targetIndex = event.key === "ArrowLeft" ? index - 1 : index + 1;
+				const target = items[targetIndex];
+				if (!target) {
+					return;
+				}
+
+				event.preventDefault();
+				list.insertBefore(item, event.key === "ArrowLeft" ? target : target.nextSibling);
+				this.updateNetworksOrder();
+				this.updatePreview();
+				this.markDirty();
+				item.focus();
 			});
 		});
 
