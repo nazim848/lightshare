@@ -1607,6 +1607,17 @@
 		grid-template-columns: 1fr;
 		gap: 8px;
 	}
+
+	/* Keep the compact chip checkbox on mobile; the chip itself remains the touch target. */
+	.ls-admin .ls-chip input[type="checkbox"],
+	.ls-admin .lightshare-checkbox input[type="checkbox"] {
+		width: 18px !important;
+		height: 18px !important;
+		min-width: 18px !important;
+		min-height: 18px !important;
+		margin: 0 !important;
+		flex: 0 0 18px;
+	}
 }
 
 @media screen and (max-width: 600px) {
