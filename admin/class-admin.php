@@ -37,7 +37,9 @@ class Admin {
 		if ('settings_page_lightshare' !== $hook) {
 			return;
 		}
-		wp_enqueue_style('lightshare-admin', plugin_dir_url(__FILE__) . 'css/lightshare-admin.css', array(), $this->version, 'all');
+		$style_path = plugin_dir_path(__FILE__) . 'css/lightshare-admin.css';
+		$style_version = file_exists($style_path) ? (string) filemtime($style_path) : $this->version;
+		wp_enqueue_style('lightshare-admin', plugin_dir_url(__FILE__) . 'css/lightshare-admin.css', array(), $style_version, 'all');
 		// Load frontend styles to make preview match frontend output.
 		wp_enqueue_style('lightshare-public', LIGHTSHARE_PLUGIN_URL . 'public/css/lightshare.css', array(), $this->version, 'all');
 		$public_css = Share_Button::sanitize_inline_css(Share_Button::get_network_color_css());
@@ -59,7 +61,25 @@ class Admin {
 		wp_enqueue_script('lightshare-admin', plugin_dir_url(__FILE__) . 'js/lightshare-admin.js', array(), $script_version, false);
 		wp_localize_script('lightshare-admin', 'lightshare_admin', array(
 			'ajax_url' => admin_url('admin-ajax.php'),
-			'nonce' => wp_create_nonce('lightshare_options_verify')
+			'nonce'    => wp_create_nonce('lightshare_options_verify'),
+			'i18n'    => array(
+				'saveChanges'          => __('Save Changes', 'lightshare-social-sharing'),
+				'saving'               => __('Saving...', 'lightshare-social-sharing'),
+				'saved'                => __('Saved', 'lightshare-social-sharing'),
+				'unsavedChanges'       => __('Unsaved changes', 'lightshare-social-sharing'),
+				'settingsSaved'        => __('Settings saved.', 'lightshare-social-sharing'),
+				'saveFailed'           => __('Failed to save settings. Please try again.', 'lightshare-social-sharing'),
+				'saveError'            => __('An error occurred while saving. Please try again.', 'lightshare-social-sharing'),
+				'confirm'              => __('Confirm', 'lightshare-social-sharing'),
+				'operationFailed'      => __('Operation failed. Please try again.', 'lightshare-social-sharing'),
+				'errorOccurred'        => __('An error occurred. Please try again.', 'lightshare-social-sharing'),
+				'resetSettingsTitle'   => __('Reset all settings?', 'lightshare-social-sharing'),
+				'resetSettingsConfirm' => __('Are you sure you want to reset all Lightshare settings? This action cannot be undone.', 'lightshare-social-sharing'),
+				'resetSettingsSuccess' => __('Settings reset successfully. The page will now reload.', 'lightshare-social-sharing'),
+				'resetCountsTitle'     => __('Reset share counts?', 'lightshare-social-sharing'),
+				'resetCountsConfirm'   => __('Are you sure you want to reset all share counts? This action cannot be undone.', 'lightshare-social-sharing'),
+				'resetCountsSuccess'   => __('Share counts reset successfully.', 'lightshare-social-sharing'),
+			),
 		));
 	}
 

@@ -5,7 +5,7 @@ Tags: social share, social media, share buttons, AI sharing, lightweight
 Requires at least: 5.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.2.0
+Stable tag: 1.3.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -84,10 +84,11 @@ Optional counts are recorded internally when a sharing button is clicked. They a
 
 == Screenshots ==
 
-1. Select and arrange social and AI buttons, then customize counts, button style, color theme, and label settings.
+1. Customize share-button styles, color themes, labels, and share counts.
 2. Configure floating buttons by post type, alignment, size, mobile behavior, and scroll threshold.
-3. Preview the selected social and AI share buttons instantly from the settings page.
-4. Lightweight social and AI share buttons displayed inline on a WordPress post.
+3. Configure inline buttons to appear before or after selected post types.
+4. Select, reorder, and preview social and AI share buttons live from the settings page.
+5. Inspect the desktop live preview before publishing your settings.
 
 == Frequently Asked Questions ==
 
@@ -205,6 +206,11 @@ The plugin can connect to the following services:
 
 == Changelog ==
 
+= 1.3.0 =
+* Redesigned the settings interface with clearer navigation and responsive controls.
+* Added an interactive desktop and mobile live preview for share button settings.
+* Improved mobile admin usability, including save feedback, navigation, and compact controls.
+
 = 1.2.0 =
 * Added Telegram and Threads sharing.
 * Added a privacy-friendly Mastodon server chooser.
@@ -215,6 +221,9 @@ The plugin can connect to the following services:
 * Initial release.
 
 == Upgrade Notice ==
+
+= 1.3.0 =
+Introduces the redesigned responsive settings interface and live preview.
 
 = 1.2.0 =
 Adds Telegram, Threads, Mastodon, Claude, and cache-friendly color themes without changing existing network selections.

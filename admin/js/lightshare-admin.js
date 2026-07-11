@@ -2,14 +2,15 @@ class LightshareAdmin {
 	// Animation timing constants.
 	static ANIMATION_DURATION = 150;
 	static ANIMATION_CLEANUP_DELAY = 160;
-	static NOTICE_DISPLAY_DURATION = 3000;
-	static NOTICE_FADE_DURATION = 300;
+	static NOTICE_DISPLAY_DURATION = 3200;
+	static NOTICE_FADE_DURATION = 280;
 	static PREVIEW_DEBOUNCE_DELAY = 400;
 	static RELOAD_DELAY = 1500;
 
 	constructor() {
 		this.draggedItem = null;
 		this._dragRafPending = false;
+		this._modalResolve = null;
 		this.cacheElements();
 		this.init();
 	}
@@ -17,7 +18,17 @@ class LightshareAdmin {
 	// Cache frequently accessed DOM elements.
 	cacheElements() {
 		this.submitButton = document.getElementById("submit");
+		this.mobileSaveButtons = document.querySelectorAll(".ls-mobile-save-btn");
 		this.previewContainer = document.getElementById("lightshare-preview");
+		this.previewCanvas = document.querySelector("[data-preview-canvas]");
+		this.previewModeButtons = document.querySelectorAll("[data-preview-mode]");
+		this.styleInputs = document.querySelectorAll(
+			"input[name='lightshare_options[share][style]']"
+		);
+		this.colorThemeInputs = document.querySelectorAll(
+			"input[name='lightshare_options[share][color_theme]']"
+		);
+		// Legacy select support (if present).
 		this.styleSelect = document.querySelector(
 			"select[name='lightshare_options[share][style]']"
 		);
@@ -39,17 +50,41 @@ class LightshareAdmin {
 		this.utmEnabledInput = document.querySelector(
 			"input[name='lightshare_options[share][utm_enabled]']"
 		);
+		this.toastEl = document.getElementById("ls-toast");
+		this.modalEl = document.getElementById("ls-modal");
+		this.modalTitle = document.getElementById("ls-modal-title");
+		this.modalBody = document.getElementById("ls-modal-body");
+		this.modalConfirm = document.getElementById("ls-modal-confirm");
+		this.saveStatus = document.getElementById("ls-save-status");
+		this.hideOnMobileInput = document.getElementById("lightshare-hide-on-mobile");
 	}
 
 	// Bootstrap all admin UI features.
 	init() {
 		this.initializeTabs();
 		this.setupEventHandlers();
+		this.setupModal();
 		this.setupResetSettings();
 		this.setupResetCounts();
 		this.setupPreview();
+		this.setupPreviewModes();
+		this.setupChoiceCards();
 		this.syncConditionalFields({ animate: false });
 		this.initializeSortable();
+		this.syncFloatingMobilePosition();
+		this.setSaveState("clean");
+	}
+
+	// Localized string helper with fallbacks.
+	i18n(key, fallback) {
+		if (
+			typeof lightshare_admin !== "undefined" &&
+			lightshare_admin.i18n &&
+			lightshare_admin.i18n[key]
+		) {
+			return lightshare_admin.i18n[key];
+		}
+		return fallback;
 	}
 
 	// Create a debounced version of a function.
@@ -82,6 +117,112 @@ class LightshareAdmin {
 		}).then(response => response.json());
 	}
 
+	// Read selected radio value (or select fallback).
+	getChoiceValue(inputs, selectEl) {
+		if (inputs && inputs.length) {
+			const checked = Array.from(inputs).find(input => input.checked);
+			if (checked) {
+				return checked.value;
+			}
+		}
+		return selectEl?.value || "";
+	}
+
+	// Keep visual selected state on choice cards.
+	setupChoiceCards() {
+		document.querySelectorAll(".ls-choice").forEach(card => {
+			const input = card.querySelector("input[type=radio]");
+			if (!input) {
+				return;
+			}
+
+			const sync = () => {
+				const name = input.name;
+				document
+					.querySelectorAll(`.ls-choice input[name="${CSS.escape(name)}"]`)
+					.forEach(radio => {
+						const parent = radio.closest(".ls-choice");
+						if (parent) {
+							parent.classList.toggle("is-selected", radio.checked);
+						}
+					});
+			};
+
+			input.addEventListener("change", () => {
+				sync();
+				this.updatePreview();
+			});
+			sync();
+		});
+	}
+
+	// Modal plumbing.
+	setupModal() {
+		if (!this.modalEl) {
+			return;
+		}
+
+		this.modalEl.querySelectorAll("[data-ls-modal-close]").forEach(el => {
+			el.addEventListener("click", () => this.closeModal(false));
+		});
+
+		if (this.modalConfirm) {
+			this.modalConfirm.addEventListener("click", () => this.closeModal(true));
+		}
+
+		document.addEventListener("keydown", e => {
+			if (e.key === "Escape" && this.modalEl.classList.contains("is-open")) {
+				this.closeModal(false);
+			}
+		});
+	}
+
+	openModal({ title, body, confirmLabel }) {
+		return new Promise(resolve => {
+			if (!this.modalEl) {
+				resolve(window.confirm(body || title));
+				return;
+			}
+
+			this._modalResolve = resolve;
+			if (this.modalTitle) {
+				this.modalTitle.textContent = title || "";
+			}
+			if (this.modalBody) {
+				this.modalBody.textContent = body || "";
+			}
+			if (this.modalConfirm && confirmLabel) {
+				this.modalConfirm.textContent = confirmLabel;
+			}
+
+			this.modalEl.hidden = false;
+			this.modalEl.setAttribute("aria-hidden", "false");
+			// Force reflow so transition runs.
+			this.modalEl.offsetHeight;
+			this.modalEl.classList.add("is-open");
+			this.modalConfirm?.focus();
+		});
+	}
+
+	closeModal(confirmed) {
+		if (!this.modalEl) {
+			return;
+		}
+
+		this.modalEl.classList.remove("is-open");
+		this.modalEl.setAttribute("aria-hidden", "true");
+
+		setTimeout(() => {
+			this.modalEl.hidden = true;
+		}, LightshareAdmin.ANIMATION_CLEANUP_DELAY);
+
+		if (this._modalResolve) {
+			const resolve = this._modalResolve;
+			this._modalResolve = null;
+			resolve(Boolean(confirmed));
+		}
+	}
+
 	// Bind click handler for the "Reset Settings" button.
 	setupResetSettings() {
 		const button = document.getElementById("lightshare-reset-settings");
@@ -99,24 +240,30 @@ class LightshareAdmin {
 	}
 
 	// Generic handler for reset-type AJAX actions with confirmation.
-	handleResetAction(e, action, confirmMessage, successMessage, onSuccess) {
+	async handleResetAction(e, action, confirmTitle, confirmMessage, successMessage, onSuccess) {
 		e.preventDefault();
 
-		if (!confirm(confirmMessage)) {
+		const confirmed = await this.openModal({
+			title: confirmTitle,
+			body: confirmMessage,
+			confirmLabel: this.i18n("confirm", "Confirm")
+		});
+
+		if (!confirmed) {
 			return;
 		}
 
 		const button = e.currentTarget;
 		button.disabled = true;
+		button.classList.add("is-loading");
 
-		this.showLoadingIndicator();
 		this.postAjax({
 			action,
 			nonce: lightshare_admin.nonce
 		})
 			.then(response => {
-				this.hideLoadingIndicator();
 				button.disabled = false;
+				button.classList.remove("is-loading");
 
 				if (response.success) {
 					this.showNotice(
@@ -129,15 +276,18 @@ class LightshareAdmin {
 				} else {
 					this.showNotice(
 						(response.data && response.data.message) ||
-							"Operation failed. Please try again.",
+							this.i18n("operationFailed", "Operation failed. Please try again."),
 						"error"
 					);
 				}
 			})
 			.catch(() => {
-				this.hideLoadingIndicator();
 				button.disabled = false;
-				this.showNotice("An error occurred. Please try again.", "error");
+				button.classList.remove("is-loading");
+				this.showNotice(
+					this.i18n("errorOccurred", "An error occurred. Please try again."),
+					"error"
+				);
 			});
 	}
 
@@ -146,8 +296,15 @@ class LightshareAdmin {
 		this.handleResetAction(
 			e,
 			"lightshare_reset_settings",
-			"Are you sure you want to reset all Lightshare settings? This action cannot be undone.",
-			"Settings reset successfully. The page will now reload.",
+			this.i18n("resetSettingsTitle", "Reset all settings?"),
+			this.i18n(
+				"resetSettingsConfirm",
+				"Are you sure you want to reset all Lightshare settings? This action cannot be undone."
+			),
+			this.i18n(
+				"resetSettingsSuccess",
+				"Settings reset successfully. The page will now reload."
+			),
 			() => {
 				setTimeout(() => location.reload(), LightshareAdmin.RELOAD_DELAY);
 			}
@@ -159,8 +316,12 @@ class LightshareAdmin {
 		this.handleResetAction(
 			e,
 			"lightshare_reset_counts",
-			"Are you sure you want to reset all share counts? This action cannot be undone.",
-			"Share counts reset successfully."
+			this.i18n("resetCountsTitle", "Reset share counts?"),
+			this.i18n(
+				"resetCountsConfirm",
+				"Are you sure you want to reset all share counts? This action cannot be undone."
+			),
+			this.i18n("resetCountsSuccess", "Share counts reset successfully.")
 		);
 	}
 
@@ -173,16 +334,23 @@ class LightshareAdmin {
 
 	// Set up all event handlers for the admin settings page.
 	setupEventHandlers() {
-		document.querySelectorAll(".nav-tab-wrapper a").forEach(tab => {
+		document.querySelectorAll(".nav-tab-wrapper a, .ls-nav__tab").forEach(tab => {
 			tab.addEventListener("click", this.handleTabClick.bind(this));
 		});
 
-		document.querySelectorAll("form").forEach(form => {
+		const form = document.getElementById("lightshare-settings-form");
+		if (form) {
 			form.addEventListener("submit", this.handleFormSubmit.bind(this));
-		});
+			form.addEventListener("input", this.markDirty.bind(this));
+			form.addEventListener("change", this.markDirty.bind(this));
+		}
 
 		document.querySelectorAll(".floating-button-toggle").forEach(input => {
 			input.addEventListener("change", this.handleFloatingButtonToggle.bind(this));
+		});
+
+		this.hideOnMobileInput?.addEventListener("change", () => {
+			this.syncFloatingMobilePosition();
 		});
 
 		document.querySelectorAll(".inline-button-toggle").forEach(input => {
@@ -208,6 +376,14 @@ class LightshareAdmin {
 		fieldBindings.forEach(({ el, event, handler }) => {
 			el?.addEventListener(event, handler);
 		});
+
+		// Radio style/theme inputs.
+		this.styleInputs.forEach(input => {
+			input.addEventListener("change", boundUpdatePreview);
+		});
+		this.colorThemeInputs.forEach(input => {
+			input.addEventListener("change", boundUpdatePreview);
+		});
 	}
 
 	// Toggle visibility of a settings section with slide animation.
@@ -224,6 +400,36 @@ class LightshareAdmin {
 	// Handle floating button toggle change.
 	handleFloatingButtonToggle(e) {
 		this.toggleSection(".floating-button-settings", e.target.checked);
+	}
+
+	// Keep mobile-only controls meaningful when the floating button is hidden.
+	syncFloatingMobilePosition() {
+		if (!this.hideOnMobileInput) {
+			return;
+		}
+
+		const isHiddenOnMobile = this.hideOnMobileInput.checked;
+		const row = document.querySelector(".ls-mobile-position-row");
+		const controls = document.querySelector("[data-mobile-position-controls]");
+		const preservedValue = document.querySelector(".ls-mobile-position-preserve");
+		const note = document.querySelector(".ls-mobile-position-note");
+
+		if (row) {
+			row.classList.toggle("is-disabled", isHiddenOnMobile);
+		}
+		if (controls) {
+			controls.disabled = isHiddenOnMobile;
+		}
+		if (preservedValue) {
+			const selectedPosition = controls?.querySelector("input:checked");
+			if (selectedPosition) {
+				preservedValue.value = selectedPosition.value;
+			}
+			preservedValue.disabled = !isHiddenOnMobile;
+		}
+		if (note) {
+			note.hidden = !isHiddenOnMobile;
+		}
 	}
 
 	// Handle inline button toggle change.
@@ -261,69 +467,108 @@ class LightshareAdmin {
 		formData.append("action", "lightshare_save_settings");
 		formData.append("lightshare_nonce", lightshare_admin.nonce);
 
-		this.showLoadingIndicator();
+		this.setSaveState("saving");
 		this.postFormData(formData)
 			.then(response => {
-				this.hideLoadingIndicator();
 				if (response.success) {
-					this.showNotice(response.data || "Settings saved.", "success");
+					this.showNotice(
+						response.data || this.i18n("settingsSaved", "Settings saved."),
+						"success"
+					);
+					this.setSaveState("saved");
 				} else {
 					this.showNotice(
 						(response.data && response.data.message) ||
-							"Failed to save settings. Please try again.",
+							this.i18n(
+								"saveFailed",
+								"Failed to save settings. Please try again."
+							),
 						"error"
 					);
+					this.setSaveState("dirty");
 				}
 			})
 			.catch(() => {
-				this.hideLoadingIndicator();
 				this.showNotice(
-					"An error occurred while saving. Please try again.",
+					this.i18n(
+						"saveError",
+						"An error occurred while saving. Please try again."
+					),
 					"error"
 				);
+				this.setSaveState("dirty");
 			});
 	}
 
-	// Display an inline notice message below the submit button.
-	showNotice(message, type) {
-		document.querySelectorAll(".lightshare-inline-notice").forEach(notice => {
-			notice.remove();
+	markDirty() {
+		if (this.saveState !== "saving") {
+			this.setSaveState("dirty");
+		}
+	}
+
+	setSaveState(state) {
+		this.saveState = state;
+		const statusMessages = {
+			clean: "",
+			dirty: this.i18n("unsavedChanges", "Unsaved changes"),
+			saving: this.i18n("saving", "Saving..."),
+			saved: this.i18n("settingsSaved", "Settings saved.")
+		};
+
+		if (this.saveStatus) {
+			this.saveStatus.textContent = statusMessages[state] || "";
+		}
+
+		[this.submitButton, ...this.mobileSaveButtons].filter(Boolean).forEach(button => {
+			const label = button.dataset.lsSaveLabel || this.i18n("saveChanges", "Save Changes");
+			const savingLabel = button.dataset.lsSavingLabel || this.i18n("saving", "Saving...");
+			const savedLabel = button.dataset.lsSavedLabel || this.i18n("saved", "Saved");
+			button.disabled = state !== "dirty";
+			button.classList.toggle("is-loading", state === "saving");
+			button.classList.toggle("is-saved", state === "saved");
+			button.toggleAttribute("aria-busy", state === "saving");
+			button.textContent = state === "saving" ? savingLabel : state === "saved" ? savedLabel : label;
 		});
 
-		const notice = document.createElement("div");
-		notice.className = `lightshare-inline-notice notice-${type}`;
-		notice.textContent = message;
-
-		if (this.submitButton && this.submitButton.parentNode) {
-			this.submitButton.parentNode.insertBefore(
-				notice,
-				this.submitButton.nextSibling
-			);
-		} else {
-			document.body.appendChild(notice);
+		if (state === "saved") {
+			clearTimeout(this._savedStateTimer);
+			this._savedStateTimer = setTimeout(() => {
+				if (this.saveState === "saved") {
+					this.setSaveState("clean");
+				}
+			}, 1800);
 		}
+	}
 
-		setTimeout(() => {
-			notice.style.transition = `opacity ${LightshareAdmin.NOTICE_FADE_DURATION}ms ease`;
-			notice.style.opacity = "0";
-			setTimeout(() => notice.remove(), LightshareAdmin.NOTICE_FADE_DURATION);
+	// Display a toast notice.
+	showNotice(message, type) {
+		const toast =
+			this.toastEl ||
+			(() => {
+				const el = document.createElement("div");
+				el.id = "ls-toast";
+				el.className = "ls-toast";
+				el.setAttribute("role", "status");
+				el.setAttribute("aria-live", "polite");
+				document.body.appendChild(el);
+				this.toastEl = el;
+				return el;
+			})();
+
+		toast.className = `ls-toast ls-toast--${type}`;
+		toast.textContent = message;
+		toast.hidden = false;
+		// Force reflow.
+		toast.offsetHeight;
+		toast.classList.add("is-visible");
+
+		clearTimeout(this._toastTimer);
+		this._toastTimer = setTimeout(() => {
+			toast.classList.remove("is-visible");
+			setTimeout(() => {
+				toast.hidden = true;
+			}, LightshareAdmin.NOTICE_FADE_DURATION);
 		}, LightshareAdmin.NOTICE_DISPLAY_DURATION);
-	}
-
-	// Show a loading state on the submit button and disable it.
-	showLoadingIndicator() {
-		if (this.submitButton) {
-			this.submitButton.value = "Saving...";
-			this.submitButton.disabled = true;
-		}
-	}
-
-	// Restore the submit button to its default state.
-	hideLoadingIndicator() {
-		if (this.submitButton) {
-			this.submitButton.value = "Save Changes";
-			this.submitButton.disabled = false;
-		}
 	}
 
 	// Animate an element open with a height transition.
@@ -371,7 +616,7 @@ class LightshareAdmin {
 		}, LightshareAdmin.ANIMATION_CLEANUP_DELAY);
 	}
 
-	// Fade a table row into view.
+	// Fade a field/row into view.
 	fadeRowIn(row) {
 		if (!row) {
 			return;
@@ -379,7 +624,7 @@ class LightshareAdmin {
 
 		row.style.removeProperty("display");
 		if (window.getComputedStyle(row).display === "none") {
-			row.style.display = "table-row";
+			row.style.display = row.classList.contains("ls-field") ? "grid" : "block";
 		}
 
 		row.style.opacity = "0";
@@ -394,7 +639,7 @@ class LightshareAdmin {
 		}, LightshareAdmin.ANIMATION_CLEANUP_DELAY);
 	}
 
-	// Fade a table row out of view.
+	// Fade a field/row out of view.
 	fadeRowOut(row) {
 		if (!row || window.getComputedStyle(row).display === "none") {
 			return;
@@ -427,6 +672,7 @@ class LightshareAdmin {
 				const isRow =
 					input.dataset.toggleMode === "row" ||
 					target.matches("tr") ||
+					target.classList.contains("ls-field") ||
 					target.hasAttribute("data-toggle-row");
 				const isVisible =
 					window.getComputedStyle(target).display !== "none";
@@ -436,8 +682,10 @@ class LightshareAdmin {
 					if (animate) {
 						isRow ? this.fadeRowIn(target) : this.slideDown(target);
 					} else {
-						target.style.display = isRow ? "" : "";
 						target.style.removeProperty("display");
+						if (target.classList.contains("ls-field")) {
+							target.style.display = "grid";
+						}
 					}
 					return;
 				}
@@ -462,24 +710,34 @@ class LightshareAdmin {
 
 	// Activate a specific tab by its ID.
 	setActiveTab(tab) {
-		document.querySelectorAll(".nav-tab-wrapper a").forEach(link => {
-			link.classList.remove("nav-tab-active");
+		document.querySelectorAll(".nav-tab-wrapper a, .ls-nav__tab").forEach(link => {
+			link.classList.remove("nav-tab-active", "is-active");
+			link.setAttribute("aria-selected", "false");
 		});
 
-		const activeTabLink = document.querySelector(
-			`.nav-tab-wrapper a[href="#${tab}"]`
-		);
+		const activeTabLink =
+			document.querySelector(`.nav-tab-wrapper a[href="#${tab}"]`) ||
+			document.querySelector(`.ls-nav__tab[href="#${tab}"]`);
 		if (activeTabLink) {
-			activeTabLink.classList.add("nav-tab-active");
+			activeTabLink.classList.add("nav-tab-active", "is-active");
+			activeTabLink.setAttribute("aria-selected", "true");
+
+			const pageTitle = document.getElementById("ls-page-title");
+			const titleEl = activeTabLink.querySelector(".ls-nav__title");
+			if (pageTitle && titleEl) {
+				pageTitle.textContent = titleEl.textContent.trim();
+			}
 		}
 
-		document.querySelectorAll(".tab-content > div").forEach(content => {
+		document.querySelectorAll(".tab-content > .tab-pane, .tab-content > div").forEach(content => {
 			content.style.display = "none";
+			content.classList.remove("active", "is-active");
 		});
 
 		const activeTab = document.getElementById(tab);
 		if (activeTab) {
 			activeTab.style.display = "block";
+			activeTab.classList.add("active", "is-active");
 		}
 
 		const activeTabInput = document.getElementById("lightshare_active_tab");
@@ -529,6 +787,28 @@ class LightshareAdmin {
 				this.draggedItem = null;
 				this.updateNetworksOrder();
 				this.updatePreview();
+				this.markDirty();
+			});
+
+			item.addEventListener("keydown", event => {
+				if (!event.altKey || !["ArrowLeft", "ArrowRight"].includes(event.key)) {
+					return;
+				}
+
+				const items = Array.from(list.querySelectorAll("li"));
+				const index = items.indexOf(item);
+				const targetIndex = event.key === "ArrowLeft" ? index - 1 : index + 1;
+				const target = items[targetIndex];
+				if (!target) {
+					return;
+				}
+
+				event.preventDefault();
+				list.insertBefore(item, event.key === "ArrowLeft" ? target : target.nextSibling);
+				this.updateNetworksOrder();
+				this.updatePreview();
+				this.markDirty();
+				item.focus();
 			});
 		});
 
@@ -572,33 +852,31 @@ class LightshareAdmin {
 			});
 		});
 
-		list
-			.querySelectorAll('input[type="checkbox"]')
-			.forEach(checkbox => {
-				const li = checkbox.closest("li");
-				const label = checkbox.closest("label");
+		list.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+			const li = checkbox.closest("li");
+			const label = checkbox.closest("label");
 
-				if (li) {
-					li.classList.toggle("active", checkbox.checked);
+			if (li) {
+				li.classList.toggle("active", checkbox.checked);
+			}
+			if (label) {
+				label.classList.toggle("active", checkbox.checked);
+			}
+
+			checkbox.addEventListener("change", event => {
+				const currentLi = event.currentTarget.closest("li");
+				const currentLabel = event.currentTarget.closest("label");
+				if (currentLi) {
+					currentLi.classList.toggle("active", event.currentTarget.checked);
 				}
-				if (label) {
-					label.classList.toggle("active", checkbox.checked);
+				if (currentLabel) {
+					currentLabel.classList.toggle("active", event.currentTarget.checked);
 				}
 
-				checkbox.addEventListener("change", event => {
-					const currentLi = event.currentTarget.closest("li");
-					const currentLabel = event.currentTarget.closest("label");
-					if (currentLi) {
-						currentLi.classList.toggle("active", event.currentTarget.checked);
-					}
-					if (currentLabel) {
-						currentLabel.classList.toggle("active", event.currentTarget.checked);
-					}
-
-					this.updateNetworksOrder();
-					this.updatePreview();
-				});
+				this.updateNetworksOrder();
+				this.updatePreview();
 			});
+		});
 
 		this.updateNetworksOrder();
 	}
@@ -609,6 +887,26 @@ class LightshareAdmin {
 			return;
 		}
 		this.updatePreview();
+	}
+
+	// Switch the preview between desktop and mobile article contexts.
+	setupPreviewModes() {
+		if (!this.previewCanvas || !this.previewModeButtons.length) {
+			return;
+		}
+
+		this.previewModeButtons.forEach(button => {
+			button.addEventListener("click", () => {
+				const mode = button.dataset.previewMode;
+				const isMobile = mode === "mobile";
+				this.previewCanvas.classList.toggle("is-mobile", isMobile);
+				this.previewModeButtons.forEach(modeButton => {
+					const isActive = modeButton === button;
+					modeButton.classList.toggle("is-active", isActive);
+					modeButton.setAttribute("aria-pressed", isActive ? "true" : "false");
+				});
+			});
+		});
 	}
 
 	// Fetch and render a live preview of the share buttons via AJAX.
@@ -626,11 +924,14 @@ class LightshareAdmin {
 			}
 		});
 
-		const style = this.styleSelect?.value;
+		const style = this.getChoiceValue(this.styleInputs, this.styleSelect);
+		const colorTheme = this.getChoiceValue(
+			this.colorThemeInputs,
+			this.colorThemeSelect
+		);
 		const showLabel = this.showLabelInput?.checked;
 		const labelText = this.labelTextInput?.value;
 		const nudgeText = this.nudgeTextInput?.value;
-		const colorTheme = this.colorThemeSelect?.value;
 
 		this.postAjax({
 			action: "lightshare_preview_buttons",
@@ -665,11 +966,4 @@ class LightshareAdmin {
 window.addEventListener("DOMContentLoaded", () => {
 	const lightshareAdmin = new LightshareAdmin();
 	window.setActiveTab = tab => lightshareAdmin.setActiveTab(tab);
-
-	setTimeout(() => {
-		const submitButton = document.getElementById("submit-button");
-		if (submitButton) {
-			submitButton.style.display = "block";
-		}
-	}, 50);
 });

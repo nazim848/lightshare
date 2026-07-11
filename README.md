@@ -139,6 +139,12 @@ Yes. Any public post type can be selected for inline or floating buttons.
 
 ## Changelog
 
+### 1.3.0
+
+- Redesigned the settings interface with clearer navigation and responsive controls
+- Added an interactive desktop and mobile live preview for share button settings
+- Improved mobile admin usability, including save feedback, navigation, and compact controls
+
 ### 1.2.0
 
 - Added Telegram and Threads sharing
