@@ -559,10 +559,7 @@
    -------------------------------------------------------------------------- */
 
 .ls-admin .ls-share-layout {
-	display: grid;
-	grid-template-columns: minmax(0, 1fr) 280px;
-	gap: 16px;
-	align-items: start;
+	display: block;
 	margin: 0;
 	width: 100%;
 }
@@ -578,10 +575,6 @@
 }
 
 .ls-admin .ls-share-layout__preview {
-	position: sticky;
-	top: 100px;
-	align-self: start;
-	z-index: 5;
 	margin: 0;
 }
 
@@ -736,6 +729,7 @@
 
 .ls-admin .ls-preview__article {
 	width: 100%;
+	max-width: 680px;
 	padding: 20px;
 	border-radius: 10px;
 	background: #fff;
