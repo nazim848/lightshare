@@ -82,6 +82,13 @@ Optional counts are recorded internally when a sharing button is clicked. They a
 4. Select and arrange your social and AI buttons.
 5. Enable inline or floating placement, or add the block/shortcode manually.
 
+== Screenshots ==
+
+1. Select and arrange social and AI buttons, then customize counts, button style, color theme, and label settings.
+2. Configure floating buttons by post type, alignment, size, mobile behavior, and scroll threshold.
+3. Preview the selected social and AI share buttons instantly from the settings page.
+4. Lightweight social and AI share buttons displayed inline on a WordPress post.
+
 == Frequently Asked Questions ==
 
 = Which services are supported? =
