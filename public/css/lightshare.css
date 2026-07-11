@@ -226,6 +226,84 @@
 	opacity: 1;
 }
 
+.lightshare-dialog-backdrop {
+	position: fixed;
+	inset: 0;
+	z-index: 100000;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 20px;
+	background: rgba(0, 0, 0, 0.55);
+}
+
+.lightshare-dialog {
+	width: min(100%, 440px);
+	padding: 24px;
+	border-radius: 10px;
+	background: #fff;
+	box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+	color: #1d2327;
+}
+
+.lightshare-dialog h2 {
+	margin: 0 0 8px;
+	font-size: 22px;
+}
+
+.lightshare-dialog p {
+	margin: 0 0 16px;
+}
+
+.lightshare-dialog label {
+	display: block;
+	margin-bottom: 6px;
+	font-weight: 600;
+}
+
+.lightshare-dialog input {
+	box-sizing: border-box;
+	width: 100%;
+	padding: 10px 12px;
+	border: 1px solid #8c8f94;
+	border-radius: 4px;
+	font: inherit;
+}
+
+.lightshare-dialog-error {
+	margin-top: 8px !important;
+	color: #b32d2e;
+}
+
+.lightshare-dialog-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+	margin-top: 20px;
+}
+
+.lightshare-dialog button {
+	padding: 9px 14px;
+	border: 1px solid #6364ff;
+	border-radius: 4px;
+	background: #6364ff;
+	color: #fff;
+	cursor: pointer;
+	font: inherit;
+}
+
+.lightshare-dialog .lightshare-dialog-cancel {
+	border-color: #8c8f94;
+	background: #fff;
+	color: #1d2327;
+}
+
+.lightshare-dialog button:focus-visible,
+.lightshare-dialog input:focus-visible {
+	outline: 2px solid #2271b1;
+	outline-offset: 2px;
+}
+
 /* Hide on mobile if needed, or adjust */
 @media (max-width: 767px) {
 	.lightshare-floating.lightshare-floating-mobile-bottom.lightshare-floating-scroll-gated {

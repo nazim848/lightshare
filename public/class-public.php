@@ -131,7 +131,17 @@ class Public_Core {
 			'lightshare_ajax',
 			array(
 				'ajax_url' => admin_url('admin-ajax.php'),
-				'nonce'    => wp_create_nonce('lightshare_nonce')
+				'nonce'    => wp_create_nonce('lightshare_nonce'),
+				'strings'  => array(
+					'link_copied'       => __('Link copied', 'lightshare-social-sharing'),
+					'copy_failed'       => __('Failed to copy', 'lightshare-social-sharing'),
+					'mastodon_title'    => __('Share on Mastodon', 'lightshare-social-sharing'),
+					'mastodon_help'     => __('Enter your Mastodon server, for example mastodon.social.', 'lightshare-social-sharing'),
+					'mastodon_label'    => __('Mastodon server', 'lightshare-social-sharing'),
+					'mastodon_share'    => __('Continue to Mastodon', 'lightshare-social-sharing'),
+					'cancel'            => __('Cancel', 'lightshare-social-sharing'),
+					'invalid_instance'  => __('Enter a valid Mastodon server using HTTPS.', 'lightshare-social-sharing')
+				)
 			)
 		);
 	}
@@ -390,6 +400,9 @@ class Public_Core {
 			$allowed['a'] = array();
 		}
 		$allowed['a']['data-url'] = true;
+		$allowed['a']['data-network'] = true;
+		$allowed['a']['data-lightshare-action'] = true;
+		$allowed['a']['data-copy-text'] = true;
 		$allowed['svg'] = array(
 			'xmlns' => true,
 			'width' => true,
@@ -401,6 +414,13 @@ class Public_Core {
 			'aria-hidden' => true,
 			'focusable' => true,
 			'role' => true
+		);
+		$allowed['g'] = array(
+			'clip-path' => true
+		);
+		$allowed['defs'] = array();
+		$allowed['clippath'] = array(
+			'id' => true
 		);
 		$allowed['path'] = array(
 			'd' => true,

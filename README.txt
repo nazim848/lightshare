@@ -5,7 +5,7 @@ Tags: social share, social media, share buttons, facebook share, twitter share
 Requires at least: 5.0
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.1.0
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -72,7 +72,7 @@ Lightshare includes a block for the block editor:
 
 = Which social networks are supported? =
 
-Lightshare supports Facebook, Twitter/X, LinkedIn, Pinterest, Reddit, WhatsApp, BlueSky, ChatGPT, Grok, Perplexity, Google AI, and Email sharing.
+Lightshare supports Facebook, Twitter/X, LinkedIn, Pinterest, Reddit, WhatsApp, BlueSky, Telegram, Threads, Mastodon, ChatGPT, Claude, Grok, Perplexity, Google AI, and Email sharing.
 
 = Will this plugin slow down my site? =
 
@@ -135,6 +135,20 @@ The plugin can connect to these third-party services:
   Terms: https://bsky.social/about/support/tos
   Privacy: https://bsky.social/about/support/privacy-policy
 
+* Telegram (`t.me`) for sharing links/text.
+  Data sent on click: page title and page URL.
+  Terms: https://telegram.org/tos
+  Privacy: https://telegram.org/privacy
+
+* Threads (`threads.com`) for sharing links/text.
+  Data sent on click: page title and page URL.
+  Terms: https://help.instagram.com/769983657850450
+  Privacy: https://privacycenter.instagram.com/policy/
+
+* Mastodon (the server selected by the visitor) for sharing links/text.
+  Data sent on click: page title and page URL. The selected server hostname is stored only in the visitor's browser using local storage.
+  Terms and privacy policy: provided by the visitor's selected Mastodon server.
+
 * OpenAI ChatGPT (`chat.openai.com`) for opening a prefilled prompt.
   Data sent on click: generated prompt text that includes the page title and page URL.
   Terms: https://openai.com/policies/terms-of-use/
@@ -155,15 +169,28 @@ The plugin can connect to these third-party services:
   Terms: https://x.com/en/tos
   Privacy: https://x.com/en/privacy
 
+* Anthropic Claude (`claude.ai`) for opening a new chat with a prefilled prompt.
+  Data sent on click: generated prompt text that includes the page URL and the AI Association Text configured by the site administrator.
+  Terms: https://www.anthropic.com/legal/consumer-terms
+  Privacy: https://www.anthropic.com/legal/privacy
+
 * Email client (`mailto:`) for composing an email draft.
   Data sent on click: page title (as subject) and page URL (as body) passed to the visitor's local email client.
 
 == Changelog ==
 
+= 1.2.0 =
+* Added Telegram and Threads sharing.
+* Added a privacy-friendly Mastodon instance chooser.
+* Added Claude sharing with a prefilled AI prompt.
+
 = 1.0.0 =
 * Initial release
 
 == Upgrade Notice ==
+
+= 1.2.0 =
+Adds Telegram, Threads, Mastodon, and Claude without changing existing network selections.
 
 = 1.0.0 =
 Initial release of Lightshare
@@ -177,4 +204,4 @@ This plugin is free software, released under the GPLv2 or later.
 
 == Privacy Policy ==
 
-Lightshare does not collect personal data. When visitors click a share button, they are sent to the selected third-party sharing service (for example, Facebook, X, LinkedIn, Pinterest, Reddit, WhatsApp, BlueSky, or the AI services listed above). No third-party scripts are loaded by the plugin itself.
+Lightshare does not collect personal data. When visitors click a share button, they are sent to the selected third-party sharing service. No third-party scripts are loaded by the plugin itself. Mastodon can remember the visitor's chosen server in that visitor's browser using local storage.

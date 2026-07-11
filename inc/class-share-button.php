@@ -46,6 +46,21 @@ class Share_Button {
 				'icon' => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M100.28 448H7.4V148.9h92.88zM53.79 108.1C24.09 108.1 0 83.5 0 53.8a53.79 53.79 0 0 1 107.58 0c0 29.7-24.1 54.3-53.79 54.3M447.9 448h-92.68V302.4c0-34.7-.7-79.2-48.29-79.2-48.29 0-55.69 37.7-55.69 76.7V448h-92.78V148.9h89.08v40.8h1.3c12.4-23.5 42.69-48.3 87.88-48.3 94 0 111.28 61.9 111.28 142.3V448z"/></svg>',
 				'color' => '#0A66C2'
 			),
+			'telegram' => array(
+				'label' => 'Telegram',
+				'icon' => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><path fill="currentColor" d="M248 8C111 8 0 119 0 256s111 248 248 248 248-111 248-248S385 8 248 8m115.1 168.7-40.7 191.8c-3.1 13.6-11.1 16.9-22.6 10.5l-62-45.7-29.9 28.8c-3.3 3.3-6.1 6.1-12.5 6.1l4.4-63.1 114.9-103.8c5-4.4-1.1-6.9-7.7-2.5L164.9 288.2l-61.2-19.1c-13.3-4.2-13.6-13.3 2.8-19.7l239.1-92.2c11.1-4.2 20.8 2.5 17.5 19.5"/></svg>',
+				'color' => '#229ED9'
+			),
+			'threads' => array(
+				'label' => 'Threads',
+				'icon' => '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-threads" viewBox="0 0 16 16"><path d="M6.321 6.016c-.27-.18-1.166-.802-1.166-.802.756-1.081 1.753-1.502 3.132-1.502.975 0 1.803.327 2.394.948s.928 1.509 1.005 2.644q.492.207.905.484c1.109.745 1.719 1.86 1.719 3.137 0 2.716-2.226 5.075-6.256 5.075C4.594 16 1 13.987 1 7.994 1 2.034 4.482 0 8.044 0 9.69 0 13.55.243 15 5.036l-1.36.353C12.516 1.974 10.163 1.43 8.006 1.43c-3.565 0-5.582 2.171-5.582 6.79 0 4.143 2.254 6.343 5.63 6.343 2.777 0 4.847-1.443 4.847-3.556 0-1.438-1.208-2.127-1.27-2.127-.236 1.234-.868 3.31-3.644 3.31-1.618 0-3.013-1.118-3.013-2.582 0-2.09 1.984-2.847 3.55-2.847.586 0 1.294.04 1.663.114 0-.637-.54-1.728-1.9-1.728-1.25 0-1.566.405-1.967.868ZM8.716 8.19c-2.04 0-2.304.87-2.304 1.416 0 .878 1.043 1.168 1.6 1.168 1.02 0 2.067-.282 2.232-2.423a6.2 6.2 0 0 0-1.528-.161"/></svg>',
+				'color' => '#000000'
+			),
+			'mastodon' => array(
+				'label' => 'Mastodon',
+				'icon' => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M433 179.1c0-97.2-63.7-125.7-63.7-125.7C337.4 38.8 282 32.7 224.4 32h-1.2c-57.6.7-112.9 6.8-144.8 21.4 0 0-63.7 28.5-63.7 125.7 0 22.3-.4 49 0 77.4 1.5 95.2 17.5 189 105.6 212.3 40.6 10.7 75.3 13 103.4 11.4 50.9-2.8 79.4-18.1 79.4-18.1l-1.7-36.9s-36.3 11.4-77.1 10.1c-40.4-1.4-83-4.4-89.6-54a102 102 0 0 1-.9-13.9c85.6 20.9 158.6 9.1 178.6 6.7 55.8-6.7 104.5-41.3 110.6-72.9 9.6-49.8 8.8-121.5 8.8-121.5zm-75.1 125.8h-46.3V191.4c0-23.9-10-36.1-30.1-36.1-22.2 0-33.3 14.4-33.3 42.9v62.1h-46V198.2c0-28.6-11.1-42.9-33.3-42.9-20.1 0-30.1 12.2-30.1 36.1v113.5H92.5V188c0-23.9 6.1-42.9 18.4-57 12.7-14.1 29.2-21.4 49.8-21.4 23.8 0 41.8 9.2 53.8 27.7l11.6 19.5 11.6-19.5c12-18.5 30-27.7 53.8-27.7 20.6 0 37.1 7.3 49.8 21.4 12.3 14.1 18.4 33.1 18.4 57z"/></svg>',
+				'color' => '#6364FF'
+			),
 			'copy' => array(
 				'label' => 'Copy',
 				'icon' => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M320 448v40c0 13.255-10.745 24-24 24H24c-13.255 0-24-10.745-24-24V120c0-13.255 10.745-24 24-24h72v296c0 30.879 25.121 56 56 56zm0-344V0H152c-13.255 0-24 10.745-24 24v368c0 13.255 10.745 24 24 24h272c13.255 0 24-10.745 24-24V128H344c-13.2 0-24-10.8-24-24m120.971-31.029L375.029 7.029A24 24 0 0 0 358.059 0H352v96h96v-6.059a24 24 0 0 0-7.029-16.97"/></svg>',
@@ -95,6 +110,11 @@ class Share_Button {
 				'label' => 'Grok',
 				'icon' => '<svg width="150" height="145" viewBox="0 0 150 145" xmlns="http://www.w3.org/2000/svg"><path d="m57.931 93.076 71.436-72.34v.067L150 0c-.369.53-.742 1.047-1.112 1.563-15.678 21.768-23.333 32.412-17.19 59.047l-.036-.04c4.235 18.129-.297 38.234-14.927 52.983-18.447 18.61-47.963 22.752-72.269 6l16.948-7.908c15.512 6.141 32.487 3.445 44.682-8.853 12.2-12.298 14.941-30.206 8.807-45.113-1.165-2.824-4.658-3.535-7.101-1.714zm-10.292 9.018-.013.013L0 145c3.02-4.191 6.768-8.156 10.508-12.117 10.548-11.173 21.016-22.248 14.63-37.899-8.55-20.943-3.573-45.485 12.263-61.448 16.462-16.58 40.704-20.762 60.95-12.362 4.483 1.677 8.389 4.065 11.431 6.286l-16.907 7.87c-15.742-6.656-33.779-2.13-44.786 8.968-14.887 14.993-17.897 40.994-.45 57.796" fill="currentColor"></path></svg>',
 				'color' => '#111111'
+			),
+			'claude' => array(
+				'label' => 'Claude',
+				'icon' => '<svg viewBox="0 0 30 30.117" fill="none" xmlns="http://www.w3.org/2000/svg" width="30" height="30.117"><g clip-path="url(#a)"><path d="m5.886 19.959 5.901-3.311.099-.289-.099-.159h-.289l-.987-.061-3.372-.091-2.924-.122-2.833-.152-.714-.152-.668-.88.068-.441.6-.402.858.076 1.899.129 2.848.197 2.066.122 3.061.319h.486l.068-.197-.167-.122-.129-.122-2.947-1.997-3.19-2.111L3.85 8.978l-.904-.615-.456-.577-.197-1.261.82-.904 1.101.076.281.076 1.116.858 2.385 1.846 3.115 2.293.456.38.182-.129.023-.091-.205-.342-1.694-3.061-1.808-3.114-.805-1.291-.213-.775c-.076-.319-.129-.585-.129-.911L7.852.168 8.37 0l1.246.167.524.456.775 1.77 1.253 2.787 1.944 3.79.57 1.124.304 1.041.114.319h.197v-.182l.159-2.134.296-2.62.289-3.372.099-.949.471-1.139.934-.615.729.349.6.858-.084.554-.357 2.317-.699 3.63-.456 2.43h.266l.304-.304 1.23-1.633 2.066-2.582.911-1.025 1.063-1.132.684-.539h1.291l.949 1.413-.425 1.458-1.329 1.686-1.101 1.428-1.58 2.127-.987 1.701.091.137.235-.023 3.57-.759 1.929-.349 2.301-.395 1.041.486.114.494-.41 1.01-2.461.608-2.886.577-4.299 1.018-.053.038.061.076 1.937.182.828.046h2.028l3.775.281.987.653.592.797-.099.608-1.519.775-2.051-.486-4.785-1.139-1.641-.41h-.228v.137l1.367 1.337 2.506 2.263 3.137 2.916.159.722-.403.57-.425-.061-2.757-2.073-1.063-.934-2.408-2.028h-.159v.213l.554.813 2.932 4.405.152 1.352-.213.441-.759.266-.836-.152-1.716-2.408-1.77-2.711-1.428-2.43-.175.099-.843 9.076-.395.463-.911.349-.759-.577-.403-.934.403-1.846.486-2.408.395-1.914.357-2.377.213-.79-.015-.053-.175.023-1.792 2.461-2.727 3.684-2.157 2.309-.516.205-.896-.463.084-.828.501-.737 2.985-3.797 1.8-2.355 1.162-1.359-.008-.197h-.068l-7.929 5.149-1.413.182-.608-.57.076-.934.289-.304 2.385-1.641z" fill="currentColor"/></g><defs><clipPath id="a"><path fill="currentColor" d="M0 0h30v30.117H0z"/></clipPath></defs></svg>',
+				'color' => '#D97757'
 			)
 		);
 
@@ -384,11 +404,16 @@ class Share_Button {
 		if ($ai_association_text !== '') {
 			$grok_prompt .= ' | ' . $ai_association_text;
 		}
+		$claude_prompt = 'Summarize the content at ' . $permalink;
+		if ($ai_association_text !== '') {
+			$claude_prompt .= ' ' . $ai_association_text;
+		}
 
 		$encoded_openai_prompt = urlencode($openai_prompt);
 		$encoded_google_prompt = urlencode($google_prompt);
 		$encoded_perplexity_prompt = urlencode($perplexity_prompt);
 		$encoded_grok_prompt = urlencode($grok_prompt);
+		$encoded_claude_prompt = urlencode($claude_prompt);
 
 		// Image for Pinterest
 		if (!empty($args['image'])) {
@@ -447,6 +472,8 @@ class Share_Button {
 		foreach ($networks as $network) {
 			$network = trim($network);
 			$share_url = '';
+			$action = 'link';
+			$copy_text = '';
 			$icon = '';
 			$label = ucfirst($network);
 
@@ -500,6 +527,20 @@ class Share_Button {
 				case 'grok':
 					$share_url = 'https://x.com/i/grok?text=' . $encoded_grok_prompt;
 					break;
+				case 'telegram':
+					$share_url = 'https://t.me/share/url?url=' . $encoded_url . '&text=' . $encoded_title;
+					break;
+				case 'threads':
+					$share_url = 'https://www.threads.com/intent/post?text=' . urlencode($title . ' ' . $permalink);
+					break;
+				case 'mastodon':
+					$share_url = '#';
+					$action = 'mastodon-instance';
+					$copy_text = $title . ' ' . $permalink;
+					break;
+				case 'claude':
+					$share_url = 'https://claude.ai/new?q=' . $encoded_claude_prompt;
+					break;
 			}
 
 			// Always prefer centrally-defined icons/labels after any network normalization.
@@ -511,9 +552,16 @@ class Share_Button {
 			$share_url = apply_filters('lightshare_share_url', $share_url, $network, $post_id, $args);
 
 			if ($share_url) {
+				if ($network === 'copy') {
+					$action = 'copy';
+					$copy_text = $permalink;
+				}
 				$class_suffix = $network === 'copy' ? ' lightshare-copy' : '';
-				$data_attr = $network === 'copy' ? ' data-url="' . esc_attr($permalink) . '"' : '';
-				$target = ($network === 'copy' || $network === 'email') ? '' : ' target="_blank" rel="noopener noreferrer"';
+				$data_attr = ' data-network="' . esc_attr($network) . '" data-lightshare-action="' . esc_attr($action) . '"';
+				if ($copy_text !== '') {
+					$data_attr .= ' data-copy-text="' . esc_attr($copy_text) . '"';
+				}
+				$target = in_array($action, array('copy', 'mastodon-instance'), true) || $network === 'email' ? '' : ' target="_blank" rel="noopener noreferrer"';
 				/* translators: %s: Social network label. */
 				$aria_label = ($network === 'copy') ? __('Copy link', 'lightshare-social-sharing') : sprintf(__('Share on %s', 'lightshare-social-sharing'), $label);
 

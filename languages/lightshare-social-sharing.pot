@@ -2,103 +2,104 @@
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Lightshare - Lightweight Social Sharing 1.0.0\n"
+"Project-Id-Version: Lightshare - Lightweight Social Sharing 1.2.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/lightshare-social-sharing\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-02-13T10:17:31+00:00\n"
+"POT-Creation-Date: 2026-07-11T03:44:12+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"X-Generator: WP-CLI 2.11.0\n"
+"X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: lightshare-social-sharing\n"
 
 #. Plugin Name of the plugin
-#: lightshare.php
+#: lightshare-social-sharing.php
 msgid "Lightshare - Lightweight Social Sharing"
 msgstr ""
 
 #. Description of the plugin
-#: lightshare.php
+#: lightshare-social-sharing.php
 msgid "Lightshare is a lightweight, high-performance social media sharing plugin built with a focus on speed and minimal code footprint."
 msgstr ""
 
 #. Author of the plugin
-#: lightshare.php
+#: lightshare-social-sharing.php
 msgid "Nazim Husain"
 msgstr ""
 
 #. Author URI of the plugin
-#: lightshare.php
+#: lightshare-social-sharing.php
 msgid "https://nazimansari.com"
 msgstr ""
 
-#: admin/class-admin.php:157
+#: admin/class-admin.php:158
 msgid "Thank you for installing Lightshare! Please visit the "
 msgstr ""
 
-#: admin/class-admin.php:158
+#: admin/class-admin.php:159
 msgid "settings page"
 msgstr ""
 
-#: admin/class-admin.php:159
+#: admin/class-admin.php:160
 msgid "to configure the plugin."
 msgstr ""
 
-#: admin/class-admin.php:169
+#: admin/class-admin.php:170
 msgid "Settings"
 msgstr ""
 
-#: admin/class-admin.php:297
-#: admin/class-admin.php:325
-#: admin/class-admin.php:350
+#: admin/class-admin.php:317
+#: admin/class-admin.php:345
+#: admin/class-admin.php:370
 msgid "Security check failed or insufficient permissions."
 msgstr ""
 
-#: admin/class-admin.php:312
+#: admin/class-admin.php:332
 msgid "Settings have been reset to default values."
 msgstr ""
 
-#: admin/class-admin.php:316
+#: admin/class-admin.php:336
 msgid "Failed to reset settings. Please try again."
 msgstr ""
 
 #. translators: %d number of rows removed
-#: admin/class-admin.php:342
+#: admin/class-admin.php:362
+#, php-format
 msgid "Share counts cleared. Rows removed: %d"
 msgstr ""
 
-#: admin/class-admin.php:397
+#: admin/class-admin.php:417
 #: admin/js/lightshare-block.js:46
 msgid "Lightshare Settings"
 msgstr ""
 
-#: admin/class-admin.php:423
+#: admin/class-admin.php:443
 msgid "Disable Lightshare on this post"
 msgstr ""
 
-#: admin/class-admin.php:427
+#: admin/class-admin.php:447
 msgid "Inline Position"
 msgstr ""
 
-#: admin/class-admin.php:429
+#: admin/class-admin.php:449
 msgid "Inherit"
 msgstr ""
 
-#: admin/class-admin.php:430
+#: admin/class-admin.php:450
 msgid "Before content"
 msgstr ""
 
-#: admin/class-admin.php:431
+#: admin/class-admin.php:451
 msgid "After content"
 msgstr ""
 
-#: admin/class-admin.php:434
+#: admin/class-admin.php:454
 msgid "Networks"
 msgstr ""
 
-#: admin/class-admin.php:444
+#: admin/class-admin.php:464
 msgid "Nudge Text"
 msgstr ""
 
@@ -106,30 +107,67 @@ msgstr ""
 msgid "You do not have sufficient permissions to access this page."
 msgstr ""
 
-#: admin/partials/tabs/share-button.php:194
+#: admin/partials/tabs/share-button.php:195
 msgid "utm_source"
 msgstr ""
 
-#: admin/partials/tabs/share-button.php:198
+#: admin/partials/tabs/share-button.php:199
 msgid "utm_medium"
 msgstr ""
 
-#: admin/partials/tabs/share-button.php:202
+#: admin/partials/tabs/share-button.php:203
 msgid "utm_campaign"
 msgstr ""
 
-#: admin/partials/tabs/share-button.php:213
+#: admin/partials/tabs/share-button.php:214
 msgid "Preview"
 msgstr ""
 
+#: inc/class-share-button.php:455
+msgid "shares"
+msgstr ""
+
 #. translators: %s: Social network label.
-#: inc/class-share-button.php:503
+#: inc/class-share-button.php:566
 msgid "Copy link"
 msgstr ""
 
 #. translators: %s: Social network label.
-#: inc/class-share-button.php:503
+#: inc/class-share-button.php:566
+#, php-format
 msgid "Share on %s"
+msgstr ""
+
+#: public/class-public.php:136
+msgid "Link copied"
+msgstr ""
+
+#: public/class-public.php:137
+msgid "Failed to copy"
+msgstr ""
+
+#: public/class-public.php:138
+msgid "Share on Mastodon"
+msgstr ""
+
+#: public/class-public.php:139
+msgid "Enter your Mastodon server, for example mastodon.social."
+msgstr ""
+
+#: public/class-public.php:140
+msgid "Mastodon server"
+msgstr ""
+
+#: public/class-public.php:141
+msgid "Continue to Mastodon"
+msgstr ""
+
+#: public/class-public.php:142
+msgid "Cancel"
+msgstr ""
+
+#: public/class-public.php:143
+msgid "Enter a valid Mastodon server using HTTPS."
 msgstr ""
 
 #: uninstall.php:10

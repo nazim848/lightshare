@@ -59,7 +59,7 @@ Lightshare includes a block for the block editor:
 
 ### Which social networks are supported?
 
-Lightshare supports Facebook, Twitter/X, LinkedIn, Pinterest, Reddit, WhatsApp, BlueSky, ChatGPT, Grok, Perplexity, Google AI, and Email sharing.
+Lightshare supports Facebook, Twitter/X, LinkedIn, Pinterest, Reddit, WhatsApp, BlueSky, Telegram, Threads, Mastodon, ChatGPT, Claude, Grok, Perplexity, Google AI, and Email sharing.
 
 ### Will this plugin slow down my site?
 
@@ -83,6 +83,12 @@ Yes, you can enable sharing buttons for any public post type in the plugin setti
 
 ## Changelog
 
+### 1.2.0
+
+- Added Telegram and Threads sharing
+- Added a privacy-friendly Mastodon instance chooser
+- Added Claude sharing with a prefilled AI prompt
+
 ### 1.0.0
 
 - Initial release
@@ -93,4 +99,4 @@ This plugin is free software, released under the GPLv2 or later.
 
 ## Privacy Policy
 
-Lightshare does not collect personal data. When visitors click a share button, they are sent to the selected third-party sharing service (for example, Facebook, X, LinkedIn, Pinterest, Reddit, WhatsApp, BlueSky, or the AI services listed above). No third-party scripts are loaded by the plugin itself.
+Lightshare does not collect personal data. When visitors click a share button, they are sent to the selected third-party sharing service (for example, Facebook, X, LinkedIn, Pinterest, Reddit, WhatsApp, BlueSky, Telegram, Threads, Mastodon, or the AI services listed above). No third-party scripts are loaded by the plugin itself. Mastodon can remember the visitor's chosen server in that visitor's browser using local storage.
