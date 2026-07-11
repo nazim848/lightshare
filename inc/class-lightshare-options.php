@@ -101,9 +101,6 @@ class LS_Options {
 	 * @return bool
 	 */
 	private static function is_list_array($array) {
-		if (function_exists('array_is_list')) {
-			return array_is_list($array);
-		}
 		$expected_key = 0;
 		foreach ($array as $key => $_value) {
 			if ($key !== $expected_key) {
