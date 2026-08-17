@@ -1,7 +1,7 @@
 === Lightshare – Social & AI Share Buttons ===
 Contributors: nazim848
 Donate link: https://buymeacoffee.com/nazim848
-Tags: social share, social media, share buttons, AI sharing, lightweight
+Tags: AI share buttons, AI sharing, ChatGPT, social share, share buttons
 Requires at least: 5.0
 Tested up to: 7.0
 Requires PHP: 7.4
@@ -9,15 +9,17 @@ Stable tag: 1.3.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Fast social and AI sharing buttons for WordPress, with no third-party scripts, SDKs, API keys, or background requests.
+Add social sharing and AI share buttons for ChatGPT, Claude, Google AI, Perplexity, and Grok—without third-party scripts or API keys.
 
 == Description ==
 
-Lightshare adds fast, customizable social and AI sharing buttons to WordPress without loading third-party SDKs, tracking scripts, icon fonts, or external APIs in the background.
+Lightshare is a lightweight social sharing and AI sharing plugin for WordPress. It adds customizable social share buttons plus AI share buttons for ChatGPT, Claude, Google AI, Perplexity, and Grok.
 
-Visitors can share an article through familiar social networks or open a prefilled prompt in ChatGPT, Claude, Google AI, Perplexity, or Grok to summarize and explore its content.
+Visitors can share posts, pages, and public custom post types through familiar social networks or open a prefilled AI prompt to summarize, analyze, and explore the current page.
 
-== Social and AI sharing in one plugin ==
+Lightshare does not load third-party SDKs, tracking scripts, icon fonts, or external APIs in the background. It requires no AI API keys and contacts a social network or AI service only after a visitor clicks its button.
+
+== Social and AI share buttons for WordPress ==
 
 Social and utility buttons include Facebook, X, LinkedIn, Pinterest, Reddit, WhatsApp, Bluesky, Telegram, Threads, Mastodon, Email, and Copy Link.
 
@@ -35,7 +37,8 @@ The AI Association Text setting lets a site owner add helpful context to each AI
 
 == Key features ==
 
-* Social and AI sharing buttons in one lightweight plugin
+* AI share buttons for ChatGPT, Claude, Google AI, Perplexity, and Grok
+* Social share buttons for major networks, email, and copy link
 * No third-party scripts loaded on page view
 * Inline SVG icons instead of an icon font
 * Conditional frontend CSS and JavaScript
