@@ -121,7 +121,8 @@ rsync -a --delete "${PLUGIN_DIR}/" "${SVN_TRUNK}/" \
 	--exclude='deploy.sh' \
 	--exclude='node_modules' \
 	--exclude='vendor' \
-	--exclude='README.md'
+	--exclude='README.md' \
+	--exclude='AGENTS.md'
 
 # Remove metadata or secrets that may exist from an older deployment.
 find "$SVN_ROOT" -name '.DS_Store' -type f -delete
